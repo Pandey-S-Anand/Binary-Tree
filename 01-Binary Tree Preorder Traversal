@@ -1,0 +1,133 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+
+/* 
+    Example of Preorder Traversal:
+
+    Consider the following binary tree:
+
+              1
+            /   \
+           2     3
+         /  \     \
+        4    5     6
+
+    Preorder Traversal: Root → Left → Right
+
+    1. Start at the root node (1).
+        - Visit node 1 → Add 1 to the list.
+        - Move to left child node 2.
+
+    2. Visit node 2.
+        - Visit node 2 → Add 2 to the list.
+        - Move to left child node 4.
+
+    3. Visit node 4.
+        - Visit node 4 → Add 4 to the list.
+        - Node 4 has no children, so return to node 2.
+
+    4. Move to right child of node 2 (node 5).
+        - Visit node 5 → Add 5 to the list.
+        - Node 5 has no children, so return to node 1.
+
+    5. Move to right child of node 1 (node 3).
+        - Visit node 3 → Add 3 to the list.
+        - Move to right child node 6.
+
+    6. Visit node 6.
+        - Visit node 6 → Add 6 to the list.
+        - Node 6 has no children, end traversal.
+
+    Preorder Traversal Result: [1, 2, 4, 5, 3, 6]
+
+    In Preorder Traversal, the nodes are visited in the following order:
+    Root → Left Subtree → Right Subtree.
+*/
+
+//Naive approach
+
+//Recursive approach
+
+class Solution {
+    private List<Integer> preorderTraversal;
+
+    public List<Integer> preorderTraversal(TreeNode root) {
+        preorderTraversal = new ArrayList<>();
+        // Perform the recursive preorder traversal starting from the root
+        performPreorderTraversal(root);
+        // Return the list containing the preorder traversal
+        return preorderTraversal;
+    }
+
+    private void performPreorderTraversal(TreeNode root) {
+        // Base case: if the current node is null, return (nothing to process)
+        if (root == null) {
+            return;
+        }
+        // Visit the root node: add the node value to the result list
+        preorderTraversal.add(root.val);
+        // Recursively traverse the left subtree
+        performPreorderTraversal(root.left);
+        // Recursively traverse the right subtree
+        performPreorderTraversal(root.right);
+    }
+}
+
+
+//Iterative approach
+
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        // If the tree is empty, return an empty list
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> preorderTraversal = new ArrayList<>();
+        
+        // Stack to help with the iterative preorder traversal (using DFS)
+        Deque<TreeNode> stack = new ArrayDeque<>();
+        
+        // Push the root node onto the stack to start the traversal
+        stack.push(root);
+
+        while (!stack.isEmpty()) {
+            // Pop the node from the stack
+            TreeNode node = stack.pop();
+            
+            // Visit the node: add the node value to the result list
+            preorderTraversal.add(node.val);
+
+            // If the node has a right child, push it onto the stack (right child is pushed first) because we want to process the left child before the right child
+            if (node.right != null) {
+                stack.push(node.right);
+            }
+
+            // If the node has a left child, push it onto the stack
+            if (node.left != null) {
+                stack.push(node.left);
+            }
+        }
+
+        return preorderTraversal;
+    }
+}
+
+
+
+//Optimal approach
+
