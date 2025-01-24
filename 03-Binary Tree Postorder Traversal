@@ -90,3 +90,80 @@ class Solution {
 
 //Iterative implementation
 
+//Naive implementation
+
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        // If the tree is empty, return an empty list
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> postorderTraversal = new ArrayList<>();
+
+        Deque<TreeNode> stack = new ArrayDeque<>();
+
+        // Start the traversal by pushing the root node onto the stack
+        stack.push(root);
+        // The traversal is stored in the order: root -> right -> left
+        while (!stack.isEmpty()) {
+            // Pop the top node from the stack
+            TreeNode node = stack.pop();
+
+            // Add the node's value to the result list
+            postorderTraversal.add(node.val);
+
+            // If the node has a left child, push it onto the stack (left child is pushed last to be processed after the right child)
+            if (node.left != null) {
+                stack.push(node.left);
+            }
+
+            // If the node has a right child, push it onto the stack
+            if (node.right != null) {
+                stack.push(node.right);
+            }
+        }
+        
+        // Reverse the result list to get the postorder traversal: left -> right -> root
+        Collections.reverse(postorderTraversal);
+
+        return postorderTraversal;
+    }
+}
+
+
+//Optimal implementation
+
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
+        // Use LinkedList to efficiently insert elements at the beginning (mimicking postorder)
+        List<Integer> postorderTraversal = new LinkedList<>();
+
+        Deque<TreeNode> stack = new ArrayDeque<>();
+
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            TreeNode node = stack.pop();
+
+            postorderTraversal.add(0, node.val);
+
+            if (node.left != null) {
+                stack.push(node.left);
+            }
+
+            if (node.right != null) {
+                stack.push(node.right);
+            }
+        }
+
+        return postorderTraversal;
+    }
+}
+
+
+//Optimal approach
+
