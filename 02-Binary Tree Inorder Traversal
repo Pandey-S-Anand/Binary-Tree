@@ -91,4 +91,31 @@ class Solution {
 
 //Iterative approach
 
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> inorderTraversal = new ArrayList<>();
+        Deque<TreeNode> stack = new ArrayDeque<>();
+        TreeNode current = root;
+
+        while (current != null || !stack.isEmpty()) {
+            // Step 1: Explore left subtree (Mimics recursive calls to the left)
+            while (current != null) {
+                stack.push(current);  // Push the node to process later (similar to storing call state)
+                current = current.left;
+            }
+
+            // Step 2: Process the node (Mimics function returning after left recursion completes)
+            current = stack.pop();
+            inorderTraversal.add(current.val);
+
+            // Step 3: Explore right subtree (Mimics recursive call to the right)
+            current = current.right;
+        }
+
+        return inorderTraversal;
+    }
+}
+
+
+//Optimal approach
 
