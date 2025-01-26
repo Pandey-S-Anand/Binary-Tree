@@ -56,7 +56,6 @@
     Left Subtree → Root → Right Subtree.
 */
 
-
 //Naive approacch
 
 //Recursive approach
@@ -163,6 +162,7 @@ class Solution {
     }
 }
 
+
 //Without modification of the original tree structure
 
 class Solution {
@@ -195,8 +195,7 @@ class Solution {
                 if (rightmost.right == current) {
                     /*
                      * This condition indicates that we have finished processing the left subtree.
-                     * We add the current node value to the result, remove the temporary link,
-                     * and move to the right subtree.
+                     * We add the current node value to the result, remove the temporary link, and move to the right subtree.
                      */
                     inorderList.add(current.val); // Add current node value to the list
                     rightmost.right = null; // Revert the temporary link (remove the thread)
