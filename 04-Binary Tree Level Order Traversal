@@ -1,0 +1,57 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> levelOrderTraversal = new ArrayList<>();
+
+        // Return an empty list if the tree is empty
+        if (root == null) {
+            return levelOrderTraversal;
+        }
+
+        // Queue (Deque) to  to track nodes at the current level (BFS)
+        Deque<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root); // Start traversal from the root node
+
+        // Traverse the tree level by level
+        while (!queue.isEmpty()) {
+            int size = queue.size(); // Number of nodes at the current level
+            List<Integer> currentLevel = new ArrayList<>(); // List to store values of the nodes at the current level
+
+            // Process all nodes at the current level
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll(); // Remove and process the front node
+                currentLevel.add(node.val);  // Store the node’s value
+
+                // Enqueue the left child if it exists
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+
+                // Enqueue the right child if it exists
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+
+            // Add the current level’s values to the result list
+            levelOrderTraversal.add(currentLevel);
+        }
+
+        return levelOrderTraversal;
+    }
+}
