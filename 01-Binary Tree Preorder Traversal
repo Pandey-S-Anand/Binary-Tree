@@ -129,5 +129,51 @@ class Solution {
 
 
 
-//Optimal approach
+//Optimal approach (Morris preorder traversal)
 
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> preorderTraversal = new ArrayList<>();
+        TreeNode current = root;
+
+        while (current != null) {
+            // Case 1: If there is no left subtree, process the node and move right
+            if (current.left == null) {
+                preorderTraversal.add(current.val); // Add current node value to the list
+                current = current.right; // Move to the right subtree
+            } else {
+                // Case 2: If left subtree exists, find the rightmost node in the left subtree
+                TreeNode rightmost = current.left;
+
+                // Move to the rightmost node in the left subtree
+                /*
+                 * rightmost.right != current condition is detecting the temporary link
+                 * If rightmost.right is already pointing to current, we need to revert the changes we made.
+                 */
+                while (rightmost.right != null && rightmost.right != current) {
+                    rightmost = rightmost.right;
+                }
+
+                if (rightmost.right == current) {
+                    /*
+                     * This condition indicates that we have finished processing the left subtree.
+                     * so remove the temporary link, and move to the right subtree.
+                     */
+                    rightmost.right = null; // Remove the temporary link
+                    current = current.right; // Move to the right subtree
+                } else {
+                    preorderTraversal.add(current.val); // Add current node value to the list
+                    // Create a temporary link from the rightmost node to the current node
+                    rightmost.right = current;
+                    current = current.left; // Move to the left subtree
+                }
+            }
+        }
+
+        return preorderTraversal;
+    }
+}
