@@ -1,0 +1,162 @@
+//Method 1
+
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> zigzagLevelTraversal = new ArrayList<>();
+
+        // If the root is null, return an empty list
+        if (root == null) {
+            return zigzagLevelTraversal;
+        }
+
+        // Deque (double-ended queue) to facilitate zigzag level order traversal
+        Deque<TreeNode> dequeue = new ArrayDeque<>();
+        dequeue.offer(root); // Start with the root node in the deque
+        // Flag to track direction of traversal (true: left to right, false: right to left)
+        boolean leftToRight = true;
+
+        // Loop through each level of the tree
+        while (!dequeue.isEmpty()) {
+            int size = dequeue.size(); // Get the number of nodes at the current level
+            List<Integer> currentLevel = new ArrayList<>(); // List to store node values for the current level
+
+            // Process all nodes at the current level
+            for (int i = 0; i < size; i++) {
+                TreeNode node;
+
+                if (leftToRight) { // Left to Right traversal
+                    node = dequeue.pollFirst(); // Remove node from the front of the deque
+
+                    // Enqueue left child first, then right child
+                    if (node.left != null) {
+                        dequeue.offerLast(node.left); // Add left child at the end
+                    }
+                    if (node.right != null) {
+                        dequeue.offerLast(node.right); // Add right child at the end
+                    }
+                } else { // Right to Left traversal
+                    node = dequeue.pollLast(); // Remove node from the back of the deque
+
+                    // Enqueue right child first, then left child
+                    if (node.right != null) {
+                        dequeue.offerFirst(node.right); // Add right child at the front
+                    }
+                    if (node.left != null) {
+                        dequeue.offerFirst(node.left); // Add left child at the front
+                    }
+                }
+
+                // Add the value of the current node to the current level list
+                currentLevel.add(node.val);
+            }
+
+            // Add the current level's nodes to the final result
+            zigzagLevelTraversal.add(currentLevel);
+
+            // Toggle the direction for the next level
+            leftToRight = !leftToRight;
+        }
+
+        return zigzagLevelTraversal;
+    }
+}
+
+
+//Method 2
+
+//Naive implementation
+
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> zigzagLevelTraversal = new ArrayList<>();
+
+        if (root == null) {
+            return zigzagLevelTraversal;
+        }
+
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+
+        boolean leftToRight = true;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<Integer> currentLevel = new ArrayList<>();
+
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+
+                currentLevel.add(node.val); 
+
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+
+            // If the traversal direction is right-to-left, reverse the level order
+            if (!leftToRight) {
+               Collections.reverse(currentLevel);
+            }
+
+            zigzagLevelTraversal.add(currentLevel);
+
+            leftToRight = !leftToRight;
+        }
+
+        return zigzagLevelTraversal;
+    }
+}
+
+
+//Optimal implementation
+
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> zigzagLevelTraversal = new ArrayList<>();
+
+        if (root == null) {
+            return zigzagLevelTraversal;
+        }
+
+        // Queue for level-order traversal (BFS)
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+
+        boolean leftToRight = true;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            // Using LinkedList for efficient insertion at the front
+            List<Integer> currentLevel = new LinkedList<>();
+
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+
+                // Add node value based on traversal direction
+                if (leftToRight) {
+                    currentLevel.add(node.val);  // Insert at the end
+                } else {
+                    currentLevel.add(0, node.val);  // Insert at the front
+                }
+
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+
+            zigzagLevelTraversal.add(currentLevel);
+
+            leftToRight = !leftToRight;
+        }
+
+        return zigzagLevelTraversal;
+    }
+}
