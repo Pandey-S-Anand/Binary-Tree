@@ -1,0 +1,59 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+class Solution {
+    private int postorderIndex; // Tracks the current root in the preorder traversal.
+    private Map<Integer, Integer> inorderIndexMap; // Maps each value in inorder to its index for quick lookup.
+
+    public TreeNode buildTree(int[] inorder, int[] postorder) {
+        postorderIndex = postorder.length - 1; // Start from the last element in the postorder array because the root node is always at the end.
+        inorderIndexMap = new HashMap<>();
+
+        for (int i = 0; i < inorder.length; i++) {
+            inorderIndexMap.put(inorder[i], i);
+        }
+
+        // Recursively construct the binary tree and return the root.
+        return constructTree(postorder, 0, inorder.length - 1);
+    }
+
+    /**
+     * @param inorderStart Starting index of the current subtree in the inorder array.
+     * @param inorderEnd   Ending index of the current subtree in the inorder array.
+     */
+    private TreeNode constructTree(int[] postorder, int inorderStart, int inorderEnd) {
+        // Base case: If the start index exceeds the end index, the subtree is empty.
+        if (inorderStart > inorderEnd) {
+            return null;
+        }
+
+        // The current root is the next element in preorder traversal.
+        int rootValue = postorder[postorderIndex--];
+        TreeNode root = new TreeNode(rootValue);
+
+        // Find the index of the root in the inorder array using the map.
+        int inorderIndex = inorderIndexMap.get(rootValue);
+        // ⚠️ First construct the RIGHT subtree before the LEFT subtree (postorder processes right before left)
+
+        // Recursively construct the right subtree using elements to the right of the root in inorder.
+        root.right = constructTree(postorder, inorderIndex + 1, inorderEnd);
+
+        // Recursively construct the left subtree using elements to the left of the root in inorder.
+        root.left = constructTree(postorder, inorderStart, inorderIndex - 1);
+
+        return root;
+    }
+}
