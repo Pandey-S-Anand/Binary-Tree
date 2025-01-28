@@ -133,6 +133,82 @@ class Solution {
 
 // Modifying the tree structure in place (Morris Preorder Traversal)
 
+/*
+Dry Run for the tree:
+
+Input Tree:
+        1
+       / \
+      2   5
+     / \   \
+    3   4   6
+
+Step-by-Step:
+
+1. Start at node 1:
+   - 1 has left child 2, so find the rightmost node in the left subtree (4).
+   - 4.right = 5 (current.right).
+   - Move left subtree (2) to the right, set 1.left = null.
+   - Preorder value collected: 1
+   Tree becomes:
+        1
+         \
+          2
+         / \
+        3   4
+             \
+              5
+               \
+                6
+   Move to 2.
+
+2. Start at node 2:
+   - 2 has left child 3, so find the rightmost node in the left subtree (3).
+   - 3.right = 4 (current.right).
+   - Move left subtree (3) to the right, set 2.left = null.
+   - Preorder value collected: 2
+   Tree becomes:
+        1
+         \
+          2
+           \
+            3
+             \
+              4
+               \
+                5
+                 \
+                  6
+   Move to 3.
+
+3. Start at node 3:
+   - 3 has no left child.
+   - Preorder value collected: 3
+   Move to 4.
+
+4. Start at node 4:
+   - 4 has no left child.
+   - Preorder value collected: 4
+   Move to 5.
+
+5. Start at node 5:
+   - 5 has no left child.
+   - Preorder value collected: 5
+   Move to 6.
+
+6. Start at node 6:
+   - 6 has no left child.
+   - Preorder value collected: 6
+   Move to null.
+
+Final Flattened Tree:
+1 -> 2 -> 3 -> 4 -> 5 -> 6
+
+Preorder Traversal Collected:
+[1, 2, 3, 4, 5, 6]
+*/
+
+
 class Solution {
     public List<Integer> preorderTraversal(TreeNode root) {
         if (root == null) {
