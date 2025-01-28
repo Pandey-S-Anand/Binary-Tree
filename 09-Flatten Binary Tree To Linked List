@@ -1,3 +1,19 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
 //Bruteforce approach
 
 class Solution {
@@ -46,5 +62,105 @@ class Solution {
         }
 
         return preorderTraversal;
+    }
+}
+
+/*
+Dry Run for the tree:
+
+Input Tree:
+        1
+       / \
+      2   5
+     / \   \
+    3   4   6
+
+Step-by-Step:
+
+1. Start at node 1:
+   - 1 has left child 2, so find the rightmost node in left subtree (4).
+   - 4.right = 5 (current.right).
+   - Move left subtree (2) to the right, set 1.left = null.
+   Tree becomes:
+        1
+         \
+          2
+         / \
+        3   4
+             \
+              5
+               \
+                6
+   Move to 2.
+
+2. Start at node 2:
+   - 2 has left child 3, so find the rightmost node in left subtree (3).
+   - 3.right = 4 (current.right).
+   - Move left subtree (3) to the right, set 2.left = null.
+   Tree becomes:
+        1
+         \
+          2
+           \
+            3
+             \
+              4
+               \
+                5
+                 \
+                  6
+   Move to 3.
+
+3. Start at node 3:
+   - 3 has no left child.
+   Move to 4.
+
+4. Start at node 4:
+   - 4 has no left child.
+   Move to 5.
+
+5. Start at node 5:
+   - 5 has no left child.
+   Move to 6.
+
+6. Start at node 6:
+   - 6 has no left child.
+   Move to null.
+
+Final Flattened Tree:
+1 -> 2 -> 3 -> 4 -> 5 -> 6
+*/
+
+
+//Optimal approach
+
+class Solution {
+    public void flatten(TreeNode root) {
+        // Start with the root node
+        TreeNode current = root;
+
+        while (current != null) {
+
+            // If the current node has a left child
+            if (current.left != null) {
+
+                // Step 1: Find the rightmost node in the left subtree
+                TreeNode predecessor = current.left;
+                while (predecessor.right != null) {
+                    predecessor = predecessor.right;
+                }
+
+                // Step 2: Connect the rightmost node's right pointer to the current node's
+                // right subtree
+                predecessor.right = current.right;
+
+                // Step 3: Move the left subtree to the right and set left to null
+                current.right = current.left;
+                current.left = null;
+            }
+
+            // Move to the next node in the flattened tree
+            current = current.right;
+        }
     }
 }
