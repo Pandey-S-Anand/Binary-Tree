@@ -129,7 +129,57 @@ class Solution {
 
 
 
-//Optimal approach (Morris preorder traversal)
+//Optimal approach 
+
+// Modifying the tree structure in place (Morris Preorder Traversal)
+
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
+        TreeNode current = root;
+        List<Integer> preorderTraversal = new ArrayList<>();
+
+        // Start with the root node
+        while (current != null) {
+            // Add the current node's value to the result list
+            preorderTraversal.add(current.val);
+            // If the current node has a left child
+            if (current.left != null) {
+
+                // Step 1: Find the rightmost node in the left subtree
+                TreeNode predecessor = current.left;
+                while (predecessor.right != null) {
+                    predecessor = predecessor.right;
+                }
+
+                /*
+                 * Step 2: Attach the rightmost node of the left subtree to the current node's right subtree.
+                 * This ensures that after moving the left subtree, the right subtree will still be preserved
+                 * and linked to the end of the left subtree.
+                 */
+                predecessor.right = current.right;
+
+                /*
+                 * Step 3: Move the left subtree to the right and set current's left to null
+                 * The left child is now null, and the left subtree has been moved to the right
+                 */
+                current.right = current.left;
+                current.left = null;
+            }
+
+            // Move to the next node in the flattened tree
+            current = current.right;
+        }
+
+        return preorderTraversal;
+    }
+}
+
+
+// Morris preorder traversal without altering the original tree structure
 
 class Solution {
     public List<Integer> preorderTraversal(TreeNode root) {
