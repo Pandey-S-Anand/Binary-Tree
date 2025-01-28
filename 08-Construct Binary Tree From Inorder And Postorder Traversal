@@ -46,8 +46,12 @@ class Solution {
 
         // Find the index of the root in the inorder array using the map.
         int inorderIndex = inorderIndexMap.get(rootValue);
-        // ⚠️ First construct the RIGHT subtree before the LEFT subtree (postorder processes right before left)
-
+        /*
+         * The right subtree must be constructed before the left subtree.
+         * In postorder (Left → Right → Root), we process nodes in reverse order.
+         * Since right subtree elements appear earlier in postorder, building them first ensures correct placement.
+         * Constructing the left subtree first could cause right subtree nodes to be incorrectly attached to the left.
+         */
         // Recursively construct the right subtree using elements to the right of the root in inorder.
         root.right = constructTree(postorder, inorderIndex + 1, inorderEnd);
 
