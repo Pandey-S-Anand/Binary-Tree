@@ -1,0 +1,50 @@
+//Bruteforce approach
+
+class Solution {
+    public void flatten(TreeNode root) {
+        // Get the preorder traversal of the tree as a list of nodes
+        List<TreeNode> preorderNodes = getPreorder(root);
+
+        for (int i = 0; i < preorderNodes.size() - 1; i++) {
+            TreeNode currentNode = preorderNodes.get(i);
+            TreeNode next = preorderNodes.get(i + 1);
+            // Set current node's left child to null as we are flattening into a linked list
+            currentNode.left = null;
+            // Link current node's right to the next node in preorder sequence
+            currentNode.right = next;
+        }
+    }
+
+    private List<TreeNode> getPreorder(TreeNode root) {
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
+        List<TreeNode> preorderTraversal = new ArrayList<>();
+        TreeNode current = root;
+
+        while (current != null) {
+            if (current.left == null) {
+                preorderTraversal.add(current);
+                current = current.right;
+            } else {
+                TreeNode rightmost = current.left;
+
+                while (rightmost.right != null && rightmost.right != current) {
+                    rightmost = rightmost.right;
+                }
+
+                if (rightmost.right == current) {
+                    rightmost.right = null;
+                    current = current.right;
+                } else {
+                    preorderTraversal.add(current);
+                    rightmost.right = current;
+                    current = current.left;
+                }
+            }
+        }
+
+        return preorderTraversal;
+    }
+}
