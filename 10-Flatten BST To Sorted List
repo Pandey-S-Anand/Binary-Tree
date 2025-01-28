@@ -1,0 +1,102 @@
+// Since an inorder traversal of a BST produces elements in sorted order, we can directly use this property to flatten the BST into a sorted linked list.
+
+//Bruteforce approach
+
+class Solution {
+    public Node flattenBST(Node root) {
+        // Get the inorder traversal of the tree as a list of nodes
+        List<Node> inorderTraversal = getInorderTraversal(root);
+
+        for (int i = 0; i < inorderTraversal.size() - 1; i++) {
+            Node currentNode = inorderTraversal.get(i);
+            Node nextNode = inorderTraversal.get(i + 1);
+            // Link current node's right to the next node in inorder sequence
+            currentNode.right = nextNode;
+            // Set current node's left child to null as we are flattening into a linked list
+            currentNode.left = null;
+        }
+        
+        // Set the left and right child of the last node to null
+        Node lastNode=inorderTraversal.get(inorderTraversal.size() - 1);
+        lastNode.left = null;
+        lastNode.right = null;
+
+        return inorderTraversal.get(0);
+    }
+
+    private List<Node> getInorderTraversal(Node root) {
+        List<Node> inorderTraversal = new ArrayList<>();
+        Node currentNode = root;
+
+        while (currentNode != null) {
+            if (currentNode.left == null) {
+                inorderTraversal.add(currentNode);
+                currentNode = currentNode.right;
+            } else {
+                Node rightmost = currentNode.left;
+
+                while (rightmost.right != null && rightmost.right != currentNode) {
+                    rightmost = rightmost.right;
+                }
+
+                if (rightmost.right == currentNode) {
+                    inorderTraversal.add(currentNode);
+                    rightmost.right = null;
+                    currentNode = currentNode.right;
+                } else {
+                    rightmost.right = currentNode;
+                    currentNode = currentNode.left;
+                }
+            }
+        }
+
+        return inorderTraversal;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    private Node head = null; // Pointer to the head of the flattened tree (new root)
+    private Node tail = null; // Pointer to keep track of the last node in the flattened tree
+
+    public Node flattenBST(Node root) {
+        Node currentNode = root;
+
+        while (currentNode != null) {
+            if (currentNode.left == null) {
+                // If there is no left child, append the current node to the flattened tree
+                append(currentNode);
+                currentNode = currentNode.right; // Move to the right child
+            } else {
+                // Find the rightmost node of the left subtree
+                Node rightMostNode = currentNode.left;
+                while (rightMostNode.right != null) {
+                    rightMostNode = rightMostNode.right;
+                }
+
+                // Connect the rightmost node of the left subtree to the current node
+                rightMostNode.right = currentNode;
+
+                // Move current pointer to the left child and nullify the left pointer
+                Node temp = currentNode;
+                currentNode = currentNode.left;
+                temp.left = null;
+            }
+        }
+
+        return head; // Return the new root of the flattened tree (smallest node)
+    }
+
+    private void append(Node node) {
+        if (head == null) {
+            // If this is the first node being added, initialize head and tail
+            head = tail = node;
+        } else {
+            // Link the current node to the flattened list and update tail
+            tail.right = node;
+            tail = node;
+        }
+    }
+}
