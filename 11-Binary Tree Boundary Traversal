@@ -24,8 +24,12 @@ class Solution {
     private void leftBoundary(Node root) {
         Node leftNode = root.left;
 
+        if(leftNode==null){
+          return;    
+        }
+         
         // Traverse downward, preferring the left child over the right child
-        while (leftNode != null && !isLeafNode(leftNode)) {
+        while (!isLeafNode(leftNode)) {
             boundaryTraversal.add(leftNode.data);
             if (leftNode.left != null) {
                 leftNode = leftNode.left;
@@ -39,8 +43,12 @@ class Solution {
         Deque<Integer> stack = new ArrayDeque<>();
         Node rightNode = root.right;
 
+        if(rightNode==null){
+           return;    
+        }
+
         // Traverse downward, preferring the right child over the left child
-        while (rightNode != null && !isLeafNode(rightNode)) {
+        while (!isLeafNode(rightNode)) {
             stack.push(rightNode.data); // Store in stack to retrieve in bottom-up order
             if (rightNode.right != null) {
                 rightNode = rightNode.right;
