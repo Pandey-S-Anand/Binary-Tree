@@ -24,7 +24,7 @@ class Solution {
         }
 
         // Queue (Deque) to  to track nodes at the current level (BFS)
-        Deque<TreeNode> queue = new ArrayDeque<>();
+        Queue<TreeNode> queue = new ArrayDeque<>();
         queue.offer(root); // Start traversal from the root node
 
         // Traverse the tree level by level
