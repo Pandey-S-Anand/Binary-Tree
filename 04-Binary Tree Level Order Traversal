@@ -23,7 +23,7 @@ class Solution {
             return levelOrderTraversal;
         }
 
-        // Queue (Deque) to  to track nodes at the current level (BFS)
+        // Queue to  to track nodes at the current level (BFS)
         Queue<TreeNode> queue = new ArrayDeque<>();
         queue.offer(root); // Start traversal from the root node
 
