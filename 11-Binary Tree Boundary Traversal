@@ -1,0 +1,76 @@
+class Solution {
+    private ArrayList<Integer> boundaryTraversal;
+
+    ArrayList<Integer> boundaryTraversal(Node root) {
+        boundaryTraversal = new ArrayList<>();
+        
+        // Add root node if it is not a leaf to avoid duplicate insertion in the leafNodes method
+        if (!isLeafNode(root)) {
+            boundaryTraversal.add(root.data);
+        }
+
+        // Traverse the left boundary excluding leaf nodes
+        leftBoundary(root);
+        
+        // Add all leaf nodes in left-to-right order
+        leafNodes(root);
+        
+        // Traverse the right boundary in bottom-up order, excluding leaf nodes
+        rightBoundary(root);
+        
+        return boundaryTraversal;
+    }
+
+    private void leftBoundary(Node root) {
+        Node leftNode = root.left;
+
+        // Traverse downward, preferring the left child over the right child
+        while (leftNode != null && !isLeafNode(leftNode)) {
+            boundaryTraversal.add(leftNode.data);
+            if (leftNode.left != null) {
+                leftNode = leftNode.left;
+            } else {
+                leftNode = leftNode.right;
+            }
+        }
+    }
+
+    private void rightBoundary(Node root) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        Node rightNode = root.right;
+
+        // Traverse downward, preferring the right child over the left child
+        while (rightNode != null && !isLeafNode(rightNode)) {
+            stack.push(rightNode.data); // Store in stack to retrieve in bottom-up order
+            if (rightNode.right != null) {
+                rightNode = rightNode.right;
+            } else {
+                rightNode = rightNode.left;
+            }
+        }
+
+        // Retrieve nodes from the stack to maintain bottom-up order
+        while (!stack.isEmpty()) {
+            boundaryTraversal.add(stack.pop());
+        }
+    }
+
+    private void leafNodes(Node node) {
+        if (node == null) {
+            return;
+        }
+
+        // If it's a leaf node, add it to the result
+        if (isLeafNode(node)) {
+            boundaryTraversal.add(node.data);
+        }
+
+        // Recursively check the left and right subtrees for leaf nodes (left-to-right order)
+        leafNodes(node.left);
+        leafNodes(node.right);
+    }
+
+    private Boolean isLeafNode(Node node) {
+        return node.left == null && node.right == null;
+    }
+}
