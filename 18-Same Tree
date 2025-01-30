@@ -1,0 +1,16 @@
+class Solution {
+    public boolean isSameTree(TreeNode root1, TreeNode root2) {
+        // If both trees are null, they are the same
+        if (root1 == null && root2 == null) {
+            return true;
+        }
+
+        // If one of the trees is null or their values do not match, they are not the same
+        if (root1 == null || root2 == null || root1.val != root2.val) {
+            return false;
+        }
+
+        // Recursively check if the left and right subtrees are the same for both trees
+        return isSameTree(root1.left, root2.left) && isSameTree(root1.right, root2.right);
+    }
+}
