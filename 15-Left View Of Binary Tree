@@ -1,0 +1,82 @@
+/* A Binary Tree node
+class Node
+{
+    int data;
+    Node left, right;
+
+    Node(int item)
+    {
+        data = item;
+        left = right = null;
+    }
+}*/
+
+//Naive approach
+
+class Solution {
+    ArrayList<Integer> leftView(Node root) {
+        // Return an empty list if the tree is empty
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        ArrayList<Integer> leftView = new ArrayList<>();
+
+        // Queue to to track nodes at the current level (BFS)
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.offer(root); // Start traversal from the root node
+
+        while (!queue.isEmpty()) {
+            // Number of nodes at the current level
+            int size = queue.size();
+
+            // Process all nodes at the current level
+            for (int i = 0; i < size; i++) {
+                Node node = queue.poll();
+
+                // If it's the first node in the current level, add it to the result
+                if (i == 0) {
+                    leftView.add(node.data);
+                }
+
+                // Enqueue the left child if it exists
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+
+                // Enqueue the right child if it exists
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+        }
+
+        return leftView;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    private ArrayList<Integer> leftView;
+
+    ArrayList<Integer> leftView(Node root) {
+        leftView = new ArrayList<>();
+        dfs(root, 0);
+        return leftView;
+    }
+
+    private void dfs(Node node, int depth) {
+        if (node == null) {
+            return;
+        }
+
+        if (depth == leftView.size()) {
+            leftView.add(node.data);
+        }
+
+        dfs(node.left, depth + 1);
+        dfs(node.right, depth + 1);
+    }
+}
