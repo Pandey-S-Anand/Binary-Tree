@@ -1,3 +1,5 @@
+//Recursive approach
+
 class Solution {
     public boolean isSameTree(TreeNode root1, TreeNode root2) {
         // If both trees are null, they are the same
@@ -12,5 +14,39 @@ class Solution {
 
         // Recursively check if the left and right subtrees are the same for both trees
         return isSameTree(root1.left, root2.left) && isSameTree(root1.right, root2.right);
+    }
+}
+
+
+//Iterative approach
+
+class Solution {
+    public boolean isSameTree(TreeNode root1, TreeNode root2) {
+        // Initialize a stack to hold pairs of nodes to compare
+        Deque<TreeNode[]> stack = new ArrayDeque<>();
+        stack.push(new TreeNode[] { root1, root2 });
+
+        while (!stack.isEmpty()) {
+            TreeNode[] nodes = stack.pop();
+            TreeNode node1 = nodes[0];
+            TreeNode node2 = nodes[1];
+
+            // If both nodes are null, they are the same at this point
+            if (node1 == null && node2 == null) {
+                continue;
+            }
+
+            // If one of the nodes is null or their values are different, return false
+            if (node1 == null || node2 == null || node1.val != node2.val) {
+                return false;
+            }
+
+            // Add the left and right children of both nodes to the stack
+            stack.push(new TreeNode[] { node1.left, node2.left });
+            stack.push(new TreeNode[] { node1.right, node2.right });
+        }
+
+        // If all comparisons are successful, the trees are the same
+        return true;
     }
 }
