@@ -1,3 +1,6 @@
+
+//Naive approach
+
 class Solution {
     public List<Integer> rightSideView(TreeNode root) {
         // Return an empty list if the tree is empty
@@ -37,5 +40,35 @@ class Solution {
         }
 
         return rightView;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    private List<Integer> rightView;
+
+    public List<Integer> rightSideView(TreeNode root) {
+        rightView = new ArrayList<>();
+        dfs(root, 0);
+        return rightView;
+    }
+
+    private void dfs(TreeNode node, int depth) {
+        if (node == null) {
+            return;
+        }
+
+        // If this is the first node at the current depth, add it to the right view
+        if (depth == rightView.size()) {
+            rightView.add(node.val);
+        }
+
+        // Prioritize the right subtree to ensure rightmost nodes are processed first
+        dfs(node.right, depth + 1);
+        
+        // Process the left subtree after the right subtree
+        dfs(node.left, depth + 1);
     }
 }
