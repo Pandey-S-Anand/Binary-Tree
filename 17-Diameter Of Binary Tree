@@ -1,0 +1,49 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+/*
+ * For each node in the tree, the diameter (longest path passing through that node)
+ * is the sum of the maximum depth of its left subtree and the maximum depth of its right subtree.
+ * Update the global maximum diameter whenever a larger value is found.
+ */
+
+class Solution {
+    private int maxDiameter = 0;
+
+    public int diameterOfBinaryTree(TreeNode root) {
+        depth(root);
+        return maxDiameter;
+    }
+
+    private int depth(TreeNode node) {
+        if (node == null) {
+            return 0;
+        }
+
+        // Recursively find the max depth of left and right subtrees
+        int maxLeftDepth = depth(node.left);
+        int maxRightDepth = depth(node.right);
+
+        // Diameter for the current node
+        int currentDiameter = maxLeftDepth + maxRightDepth;
+
+        // Update max diameter
+        maxDiameter = Math.max(maxDiameter, currentDiameter);
+
+        // Return the maximum height (or depth) from the current node's (through either left or right subtree)
+        return 1 + Math.max(maxLeftDepth, maxRightDepth);
+    }
+}
