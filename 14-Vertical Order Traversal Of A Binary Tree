@@ -148,3 +148,82 @@ class Solution {
         return verticalView;
     }
 }
+
+
+//Aliter
+
+class Solution {
+    private static class Pair {
+        TreeNode node;
+        int hd;
+        int row;
+
+        Pair(TreeNode node, int hd, int row) {
+            this.node = node;
+            this.hd = hd;
+            this.row = row;
+        }
+    }
+
+    public List<List<Integer>> verticalTraversal(TreeNode root) {
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        Map<Integer, PriorityQueue<Pair>> map = new TreeMap<>();
+
+        Queue<Pair> queue = new ArrayDeque<>();
+
+        queue.offer(new Pair(root, 0, 1));
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            for (int i = 0; i < size; i++) {
+                Pair pair = queue.poll();
+                TreeNode node = pair.node;
+                int hd = pair.hd;
+                int row = pair.row;
+
+                /*
+                 * If the horizontal distance (hd) is encountered for the first time, create a new priority queue for it and then add the node.
+                 * Otherwise, add the node to the existing priority queue for the corresponding hd.
+                 * The priority queue ensures that nodes are sorted by their value if they are at the same row.
+                 * If rows are different, the nodes are naturally ordered by row in ascending order.
+                 */
+                if (!map.containsKey(hd)) {
+                    map.put(hd, new PriorityQueue<>((pair1, pair2) -> {
+                        if (pair1.row == pair2.row) {
+                            return Integer.compare(pair1.node.val, pair2.node.val);
+                        }
+                        return Integer.compare(pair1.row, pair2.row);
+                    }));
+                }
+
+                map.get(hd).offer(new Pair(node, hd, row));
+
+                if (node.left != null) {
+                    queue.offer(new Pair(node.left, hd - 1, row + 1));
+                }
+
+                if (node.right != null) {
+                    queue.offer(new Pair(node.right, hd + 1, row + 1));
+                }
+            }
+        }
+
+        List<List<Integer>> verticalView = new ArrayList<>();
+
+        for (PriorityQueue<Pair> pq : map.values()) {
+            List<Integer> sortedNodes = new ArrayList<>();
+
+            while (!pq.isEmpty()) {
+                sortedNodes.add(pq.poll().node.val);
+            }
+
+            verticalView.add(sortedNodes);
+        }
+
+        return verticalView;
+    }
+}
