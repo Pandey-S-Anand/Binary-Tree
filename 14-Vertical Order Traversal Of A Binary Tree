@@ -1,0 +1,150 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+ /*
+        1(0)
+    /         \
+   2(-1)       3(+1)
+  /     \     /     \
+4(-2)   5(0) 6(0)   7(+2)
+
+Key Observations:
+- **Leftmost nodes** will have the **lowest horizontal distance (HD)** because as we traverse left from the root, the horizontal distance decreases by 1 for each level, moving to negative values.
+- **Rightmost nodes** will have the **highest horizontal distance (HD)** because as we traverse right from the root, the horizontal distance increases by 1 for each level, moving to positive values.
+
+### TreeMap Usage:
+- **TreeMap** helps to store nodes by **horizontal distance (HD)** in **ascending order** automatically.
+- Since the HD is the key in **TreeMap**, it ensures that nodes are ordered from **leftmost (smallest HD) to rightmost (largest HD)**.
+- The vertical view requires capturing **all nodes at the same HD** .
+
+---
+
+### **Horizontal Distance Breakdown (Vertical View)**
+
+- **HD = -2** → **[4]**  
+    - Only Node 4 exists at this horizontal distance.
+
+- **HD = -1** → **[2]**  
+    - Only Node 2 exists at this horizontal distance.
+
+- **HD = 0** → **[1, 5, 6]**  
+    - Nodes present: **1 (row 0), 5 (row 2), 6 (row 2)**.
+    - Since 5 and 6 are at the same row, we sort them in ascending order.
+    - Final order: **[1, 5, 6]**.
+
+- **HD = +1** → **[3]**  
+    - Only Node 3 exists at this horizontal distance.
+
+- **HD = +2** → **[7]**  
+    - Only Node 7 exists at this horizontal distance.
+
+---
+
+### **Final Vertical View Output**
+
+[ [4], [2], [1, 5, 6], [3], [7] ]
+*/
+
+class Solution {
+    // Pair class to store a node along with its horizontal distance (hd) and row (depth level)
+    private static class Pair {
+        TreeNode node;
+        int hd; // Horizontal distance from root
+        int row; // Depth level of the node
+
+        Pair(TreeNode node, int hd, int row) {
+            this.node = node;
+            this.hd = hd;
+            this.row = row;
+        }
+    }
+
+    public List<List<Integer>> verticalTraversal(TreeNode root) {
+        // If the tree is empty, return an empty list
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        /*
+         * Map to store the group of nodes at each horizontal distance
+         * TreeMap is used to keep keys (horizontal distances) in sorted order
+         * Instead of List<Integer>, we use List<Pair> because we need to sort nodes that appear at the same row in ascending order of their values.
+         */
+        Map<Integer, List<Pair>> map = new TreeMap<>();
+
+        // Queue for level order traversal
+        Queue<Pair> queue = new ArrayDeque<>();
+
+        // Start traversal by adding the root node with horizontal distance 0 and row 1
+        queue.offer(new Pair(root, 0, 1));
+
+        // Perform level order traversal
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            // Traverse nodes at the current level
+            for (int i = 0; i < size; i++) {
+                // Extract the front node and its associated details
+                Pair pair = queue.poll();
+                TreeNode node = pair.node;
+                int hd = pair.hd;
+                int row = pair.row;
+
+                // If this horizontal distance is encountered for the first time, create a new list
+                if (!map.containsKey(hd)) {
+                    map.put(hd, new ArrayList<>(Arrays.asList(new Pair(node, hd, row))));
+                } else {
+                    // If this horizontal distance already exists, add the node to the corresponding list
+                    List<Pair> pairs = map.get(hd);
+                    pairs.add(new Pair(node, hd, row));
+                    map.put(hd, pairs);
+                }
+
+                // Add the left child to the queue with updated horizontal distance (hd - 1) and row (row + 1)
+                if (node.left != null) {
+                    queue.offer(new Pair(node.left, hd - 1, row + 1));
+                }
+
+                // Add the right child to the queue with updated horizontal distance (hd + 1) and row (row + 1)
+                if (node.right != null) {
+                    queue.offer(new Pair(node.right, hd + 1, row + 1));
+                }
+            }
+        }
+
+        // Prepare the vertical view from the map by retrieving all values
+        List<List<Integer>> verticalView = new ArrayList<>();
+
+        for (List<Pair> pairs : map.values()) {
+            // Sort nodes within the same row in ascending order based on node value
+            Collections.sort(pairs, (pair1, pair2) -> {
+                if (pair1.row == pair2.row) {
+                    return Integer.compare(pair1.node.val, pair2.node.val); // Sort by node value if same row
+                }
+                return 0; // Otherwise, maintain existing order
+            });
+
+            // Extract node values after sorting
+            List<Integer> sortedNodes = new ArrayList<>();
+            for (Pair pair : pairs) {
+                sortedNodes.add(pair.node.val);
+            }
+            verticalView.add(sortedNodes);
+        }
+
+        return verticalView;
+    }
+}
