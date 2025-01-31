@@ -1,0 +1,64 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+class Solution {
+    // This variable stores the maximum path sum between any two nodes in the tree
+    private int maxSumPathOverall;
+
+    public int maxPathSum(TreeNode root) {
+        maxSumPathOverall = Integer.MIN_VALUE; // Initialize the overall maximum path sum to the smallest possible value
+        maxPathSumHelper(root);
+        return maxSumPathOverall;
+    }
+
+    public int maxPathSumHelper(TreeNode root) {
+        if (root == null) {
+            return 0; // If the node is null, it doesn't contribute to the path sum
+        }
+
+        // Recursively compute the maximum path sum for the left and right subtrees
+        /*
+        We take 0 for any negative path sum from the left or right subtree because
+        a negative sum would decrease the overall path sum. This ensures we only consider
+        positive contributions to the path sum.
+        
+        The maximum path sum passing through a node can include:
+        - Only the left subtree + node
+        - Only the right subtree + node
+        - The node itself
+        - Or the entire path including both left and right subtrees.
+
+        Example:
+            5
+           / \
+         -6   4
+
+        Here, the optimal path would be 5 -> 4, ignoring the left subtree (as it results in a negative sum).
+        */
+        int maxSumLeftPath = Math.max(maxPathSumHelper(root.left), 0);
+        int maxSumRightPath = Math.max(maxPathSumHelper(root.right), 0);
+
+        // Calculate the maximum path sum that passes through the current node
+        int maxSumPathThroughCurrentNode = root.val + maxSumLeftPath + maxSumRightPath;
+
+        // Update the overall maximum path sum if a higher value is found
+        maxSumPathOverall = Math.max(maxSumPathOverall, maxSumPathThroughCurrentNode);
+
+        // Return the maximum path sum starting from the current node and extending to one of its subtrees
+        return root.val + Math.max(maxSumLeftPath, maxSumRightPath);
+    }
+}
+
