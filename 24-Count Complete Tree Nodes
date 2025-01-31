@@ -1,0 +1,65 @@
+//Naive approach
+
+class Solution {
+    public int countNodes(TreeNode root) {
+        // Base case: If the tree is empty, return 0
+        if (root == null) {
+            return 0;
+        }
+
+        // Recursively count the nodes in the left and right subtrees
+        int leftSubtreeCount = countNodes(root.left);
+        int rightSubtreeCount = countNodes(root.right);
+
+        // Return the total count, including the current node
+        return 1 + leftSubtreeCount + rightSubtreeCount;
+    }
+}
+
+//Optimal approach
+
+class Solution {
+    public int countNodes(TreeNode root) {
+        // Base case: If the tree is empty, return 0
+        if (root == null) {
+            return 0;
+        }
+
+        // Calculate the height of the leftmost and rightmost paths
+        int leftHeight = getLeftHeight(root);
+        int rightHeight = getRightHeight(root);
+
+        /*
+         * Since the tree is guaranteed to be a complete binary tree, missing nodes will
+         * always appear on the leftmost side, ensuring no gaps on the right. When the
+         * heights of both left and right subtrees are equal, it indicates a perfect
+         * binary tree for that part, allowing you to directly compute the node count
+         * using the formula (2 ^ height) − 1
+         * This drastically reduces the time complexity when compared to recursively counting each node.
+         */
+        if (leftHeight == rightHeight) {
+            return (1 << leftHeight) - 1; // Equivalent to 2^leftHeight - 1
+        }
+
+        // If the tree is not perfect, recursively count nodes in the left and right subtrees
+        return 1 + countNodes(root.left) + countNodes(root.right);
+    }
+
+    private int getLeftHeight(TreeNode node) {
+        int height = 0;
+        while (node != null) {
+            height++;
+            node = node.left;
+        }
+        return height;
+    }
+
+    private int getRightHeight(TreeNode node) {
+        int height = 0;
+        while (node != null) {
+            height++;
+            node = node.right;
+        }
+        return height;
+    }
+}
