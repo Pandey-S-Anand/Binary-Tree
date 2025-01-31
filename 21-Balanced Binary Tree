@@ -1,0 +1,83 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+/*
+ * Tree structure:
+ *        1
+ *       / \
+ *      2   3
+ *     /     
+ *    4
+ *   /
+ *  5
+ * 
+ * At node 5:
+ * Left subtree height is 0, right subtree height is 0, so it is balanced (difference <= 1).
+ *
+ * At node 4:
+ * Left subtree height is 1, right subtree height is 0, so it is balanced (difference <= 1).
+ *
+ * At node 2:
+ * Left subtree height is 2 (calculated from node 4), right subtree height is 0 (calculated from null),
+ * so we detect that the tree is unbalanced at this node because the height difference is greater than 1.
+ * The recursive calls will pass the -1 check for left and right subtrees, but we need to check if the left and 
+ * right subtrees at node 2 are balanced by verifying the height difference (Math.abs(leftHeight - rightHeight) > 1).
+ *
+ * The check: if (Math.abs(leftHeight - rightHeight) > 1) return -1;
+ * Will only come into play when one of the subtrees is missing (i.e., only one side is present),
+ * leading to a height difference greater than 1, or when you are at a leaf node (both left and right children are null).
+ */
+
+class Solution {
+    public boolean isBalanced(TreeNode root) {
+        // If the root is null, the tree is considered balanced
+        if (root == null) {
+            return true;
+        }
+
+        // The tree is balanced if checkHeight does not return -1
+        return checkHeight(root) != -1;
+    }
+
+    private int checkHeight(TreeNode node) {
+        // If the current node is null, its height is 0 (base case)
+        if (node == null) {
+            return 0;
+        }
+
+        // Recursively find the max depth of left subtree
+        int leftHeight = checkHeight(node.left);
+        // If the right subtree is unbalanced , returns -1
+        if (leftHeight == -1) {
+            return -1;
+        }
+
+        // Recursively find the max depth of right subtree
+        int rightHeight = checkHeight(node.right);
+        // If the right subtree is unbalanced , returns -1
+        if (rightHeight == -1) {
+            return -1;
+        }
+
+        // If the difference in heights of the left and right subtrees is greater than 1,  the tree is unbalanced at the current node
+        if (Math.abs(leftHeight - rightHeight) > 1) {
+            return -1;
+        }
+
+        // Return the maximum height (or depth) from the current node's (through either left or right subtree)
+        return 1 + Math.max(leftHeight, rightHeight);
+    }
+}
