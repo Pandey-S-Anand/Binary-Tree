@@ -24,7 +24,7 @@ class Solution {
         return maxSumPathOverall;
     }
 
-    public int maxPathSumHelper(TreeNode root) {
+    private int maxPathSumHelper(TreeNode root) {
         if (root == null) {
             return 0; // If the node is null, it doesn't contribute to the path sum
         }
