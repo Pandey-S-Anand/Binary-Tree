@@ -37,9 +37,11 @@
  * right subtrees at node 2 are balanced by verifying the height difference (Math.abs(leftHeight - rightHeight) > 1).
  *
  * The check: if (Math.abs(leftHeight - rightHeight) > 1) return -1;
- * Will only come into play when one of the subtrees is missing (i.e., only one side is present),
- * leading to a height difference greater than 1, or when you are at a leaf node (both left and right children are null).
+ * This check will only come into play when one of the subtrees is missing (i.e., only one side, left or right, is 
+ * present and height-balanced — for example, at node 2, the left subtree is present and balanced), leading to a height 
+ * difference greater than 1, or when at a leaf node (both left and right children are null).
  */
+
 
 class Solution {
     public boolean isBalanced(TreeNode root) {
