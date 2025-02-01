@@ -13,12 +13,67 @@
  * }
  * }
  */
+
+//Bruteforce approach
+
+class Solution {
+    // List to store all root-to-leaf paths in the tree
+    private List<List<Integer>> paths;
+
+    public int sumNumbers(TreeNode root) {
+        paths = new ArrayList<>(); 
+        getAllPaths(root, new ArrayList<>());  // Get all root-to-leaf paths
+
+        // Variable to store the sum of all path numbers
+        int totalPathsNumberSum = 0;
+
+        // For each path, calculate the number formed and add it to the total sum
+        for (List<Integer> path : paths) {
+            totalPathsNumberSum += getPathNumber(path);  // Add the number formed from the path
+        }
+
+        return totalPathsNumberSum;  // Return the final sum of all path numbers
+    }
+
+    private void getAllPaths(TreeNode root, List<Integer> currentPath) {
+        if (root == null) {
+            return;
+        }
+
+        currentPath.add(root.val);
+
+        if (root.left == null && root.right == null) {
+            paths.add(new ArrayList<>(currentPath));
+            currentPath.remove(currentPath.size() - 1);
+            return;
+        }
+
+        // Recurse on the left and right subtrees
+        getAllPaths(root.left, currentPath);
+        getAllPaths(root.right, currentPath);
+
+        currentPath.remove(currentPath.size() - 1);
+    }
+
+    private int getPathNumber(List<Integer> path) {
+        int number = 0;  // Variable to store the number formed by the path
+        for (int value : path) {
+            // Form the number by appending each node's value to the current number
+            number = number * 10 + value;
+        }
+
+        return number;  // Return the final number formed by the path
+    }
+}
+
+
+//Optimal approach
+
 /*
  * When you pass currentPathNumber into the recursive function,
  * it creates a copy of currentPathNumber for each recursive call.
  * Each call modifies only its local copy of currentPathNumber.
  * Once a call returns, the parent call still has its original value 
- * (e.g., 1 when 2 and 3 finish processing).
  * 
  * There's no need to backtrack the value of currentPathNumber because integers (int) 
  * are passed by value in Java. Any modification to currentPathNumber inside the function
