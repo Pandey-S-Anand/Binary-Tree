@@ -1,0 +1,159 @@
+/*
+class Node {
+    int data;
+    Node left, right;
+
+    public Node(int data){
+        this.data = data;
+    }
+}
+*/
+
+//Recursive approach
+
+class Solution {
+    //List to store nodes at odd levels
+    private ArrayList<Integer> oddLevelNodes;
+    
+    public ArrayList<Integer> nodesAtOddLevels(Node root) {
+        oddLevelNodes = new ArrayList<>();
+        nodesAtOddLevels(root, 1);  // Start DFS with root node at depth 1 (odd)
+        Collections.sort(oddLevelNodes);  // Sort the nodes at odd levels in ascending order
+        return oddLevelNodes;
+    }
+    
+    private void nodesAtOddLevels(Node root, int depth) {
+        if (root == null) {  // If the node is null, return without doing anything
+            return; 
+        }
+        
+        // If the current level (depth) is odd, add the node's data to the list
+        if (depth % 2 != 0) {
+            oddLevelNodes.add(root.data);
+        }
+        
+        // Recur for the left and right subtrees, incrementing the depth for each level
+        nodesAtOddLevels(root.left, depth + 1);
+        nodesAtOddLevels(root.right, depth + 1);
+    }
+}
+
+
+//Aliter
+
+class Solution {
+    // A priority queue to store nodes at odd levels
+    private Queue<Integer> oddLevelNodes;
+    
+    public ArrayList<Integer> nodesAtOddLevels(Node root) {
+        oddLevelNodes = new PriorityQueue<>();
+        nodesAtOddLevels(root, 1); 
+        return new ArrayList<>(oddLevelNodes);  // Convert the priority queue to an ArrayList and return it
+    }
+    
+    private void nodesAtOddLevels(Node root, int depth) {
+        if (root == null) {
+            return; 
+        }
+        
+        // If the current level (depth) is odd,  Add the node's data to the priority queue (sorted in ascending order)
+        if (depth % 2 != 0) {
+            oddLevelNodes.offer(root.data);
+        }
+        
+        nodesAtOddLevels(root.left, depth + 1);
+        nodesAtOddLevels(root.right, depth + 1);
+    }
+}
+
+
+//Iterative approach
+
+class Solution {
+    public ArrayList<Integer> nodesAtOddLevels(Node root) {
+        // List to store nodes at odd levels
+        ArrayList<Integer> oddLevelNodes = new ArrayList<>();
+        
+        // If the tree is empty, return an empty list
+        if (root == null) {
+            return oddLevelNodes;
+        }
+        
+        // Initialize a queue for level-order traversal (BFS)
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.offer(root);  // Enqueue the root node
+        int depth = 0; // Variable to track the current depth (level) of the tree
+
+        // Perform level-order traversal
+        while (!queue.isEmpty()) {
+            // Number of nodes at the current level
+            int size = queue.size();
+            depth++; // Increase depth at each level
+
+            // Process all nodes at the current level
+            for (int i = 0; i < size; i++) {
+                Node currentNode = queue.poll(); // Dequeue a node
+                
+                // If the current level is odd, add the node data to the result list
+                if (depth % 2 != 0) {
+                    oddLevelNodes.add(currentNode.data); 
+                }
+                
+                // Add child nodes of the current node to the queue for the next level
+                if (currentNode.left != null) {
+                    queue.offer(currentNode.left);
+                }
+                if (currentNode.right != null) {
+                    queue.offer(currentNode.right);
+                }
+            }
+        }
+        
+        // Sort the nodes at odd levels in ascending order
+        Collections.sort(oddLevelNodes);
+        
+        return oddLevelNodes;
+    }
+}
+
+
+//Aliter
+
+class Solution {
+    public ArrayList<Integer> nodesAtOddLevels(Node root) {
+        if (root == null) {
+            return new ArrayList<>();
+        }
+        
+        // PriorityQueue to store nodes at odd levels (it automatically sorts the elements)
+        Queue<Integer> oddLevelNodes = new PriorityQueue<>();
+        
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.offer(root);
+        int depth = 0;
+
+        // Perform level-order traversal
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            depth++;
+
+            for (int i = 0; i < size; i++) {
+                Node currentNode = queue.poll();
+                // If the current level is odd, add the node data to the priority queue
+                if (depth % 2 != 0) {
+                    oddLevelNodes.add(currentNode.data); 
+                }
+                
+                if (currentNode.left != null) {
+                    queue.offer(currentNode.left);
+                }
+                if (currentNode.right != null) {
+                    queue.offer(currentNode.right);
+                }
+            }
+        }
+        
+        // Convert the priority queue to an ArrayList and return it
+        return new ArrayList<>(oddLevelNodes);
+    }
+}
