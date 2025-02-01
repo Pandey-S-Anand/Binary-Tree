@@ -1,0 +1,103 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode(int x) { val = x; }
+ * }
+ */
+
+//Bruteforce approach
+ 
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        // Lists to store paths
+        List<TreeNode> pAncestors = new ArrayList<>();
+        List<TreeNode> qAncestors = new ArrayList<>();
+
+        // Find paths from root to p and q
+        if(!findPath(root, p, pAncestors) ||  !findPath(root, q, qAncestors)){
+            return null; // Should never happen as p and q are guaranteed to exist
+        }
+
+        // Compare the two paths to find the lowest common ancestor
+        int i = 0;
+        while (i < pAncestors.size() && i < qAncestors.size() && pAncestors.get(i) == qAncestors.get(i)) {
+            i++;
+        }
+
+        // The last matched node is the LCA
+        return pAncestors.get(i - 1);
+    }
+
+    private boolean findPath(TreeNode root, TreeNode target, List<TreeNode> path) {
+        if (root == null) {
+            return false;
+        }
+
+        // Add current node to the path
+        path.add(root);
+
+        // If we found the target node, return true
+        if (root == target) {
+            return true;
+        }
+
+        // Recur for left and right subtrees
+        if (findPath(root.left, target, path) || findPath(root.right, target, path)) {
+            return true;
+        }
+
+        // If the current node is not in the path to the target, remove it
+        path.remove(path.size() - 1);
+        return false;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        // Base case: If the root is null, return null (no LCA found in this path)
+        if (root == null) {
+            return null;
+        }
+
+        // If the current node matches either p or q, return it (one of the targets found)
+        if (root == p || root == q) {
+            return root;
+        }
+
+        // Recursively search for p and q in the left and right subtrees
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        
+        /*
+         * Case 1: If both recursive calls return non-null values, it means:
+         * - One node (p or q) is found in the left subtree.
+         * - The other node is found in the right subtree.
+         * - Since this is the first point where both nodes are found, the current node (root) is the LCA.
+         */
+        if (left != null && right != null) {
+            return root;
+        }
+
+        /*
+         * Case 2: If only one recursive call returns a non-null node (either p or q),
+         * - It means one node is an ancestor of the other.
+         * - The non-null value is the LCA.
+         */
+        if (left != null) {
+            return left;
+        }
+
+        if (right != null) {
+            return right;
+        }
+
+        // Case 3: If neither subtree contains p or q, return null (no LCA found in this path)
+        return null;
+    }
+}
