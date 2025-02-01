@@ -89,21 +89,42 @@ class Solution {
          * We then propagate that non-null node upward to the parent call to continue
          * the search for the LCA.
          *
-         * As soon as we find either p or q, we stop searching further down that branch and move upward
-         * in the recursion to determine the lowest node that contains both p and q in its subtrees.
-         * This method ensures that we accurately determine the Lowest Common Ancestor (LCA).
-         * 
+         * Suppose you are at a node N in the tree, and you find p in the left subtree
+         * of N. Then, q must be in one of three places:
+         *
+         * 1. In the right subtree of N:
+         * - If q is in the right subtree of N, then N is the lowest common ancestor (LCA)
+         *   of p and q. This is because N is the deepest node that has both p (in its left subtree)
+         *   and q (in its right subtree) as descendants.
+         *
+         * 2. Above N in the tree:
+         * - If q is not in the right subtree of N, it must be somewhere above N in the tree.
+         *   This means the LCA of p and q is an ancestor of N.
+         *
+         * 3. q is a descendant of p:
+         * - In this case, p itself is the LCA.
+         *   Since q is already a descendant of p, p will be the deepest node that has both p and q as descendants.
+         *
+         *   The LCA is the deepest node that has both p and q as descendants.
+         *
+         *   This is why the algorithm stops searching further down the branch once it
+         *   finds p or q and backtracks to find the LCA.
+         *
          * For example, consider the tree:
-         *      3
-         *     / \
-         *    5   1
+         *    3
          *   / \
-         *  6   2
-         *     / \
-         *    7   4
+         *  5   1
+         * / \
+         * 6  2
+         *   / \
+         *  7   4
          *
          * In scenarios where one node is an ancestor of the other (e.g., p = 5 and q = 4),
          * the non-null value that is propagated upward (node 5) correctly serves as the LCA.
+         */
+
+        /*
+        
          */
 
         if (left != null) {
