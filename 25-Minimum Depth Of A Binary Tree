@@ -2,29 +2,34 @@
 
 class Solution {
     int minDepth(Node root) {
+        // If the root is null, return 0 as there is no tree.
         if (root == null) {
             return 0;
         }
-        
-        /*
-         * If either the left or right subtree is null, you should only consider the
-         * non-null subtree, because a null node does not count toward the depth of the tree.
-         * The depth of a tree is the number of edges from the root to the closest leaf node.
-         */
+
+        // If both left and right subtrees are null, we are at a leaf node, so the depth is 1.
+        if (root.left == null && root.right == null) {
+            return 1;
+        }
+
+        // If the left subtree is null, only consider the right subtree.
         if (root.left == null) {
             return 1 + minDepth(root.right);
         }
-        
+
+        // If the right subtree is null, only consider the left subtree.
         if (root.right == null) {
             return 1 + minDepth(root.left);
         }
-        
+
+        // If both subtrees are non-null, calculate the depth of both subtrees and return the minimum depth between them.
         int minDepthLeft = minDepth(root.left);
         int minDepthRight = minDepth(root.right);
         
         return 1 + Math.min(minDepthLeft, minDepthRight);
     }
 }
+
 
 
 //Iterative approach
