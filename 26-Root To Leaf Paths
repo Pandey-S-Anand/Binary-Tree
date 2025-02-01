@@ -1,0 +1,34 @@
+class Solution {
+    // List to store all root-to-leaf paths
+    private static ArrayList<ArrayList<Integer>> paths;
+
+    public static ArrayList<ArrayList<Integer>> Paths(Node root) {
+        paths = new ArrayList<>(); 
+        getAllPaths(root, new ArrayList<>()); // Start recursive path collection
+        return paths; 
+    }
+
+    private static void getAllPaths(Node root, ArrayList<Integer> currentPath) {
+        // Base case: If the node is null, return immediately
+        if (root == null) {
+            return;
+        }
+
+        // Add the current node's value to the path
+        currentPath.add(root.data);
+
+        // If this is a leaf node, add the current path to the paths list
+        if (root.left == null && root.right == null) {
+            paths.add(new ArrayList<>(currentPath));
+            currentPath.remove(currentPath.size() - 1); // Backtrack to explore other paths
+            return;
+        }
+
+        // Recursively explore the left and right subtrees
+        getAllPaths(root.left, currentPath);
+        getAllPaths(root.right, currentPath);
+
+        // Backtrack: Remove the current node from the path before returning to the previous level
+        currentPath.remove(currentPath.size() - 1);
+    }
+}
