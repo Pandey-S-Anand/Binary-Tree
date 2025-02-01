@@ -1,0 +1,31 @@
+//Recursive approach
+
+class Solution {
+    int minDepth(Node root) {
+        if (root == null) {
+            return 0;
+        }
+        
+        /*
+         * If either the left or right subtree is null, you should only consider the
+         * non-null subtree, because a null node does not count toward the depth of the tree.
+         * The depth of a tree is the number of edges from the root to the closest leaf node.
+         */
+        if (root.left == null) {
+            return 1 + minDepth(root.right);
+        }
+        
+        if (root.right == null) {
+            return 1 + minDepth(root.left);
+        }
+        
+        int minDepthLeft = minDepth(root.left);
+        int minDepthRight = minDepth(root.right);
+        
+        return 1 + Math.min(minDepthLeft, minDepthRight);
+    }
+}
+
+
+//Iterative approach
+
