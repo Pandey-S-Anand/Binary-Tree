@@ -1,0 +1,99 @@
+/*class Node of the binary tree
+class Node
+{
+    int data;
+    Node left, right;
+    Node(int key)
+    {
+        data = key;
+        left = right = null;
+    }
+}*/
+
+//Naive implementation
+
+class Solution {
+    private ArrayList<Integer> path;  // List to store the path to the target node
+
+    public ArrayList<Integer> Ancestors(Node root, int target) {
+        path = new ArrayList<>();
+        findPath(root, target);  // Find the path to the target node
+
+        // Remove the target node from the path (the target itself isn't considered an ancestor)
+        if (!path.isEmpty()) {
+            path.remove(path.size() - 1);
+        }
+
+        // Reverse the path to get the ancestors in the correct order (from parent to root)
+        Collections.reverse(path);
+        return path;  // Return the list of ancestors
+    }
+
+    private boolean findPath(Node root, int target) {
+        // Base case: if the node is null, return false (no path to the target)
+        if (root == null) {
+            return false;
+        }
+
+        // Add the current node to the path
+        path.add(root.data);
+
+        // If we've found the target node, return true
+        if (root.data == target) {
+            return true;
+        }
+
+        // Recur for the left and right subtrees to find the target
+        if (findPath(root.left, target) || findPath(root.right, target)) {
+            return true;
+        }
+
+        // If the current node isn't part of the path to the target, remove it from the path
+        path.remove(path.size() - 1);
+        return false;
+    }
+}
+
+//Optimal implementation
+
+class Solution {
+    private List<Integer> path;  // List to store the path to the target node
+
+    // Public method to find the ancestors of a node
+    public ArrayList<Integer> Ancestors(Node root, int target) {
+        path = new LinkedList<>();  // Initialize the path list (we use LinkedList for efficient insertions at the front)
+        findPath(root, target);  // Find the path to the target node
+
+        // If the path is not empty, remove the first element (which is the target itself, not an ancestor)
+        if (!path.isEmpty()) {
+            path.remove(0);
+        }
+
+        // Convert the path to an ArrayList and return it
+        return new ArrayList<>(path);
+    }
+
+    private boolean findPath(Node root, int target) {
+        // Base case: if the node is null, return false (no path to the target)
+        if (root == null) {
+            return false;
+        }
+
+        // Add the current node to the path (at the front of the list)
+        path.add(0, root.data);
+
+        // If the current node matches the target, return true
+        if (root.data == target) {
+            return true;
+        }
+
+        // Recur for the left and right subtrees to find the target
+        if (findPath(root.left, target) || findPath(root.right, target)) {
+            return true;
+        }
+
+        // If the current node isn't part of the path to the target, remove it from the path
+        path.remove(0);
+        return false;
+    }
+}
