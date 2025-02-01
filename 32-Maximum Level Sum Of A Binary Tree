@@ -1,0 +1,59 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+class Solution {
+    public int maxLevelSum(TreeNode root) {
+        int maxSum = Integer.MIN_VALUE;
+        int levelWithMaxSum = 0;
+        int currentLevel = 0;
+
+        // Queue for level-order traversal (BFS).
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+
+        // Traverse the tree level by level.
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            int currentLevelSum = 0;
+            currentLevel++; // Increment level counter as we move to the next level.
+
+            // Process all nodes at the current level.
+            for (int i = 0; i < levelSize; i++) {
+                TreeNode node = queue.poll();
+                currentLevelSum += node.val; // Sum the values of nodes at the current level.
+
+                // Add left child to the queue if it exists.
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+
+                // Add right child to the queue if it exists.
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+
+            // If there are multiple levels with the same maximum sum, the smallest level number is returned.
+            if (currentLevelSum > maxSum) {
+                // Update the maximum sum and corresponding level if the current level sum is higher.
+                maxSum = currentLevelSum;
+                levelWithMaxSum = currentLevel;
+            }
+        }
+
+        return levelWithMaxSum;
+    }
+}
