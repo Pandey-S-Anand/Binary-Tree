@@ -60,7 +60,7 @@ class Solution {
 
 class Solution {
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-        // Base case: If the root is null, return null (no LCA found in this path)
+        // Base case: If root is null, return null (no LCA found in this path)
         if (root == null) {
             return null;
         }
@@ -73,22 +73,39 @@ class Solution {
         // Recursively search for p and q in the left and right subtrees
         TreeNode left = lowestCommonAncestor(root.left, p, q);
         TreeNode right = lowestCommonAncestor(root.right, p, q);
-        
+
         /*
          * Case 1: If both recursive calls return non-null values, it means:
-         * - One node (p or q) is found in the left subtree.
-         * - The other node is found in the right subtree.
-         * - Since this is the first point where both nodes are found, the current node (root) is the LCA.
+         * - p is found in one subtree and q is found in the other.
+         * - Hence, the current node (root) is the Lowest Common Ancestor (LCA).
          */
         if (left != null && right != null) {
             return root;
         }
 
         /*
-         * Case 2: If only one recursive call returns a non-null node (either p or q),
-         * - It means one node is an ancestor of the other.
-         * - The non-null value is the LCA.
+         * Case 2: When only one recursive call returns a non-null value (i.e., either p or q),
+         * it indicates that one of the nodes (p or q) has been found in that subtree.
+         * We then propagate that non-null node upward to the parent call to continue
+         * the search for the LCA.
+         *
+         * As soon as we find either p or q, we stop searching further down that branch and move upward
+         * in the recursion to determine the lowest node that contains both p and q in its subtrees.
+         * This method ensures that we accurately determine the Lowest Common Ancestor (LCA).
+         * 
+         * For example, consider the tree:
+         *      3
+         *     / \
+         *    5   1
+         *   / \
+         *  6   2
+         *     / \
+         *    7   4
+         *
+         * In scenarios where one node is an ancestor of the other (e.g., p = 5 and q = 4),
+         * the non-null value that is propagated upward (node 5) correctly serves as the LCA.
          */
+
         if (left != null) {
             return left;
         }
@@ -97,7 +114,7 @@ class Solution {
             return right;
         }
 
-        // Case 3: If neither subtree contains p or q, return null (no LCA found in this path)
+        // Case 3: If subtree neither contains p or q, return the null
         return null;
     }
 }
