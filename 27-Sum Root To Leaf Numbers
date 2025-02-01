@@ -1,0 +1,60 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+/*
+ * When you pass currentPathNumber into the recursive function,
+ * it creates a copy of currentPathNumber for each recursive call.
+ * Each call modifies only its local copy of currentPathNumber.
+ * Once a call returns, the parent call still has its original value 
+ * (e.g., 1 when 2 and 3 finish processing).
+ * 
+ * There's no need to backtrack the value of currentPathNumber because integers (int) 
+ * are passed by value in Java. Any modification to currentPathNumber inside the function
+ * does not affect the value in the parent call.
+ * 
+ * This is different from lists (ArrayList) or objects, which are passed by reference 
+ * and require explicit backtracking.
+ */
+
+class Solution {
+    // Variable to store the sum of all path numbers
+    private int totalPathsNumberSum;
+
+    public int sumNumbers(TreeNode root) {
+        totalPathsNumberSum = 0;
+        getAllPathsSum(root, 0);
+        return totalPathsNumberSum;
+    }
+
+    private void getAllPathsSum(TreeNode root, int currentPathNumber) {
+        // Base case: If the node is null, simply return (no path to process)
+        if (root == null) {
+            return;
+        }
+
+        // Update the current path number by appending the current node's value
+        currentPathNumber = currentPathNumber * 10 + root.val;
+
+        // If the current node is a leaf (no left or right children), add the path number to the total sum
+        if (root.left == null && root.right == null) {
+            totalPathsNumberSum += currentPathNumber;  // Add the current path number to the total sum
+            return;
+        }
+
+        // Recursively calculate the sum for both left and right subtrees
+        getAllPathsSum(root.left, currentPathNumber); 
+        getAllPathsSum(root.right, currentPathNumber);
+    }
+}
