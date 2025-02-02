@@ -1,0 +1,117 @@
+/*class Node {
+    int data;
+    Node left;
+    Node right;
+
+    Node(int data) {
+        this.data = data;
+        left = null;
+        right = null;
+    }
+}*/
+class Solution {
+    // Map to store parent references for each node
+    private static Map<Integer, Node> nodeParentMap;
+    
+    public static int minTime(Node root, int target) {
+        nodeParentMap = new HashMap<>();
+
+        /**
+         * - The reason we need a parent-child relationship map is that
+         *   BFS alone allows us to move downward in the tree (to children).
+         * - To also move *upward* (to the parent), we store parent references.
+         *   This is necessary because, in addition to moving to the left and right
+         *   children,, the fire can also propagate to a node's parent.
+         */
+        // Step 1: Build a map to store parent references for each node
+        buildParentMap(root, null);
+
+        // Set to track burnt nodes (prevents re-burning)
+        Set<Integer> burnt = new HashSet<>();
+
+        // Queue for BFS traversal
+        Queue<Node> queue = new ArrayDeque<>();
+        // Find the node where the fire starts
+        Node targetNode = findTargetNode(root, target);
+        // Since the problem guarantees that the target node exists, targetNode will not be null.
+
+        // Start BFS from the target node
+        queue.offer(targetNode);
+        burnt.add(targetNode.data);
+
+        int minute = -1; // Initialize to -1 since the first round represents minute 0
+        /**
+         * Step 2: Perform BFS
+         * In BFS, each level corresponds to one minute of fire spread.
+         * The fire spreads to all adjacent nodes (left, right, and parent) each minute.
+         */
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            // Process all nodes that are burnt in the current minute.
+            for (int i = 0; i < size; i++) {
+                Node currentNode = queue.poll();
+
+                // Infect the left child if it exists and hasn't been burnt yet.
+                if (currentNode.left != null && !burnt.contains(currentNode.left.data)) {
+                    queue.offer(currentNode.left);
+                    burnt.add(currentNode.left.data);
+                }
+
+                // Infect the right child if it exists and hasn't been burnt yet.
+                if (currentNode.right != null && !burnt.contains(currentNode.right.data)) {
+                    queue.offer(currentNode.right);
+                    burnt.add(currentNode.right.data);
+                }
+
+                // Infect the parent node if it exists and hasn't been burnt yet.
+                Node parentNode = nodeParentMap.get(currentNode.data);
+                if (parentNode != null && !burnt.contains(parentNode.data)) {
+                    queue.offer(parentNode);
+                    burnt.add(parentNode.data);
+                }
+            }
+            /*
+             * After the completion of every minute, the entries in the queue represent the
+             * set of nodes that were burnt in the previous minute and are poised to
+             * burn their adjacent nodes in the next minute.
+             */
+            minute++; // Increment the minute counter after processing one complete level.
+        }
+
+        return minute;
+    }
+    
+    private static void buildParentMap(Node currentNode, Node parentNode) {
+        if (currentNode == null) {
+            return;
+        }
+
+        // Store the parent reference for the current node
+        nodeParentMap.put(currentNode.data, parentNode);
+
+        // Recurse for the left and right children
+        buildParentMap(currentNode.left, currentNode);
+        buildParentMap(currentNode.right, currentNode);
+    }
+
+    private static Node findTargetNode(Node root, int value) {
+        if (root == null) {
+            return null;
+        }
+
+        if (root.data == value) {
+            return root;
+        }
+
+        // Search the left subtree.
+        Node left = findTargetNode(root.left, value);
+
+        if (left != null) {
+            return left;
+        }
+
+        // If not found in the left, search the right subtree.
+        return findTargetNode(root.right, value);
+    }
+}
