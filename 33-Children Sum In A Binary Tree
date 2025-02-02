@@ -1,0 +1,86 @@
+/*Complete the function below
+Node is as follows:
+class Node{
+	int data;
+	Node left,right;
+	
+	Node(int key)
+	{
+	    data = key;
+	    left = right = null;
+	}
+}
+*/
+
+//Recursive approach
+
+class Solution {
+    public static int isSumProperty(Node root) {
+        return checkSumProperty(root) ? 1 : 0;
+    }
+
+    private static boolean checkSumProperty(Node root) {
+        if (root == null) {
+            return true; // Null nodes are considered to satisfy the property.
+        }
+
+        if (root.left == null && root.right == null) {
+            return true; // Leaf nodes always satisfy the property.
+        }
+
+        // Compute the sum of left and right child values (null children are considered as 0).
+        int leftChildValue = (root.left != null) ? root.left.data : 0;
+        int rightChildValue = (root.right != null) ? root.right.data : 0;
+
+        // The current node should have value equal to the sum of its children.
+        if (root.data != leftChildValue + rightChildValue) {
+            return false;
+        }
+
+        // Recursively check left and right subtrees.
+        return checkSumProperty(root.left) && checkSumProperty(root.right);
+    }
+}
+
+
+//Iterative approach
+
+class Solution {
+    public static int isSumProperty(Node root) {
+        if (root == null) {
+            return 1; // An empty tree satisfies the property.
+        }
+
+        // Queue for level-order traversal (BFS).
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            Node currentNode = queue.poll();
+
+            // Leaf nodes automatically satisfy the property.
+            if (currentNode.left == null && currentNode.right == null) {
+                continue;
+            }
+
+            // Get values of children (consider null as 0).
+            int leftChildValue = (currentNode.left != null) ? currentNode.left.data : 0;
+            int rightChildValue = (currentNode.right != null) ? currentNode.right.data : 0;
+
+            // Check if the sum property holds at the current node.
+            if (currentNode.data != leftChildValue + rightChildValue) {
+                return 0; // If one node fails, return 0 immediately.
+            }
+
+            // Add children to queue if they exist.
+            if (currentNode.left != null) {
+                queue.offer(currentNode.left);
+            }
+            if (currentNode.right != null) {
+                queue.offer(currentNode.right);
+            }
+        }
+
+        return 1; // All nodes satisfied the property.
+    }
+}
