@@ -1,0 +1,168 @@
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode(int x) { val = x; }
+ * }
+ */
+
+class Solution {
+    // Map to store parent references for each node
+    private Map<Integer, TreeNode> nodeParentMap;
+
+    public List<Integer> distanceK(TreeNode root, TreeNode target, int k) {
+        nodeParentMap = new HashMap<>();
+
+        /**
+         * - The reason we require this parent-child relationship map is that
+         *   BFS alone only lets us move downward in the tree.
+         * - To also move *upward* (to visit ancestors of the target node),
+         *   we store parent references.
+         */
+        // Step 1: Build a map to store parent references for each node
+        buildParentMap(root, null);
+
+        // Set to track visited nodes (prevents revisiting)
+        Set<Integer> visited = new HashSet<>();
+
+        // Queue for BFS traversal
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        // Start BFS from the target node
+        queue.offer(target); 
+        visited.add(target.val);
+
+        int currentLevel = 0;
+
+        /**
+         * Step 2: Perform BFS to find all nodes at distance k.
+         * 
+         * - After processing the first level, the queue contains nodes at distance 1
+         * from the target.
+         * - After processing the second level, the queue contains nodes at distance 2
+         * from the target.
+         * - We continue this until we reach level k.
+         */
+        while (!queue.isEmpty()) {
+            if (currentLevel == k) {
+                break; // Stop when reaching level k
+            }
+            int size = queue.size();
+
+            for (int i = 0; i < size; i++) {
+                TreeNode currentNode = queue.poll();
+
+                // Visit left child if it is present and is not already visited
+                if (currentNode.left != null && !visited.contains(currentNode.left.val)) {
+                    queue.offer(currentNode.left);
+                    visited.add(currentNode.left.val);
+                }
+
+                // Visit right child if it is present and is not already visited
+                if (currentNode.right != null && !visited.contains(currentNode.right.val)) {
+                    queue.offer(currentNode.right);
+                    visited.add(currentNode.right.val);
+                }
+
+                // Visit parent node if not already visited
+                TreeNode parentNode = nodeParentMap.get(currentNode.val);
+                if (parentNode != null && !visited.contains(parentNode.val)) {
+                    queue.offer(parentNode);
+                    visited.add(parentNode.val);
+                }
+            }
+            currentLevel++; // Move to the next level
+        }
+
+        // Step 3: Collect all nodes at distance k
+        List<Integer> kDistanceNodes = new ArrayList<>();
+        while (!queue.isEmpty()) {
+            kDistanceNodes.add(queue.poll().val);
+        }
+
+        return kDistanceNodes;
+    }
+
+    private void buildParentMap(TreeNode currentNode, TreeNode parentNode) {
+        if (currentNode == null) {
+            return;
+        }
+
+        // Store the parent reference for the current node
+        nodeParentMap.put(currentNode.val, parentNode);
+
+        // Recur for left and right children
+        buildParentMap(currentNode.left, currentNode);
+        buildParentMap(currentNode.right, currentNode);
+    }
+}
+
+
+//Aliter
+
+class Solution {
+    private Map<Integer, TreeNode> nodeParentMap;
+
+    public List<Integer> distanceK(TreeNode root, TreeNode target, int k) {
+        nodeParentMap = new HashMap<>();
+        buildParentMap(root, null);
+        /*
+         * Instead of using a HashSet (which has additional overhead),
+         * we use a boolean array since node values are guaranteed to be in the range [1, 500].
+         */
+        boolean[] visited = new boolean[501];
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(target);
+        visited[target.val] = true;
+
+        int currentLevel = 0;
+
+        while (!queue.isEmpty()) {
+            if (currentLevel == k) {
+                break;
+            }
+            int size = queue.size();
+
+            for (int i = 0; i < size; i++) {
+                TreeNode currentNode = queue.poll();
+
+                if (currentNode.left != null && !visited[currentNode.left.val]) {
+                    queue.offer(currentNode.left);
+                    visited[currentNode.left.val] = true;
+                }
+
+                if (currentNode.right != null && !visited[currentNode.right.val]) {
+                    queue.offer(currentNode.right);
+                    visited[currentNode.right.val] = true;
+                }
+
+                TreeNode parentNode = nodeParentMap.get(currentNode.val);
+                if (parentNode != null && !visited[parentNode.val]) {
+                    queue.offer(parentNode);
+                    visited[parentNode.val] = true;
+                }
+            }
+            currentLevel++;
+        }
+
+        List<Integer> kDistanceNodes = new ArrayList<>();
+        while (!queue.isEmpty()) {
+            kDistanceNodes.add(queue.poll().val);
+        }
+
+        return kDistanceNodes;
+    }
+
+    private void buildParentMap(TreeNode currentNode, TreeNode parentNode) {
+        if (currentNode == null) {
+            return;
+        }
+
+        nodeParentMap.put(currentNode.val, parentNode);
+
+        buildParentMap(currentNode.left, currentNode);
+        buildParentMap(currentNode.right, currentNode);
+    }
+}
