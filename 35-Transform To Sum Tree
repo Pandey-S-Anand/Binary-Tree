@@ -1,0 +1,35 @@
+/*Complete the Given Function
+
+Node is as follows:
+class Node{
+    int data;
+    Node left,right;
+    Node(int d){
+    	data=d;
+    	left=null;
+    	right=null;
+    }
+}*/
+
+class Solution {
+    public void convertToSumTree(Node root) {
+        calculateSumTree(root);
+    }
+    
+    private int calculateSumTree(Node root) {
+        if (root == null) {
+            return 0;
+        }
+        
+        // Recursively calculate the sum of the left and right subtrees
+        int leftSum = calculateSumTree(root.left);
+        int rightSum = calculateSumTree(root.right);
+        
+        // Store the original value of the node and update the node's value
+        int originalValue = root.data;
+        root.data = leftSum + rightSum;
+        
+        // Return the total sum (including the original value of the node)
+        return leftSum + rightSum + originalValue;
+    }
+}
