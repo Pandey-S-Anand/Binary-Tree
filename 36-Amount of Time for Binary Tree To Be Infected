@@ -1,0 +1,123 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+
+class Solution {
+    // Map to store parent references for each node
+    private Map<Integer, TreeNode> nodeParentMap;
+
+    public int amountOfTime(TreeNode root, int start) {
+        nodeParentMap = new HashMap<>();
+
+        /**
+         * - The reason we need a parent-child relationship map is that
+         *   BFS alone allows us to move downward in the tree (to children).
+         * - To also move *upward* (to the parent), we store parent references.
+         *   This is necessary because, in addition to moving to the left and right
+         *   children, the infection can also spread to a node's parent.
+         *   Thus, left, right, and parent nodes are all considered adjacent to
+         *   any given node.
+         */
+        // Step 1: Build a map to store parent references for each node
+        buildParentMap(root, null);
+
+        // Set to track infected nodes (prevents reinfection)
+        Set<Integer> infected = new HashSet<>();
+
+        // Queue for BFS traversal
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        // Find the node where the infection starts
+        TreeNode target = findInfectedNode(root, start);
+        // Since the problem guarantees that the start node exists, target will not be null.
+
+        // Start BFS from the target node
+        queue.offer(target);
+        infected.add(target.val);
+
+        int minute = -1; // Initialize to -1 since the first round represents minute 0
+        /**
+         * Step 2: Perform BFS
+         * In BFS, each level corresponds to one minute of infection spread.
+         */
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            // Process all nodes that are infected in the current minute.
+            for (int i = 0; i < size; i++) {
+                TreeNode currentNode = queue.poll();
+
+                // Infect the left child if it exists and hasn't been infected yet.
+                if (currentNode.left != null && !infected.contains(currentNode.left.val)) {
+                    queue.offer(currentNode.left);
+                    infected.add(currentNode.left.val);
+                }
+
+                // Infect the right child if it exists and hasn't been infected yet.
+                if (currentNode.right != null && !infected.contains(currentNode.right.val)) {
+                    queue.offer(currentNode.right);
+                    infected.add(currentNode.right.val);
+                }
+
+                // Infect the parent node if it exists and hasn't been infected yet.
+                TreeNode parentNode = nodeParentMap.get(currentNode.val);
+                if (parentNode != null && !infected.contains(parentNode.val)) {
+                    queue.offer(parentNode);
+                    infected.add(parentNode.val);
+                }
+            }
+            /*
+             * After the completion of every minute, the entries in the queue represent the
+             * set of nodes that were infected in the previous minute and are poised to
+             * infect their adjacent nodes in the next minute.
+             */
+            minute++; // Increment the minute counter after processing one complete level.
+        }
+
+        return minute;
+    }
+
+    private void buildParentMap(TreeNode currentNode, TreeNode parentNode) {
+        if (currentNode == null) {
+            return;
+        }
+
+        // Store the parent reference for the current node
+        nodeParentMap.put(currentNode.val, parentNode);
+
+        // Recurse for the left and right children
+        buildParentMap(currentNode.left, currentNode);
+        buildParentMap(currentNode.right, currentNode);
+    }
+
+    private TreeNode findInfectedNode(TreeNode root, int value) {
+        if (root == null) {
+            return null;
+        }
+
+        if (root.val == value) {
+            return root;
+        }
+
+        // Search the left subtree.
+        TreeNode left = findInfectedNode(root.left, value);
+
+        if (left != null) {
+            return left;
+        }
+
+        // If not found in the left, search the right subtree.
+        return findInfectedNode(root.right, value);
+    }
+}
