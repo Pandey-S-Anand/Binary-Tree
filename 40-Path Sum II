@@ -75,3 +75,42 @@ class Solution {
 
 //Optimal approach
 
+class Solution {
+    private List<List<Integer>> targetSumPaths; // Stores all root-to-leaf paths that sum to targetSum
+
+    public List<List<Integer>> pathSum(TreeNode root, int targetSum) {
+        targetSumPaths = new ArrayList<>(); 
+        getAllTargetSumPaths(root, new ArrayList<>(), targetSum); // Generate all valid paths
+        return targetSumPaths;
+    }
+
+    private void getAllTargetSumPaths(TreeNode currentNode, List<Integer> currentPath, int targetSum) {
+        // Base case: If the node is null, return immediately
+        if (currentNode == null) {
+            return;
+        }
+
+        // Add the current node's value to the current path
+        currentPath.add(currentNode.val);
+
+        // Reduce the target sum by the current node's value
+        targetSum -= currentNode.val;
+
+        // If this is a leaf node, check if the path sum matches the target sum
+        if (currentNode.left == null && currentNode.right == null) {
+            if (targetSum == 0) {
+                targetSumPaths.add(new ArrayList<>(currentPath)); // Store a copy of the valid path
+            }
+            // Backtrack: Remove the current node before returning to the previous level
+            currentPath.remove(currentPath.size() - 1);
+            return;
+        }
+
+        // Recursively explore the left and right subtrees
+        getAllTargetSumPaths(currentNode.left, currentPath, targetSum);
+        getAllTargetSumPaths(currentNode.right, currentPath, targetSum);
+
+        // Backtrack: Remove the current node from the path before returning to the previous level
+        currentPath.remove(currentPath.size() - 1);
+    }
+}
