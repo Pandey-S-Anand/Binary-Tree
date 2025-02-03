@@ -9,6 +9,9 @@
         right = null;
     }
 }*/
+
+//Naive implementation
+
 class Solution {
     // Map to store parent references for each node
     private static Map<Integer, Node> nodeParentMap;
