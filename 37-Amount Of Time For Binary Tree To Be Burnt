@@ -118,3 +118,68 @@ class Solution {
         return findTargetNode(root.right, value);
     }
 }
+
+
+//Optimal implementation
+
+class Solution {
+    private static Map<Integer, Node> nodeParentMap;
+    private static Node targetNode;
+
+    public static int minTime(Node root, int target) {
+        nodeParentMap = new HashMap<>();
+        // During the construction of the parent map, we also locate the target node.
+        buildParentMap(root, null, target);
+
+        Set<Integer> burnt = new HashSet<>();
+        Queue<Node> queue = new ArrayDeque<>();
+
+        queue.offer(targetNode);
+        burnt.add(targetNode.data);
+
+        int minute = -1;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            for (int i = 0; i < size; i++) {
+                Node currentNode = queue.poll();
+
+                if (currentNode.left != null && !burnt.contains(currentNode.left.data)) {
+                    queue.offer(currentNode.left);
+                    burnt.add(currentNode.left.data);
+                }
+
+                if (currentNode.right != null && !burnt.contains(currentNode.right.data)) {
+                    queue.offer(currentNode.right);
+                    burnt.add(currentNode.right.data);
+                }
+
+                Node parentNode = nodeParentMap.get(currentNode.data);
+                if (parentNode != null && !burnt.contains(parentNode.data)) {
+                    queue.offer(parentNode);
+                    burnt.add(parentNode.data);
+                }
+            }
+
+            minute++;
+        }
+
+        return minute;
+    }
+
+    private static void buildParentMap(Node currentNode, Node parentNode, int target) {
+        if (currentNode == null) {
+            return;
+        }
+        // While building the parent map, check if the current node is the target node
+        if (currentNode.data == target) {
+            targetNode = currentNode; // Set the target node during the map creation
+        }
+
+        nodeParentMap.put(currentNode.data, parentNode);
+
+        buildParentMap(currentNode.left, currentNode, target);
+        buildParentMap(currentNode.right, currentNode, target);
+    }
+}
