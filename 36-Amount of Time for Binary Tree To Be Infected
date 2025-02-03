@@ -14,6 +14,8 @@
  * }
  */
 
+//Naive implementation
+
 class Solution {
     // Map to store parent references for each node
     private Map<Integer, TreeNode> nodeParentMap;
@@ -119,5 +121,71 @@ class Solution {
 
         // If not found in the left, search the right subtree.
         return findInfectedNode(root.right, value);
+    }
+}
+
+
+//Optimal implementation
+
+class Solution {
+    private Map<Integer, TreeNode> nodeParentMap;
+    private TreeNode target;
+
+    public int amountOfTime(TreeNode root, int start) {
+        nodeParentMap = new HashMap<>();
+        // During the construction of the parent map, we also locate the target node.
+        buildParentMap(root, null, start);
+
+        Set<Integer> infected = new HashSet<>();
+        Queue<TreeNode> queue = new ArrayDeque<>();
+
+        queue.offer(target);
+        infected.add(target.val);
+
+        int minute = -1;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            for (int i = 0; i < size; i++) {
+                TreeNode currentNode = queue.poll();
+
+                if (currentNode.left != null && !infected.contains(currentNode.left.val)) {
+                    queue.offer(currentNode.left);
+                    infected.add(currentNode.left.val);
+                }
+
+                if (currentNode.right != null && !infected.contains(currentNode.right.val)) {
+                    queue.offer(currentNode.right);
+                    infected.add(currentNode.right.val);
+                }
+
+                TreeNode parentNode = nodeParentMap.get(currentNode.val);
+                if (parentNode != null && !infected.contains(parentNode.val)) {
+                    queue.offer(parentNode);
+                    infected.add(parentNode.val);
+                }
+            }
+
+            minute++;
+        }
+
+        return minute;
+    }
+
+    private void buildParentMap(TreeNode currentNode, TreeNode parentNode, int start) {
+        if (currentNode == null) {
+            return;
+        }
+
+        // While building the parent map, check if the current node is the target node
+        if (currentNode.val == start) {
+            target = currentNode;  // Set the target node during the parent map creation
+        }
+
+        nodeParentMap.put(currentNode.val, parentNode);
+
+        buildParentMap(currentNode.left, currentNode, start);
+        buildParentMap(currentNode.right, currentNode, start);
     }
 }
