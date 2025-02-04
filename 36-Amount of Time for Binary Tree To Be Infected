@@ -29,8 +29,7 @@ class Solution {
          * - To also move *upward* (to the parent), we store parent references.
          *   This is necessary because, in addition to moving to the left and right
          *   children, the infection can also spread to a node's parent.
-         *   Thus, left, right, and parent nodes are all considered adjacent to
-         *   any given node.
+         *   Thus, left, right, and parent nodes are all considered adjacent to any given node.
          */
         // Step 1: Build a map to store parent references for each node
         buildParentMap(root, null);
@@ -80,10 +79,12 @@ class Solution {
                 }
             }
             /*
-             * After the completion of every minute, the entries in the queue represent the
-             * set of nodes that were infected in the previous minute and are poised to
-             * infect their adjacent nodes in the next minute.
+             * After each minute, the nodes present in the queue represent the neighbors of
+             * the nodes that were infected in the previous minute. These nodes will become
+             * infected in the next minute and will then proceed to spread the infection to
+             * their adjacent nodes in the subsequent minutes.
              */
+
             minute++; // Increment the minute counter after processing one complete level.
         }
 
