@@ -15,7 +15,7 @@
 class Solution {
     // Map to store parent references for each node
     private static Map<Integer, Node> nodeParentMap;
-    
+
     public static int minTime(Node root, int target) {
         nodeParentMap = new HashMap<>();
 
@@ -36,7 +36,8 @@ class Solution {
         Queue<Node> queue = new ArrayDeque<>();
         // Find the node where the fire starts
         Node targetNode = findTargetNode(root, target);
-        // Since the problem guarantees that the target node exists, targetNode will not be null.
+        // Since the problem guarantees that the target node exists, targetNode will not
+        // be null.
 
         // Start BFS from the target node
         queue.offer(targetNode);
@@ -75,16 +76,17 @@ class Solution {
                 }
             }
             /*
-             * After the completion of every minute, the entries in the queue represent the
-             * set of nodes that were burnt in the previous minute and are poised to
-             * burn their adjacent nodes in the next minute.
+             * After each minute, the nodes present in the queue represent the neighbors of
+             * the nodes that were burnt in the previous minute. These nodes will be
+             * burnt in the next minute and will then proceed to burn their
+             * adjacent nodes in the subsequent minutes. 
              */
             minute++; // Increment the minute counter after processing one complete level.
         }
 
         return minute;
     }
-    
+
     private static void buildParentMap(Node currentNode, Node parentNode) {
         if (currentNode == null) {
             return;
