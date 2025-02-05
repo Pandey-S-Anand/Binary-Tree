@@ -1,0 +1,42 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+class Solution {
+    private int totalTilt; // Stores the sum of all node tilts in the tree
+
+    public int findTilt(TreeNode root) {
+        totalTilt = 0;
+        computeSubtreeSum(root);
+        return totalTilt;
+    }
+    
+    private int computeSubtreeSum(TreeNode node) {
+        if (node == null) {
+            return 0; // Base case: Null nodes contribute 0 to the sum.
+        }
+
+        // Recursively calculate the sum of left and right subtrees
+        int leftSum = computeSubtreeSum(node.left);
+        int rightSum = computeSubtreeSum(node.right);
+
+        // Compute the tilt for the current node and add it to the total tilt
+        int nodeTilt = Math.abs(leftSum - rightSum);
+        totalTilt += nodeTilt;
+
+        // Return the total sum of the subtree rooted at this node
+        return leftSum + rightSum + node.val;
+    }
+}
