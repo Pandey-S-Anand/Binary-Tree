@@ -194,10 +194,10 @@ class Solution {
 }
 
 
-//Optimal approach
+//Optimal approach (Without using parent map)
 
 /*
-    Tree structure:
+    **Tree Structure:**
            8
           / \
          1   7
@@ -208,24 +208,38 @@ class Solution {
        / \    
       9   2   
 
-    Suppose the infection starts at node 3:
+    **Understanding the Problem:**
+    - The amount of time required to infect the entire binary tree is equal to the maximum distance 
+      between the infected node and the farthest leaf node.
+    - So, our goal is to find the distance between the farthest leaf node and the start node (infected node).
 
+    **How the Algorithm Works:**
     - A call is made at node 8, checking both left (1) and right (7) subtrees.
     - A call at node 1 explores its left (5) and right (3) subtrees.
     - The left subtree rooted at node 5 returns 3, indicating its depth.
     - The right subtree call at node 3 explores its left (10) and right (6) subtrees, both returning 1 as their depth.
-    - Since node 3 is the infection source, maxDistance is updated to max(1, 1) = 1. 
+    - Since node 3 is the infection source, `maxDistance` is updated to `max(1, 1) = 1`. 
       This means that, currently, the farthest leaf node from the infected node is at a distance of 1.
-    - Node 3 then returns -1 to its parent (node 1), signaling that the infection was found in its right subtree.
-      This abs(-1) represents the distance from node 1 to the infected node 3.
-    - At node 1, maxDistance is updated again: max(1, 3 + abs(-1)) = 4. 
-      This means that the farthest leaf node (which is either 9 or 2) is at a distance of 4 from the infected node.
-    - The depth returned to node 8 is -2, meaning node 8 is 2 steps away from the infected node.
+    - Node 3 then returns `-1` to its parent (node 1), signaling that the infection was found in its right subtree.
+      This `abs(-1)` represents the distance from node 1 to the infected node 3.
+    - At node 1, `maxDistance` is updated again: `max(1, 3 + abs(-1)) = 4`. 
+      This means that the farthest leaf node (which is either 9 or 2) is at a distance of **4** from the infected node.
+    - The depth returned to node 8 is `-2`, meaning node 8 is 2 steps away from the infected node.
     - The right subtree of node 8 returns depth 1.
-    - The final maxDistance remains 4, representing the longest time for the infection to reach the farthest node.
+    - The final `maxDistance` remains **4**, representing the longest time for the infection to reach the farthest node.
     
-    Final result: 4 (time taken for the infection to spread to the farthest node).
+    **Burning Process Over Time (Minute-wise Spread of Infection):**
+    
+    - **Minute 0**: Node **3** is infected.
+    - **Minute 1**: Nodes **10, 6, and 1** get infected (children and parent of node 3).
+    - **Minute 2**: Nodes **5 and 8** get infected (parent of 1 and child of 5).
+    - **Minute 3**: Nodes **4 and 7** get infected (child of 5 and right child of 8).
+    - **Minute 4**: Nodes **9 and 2** get infected (children of 4).
+    
+    **Final Result:**
+    - **4** (time taken for the infection to spread to the farthest node).
 */
+
 
 class Solution {
     // maxDistance keeps track of the maximum distance from the infected node  to the farthest leaf node encountered so far.
