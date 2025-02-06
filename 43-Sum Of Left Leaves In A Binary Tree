@@ -1,0 +1,74 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+ 
+class Solution {
+    public int sumOfLeftLeaves(TreeNode root) {
+        // The left child is marked as true for isLeft , and the right child as false.
+        return sumOfLeftLeaves(root.left, true) + sumOfLeftLeaves(root.right, false);
+    }
+
+    private int sumOfLeftLeaves(TreeNode root, boolean isLeft) {
+        // Base case: if the current node is null, return 0.
+        if (root == null) {
+            return 0;
+        }
+
+        // If the current node is a leaf node, check if it's a left leaf.
+        if (isLeafNode(root)) {
+            // Return its value if it is a left leaf, otherwise return 0.
+            return isLeft ? root.val : 0;
+        }
+
+        // Recursively compute the sum for left and right subtrees:
+        // For the left subtree, mark isLeft as true, and for the right subtree, mark isLeft as false.
+        return sumOfLeftLeaves(root.left, true) + sumOfLeftLeaves(root.right, false);
+    }
+
+    private boolean isLeafNode(TreeNode root) {
+        return root.left == null && root.right == null;
+    }
+}
+
+
+//Aliter 
+
+class Solution {
+    public int sumOfLeftLeaves(TreeNode root) {
+        // If the root is null, there are no left leaves.
+        if (root == null) {
+            return 0;
+        }
+
+        int sum = 0;
+
+        // Check if the left child exists and is a leaf.
+        if (root.left != null && isLeafNode(root.left)) {
+            sum += root.left.val;
+        } else {
+            // Otherwise, recursively calculate for the left subtree.
+            sum += sumOfLeftLeaves(root.left);
+        }
+
+        // Process the right subtree, as left leaves might be present there.
+        sum += sumOfLeftLeaves(root.right);
+
+        return sum;
+    }
+
+    private boolean isLeafNode(TreeNode root) {
+        return root.left == null && root.right == null;
+    }
+}
