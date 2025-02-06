@@ -10,6 +10,8 @@
     }
 }*/
 
+//Naive approach
+
 //Naive implementation
 
 class Solution {
@@ -183,5 +185,57 @@ class Solution {
 
         buildParentMap(currentNode.left, currentNode, target);
         buildParentMap(currentNode.right, currentNode, target);
+    }
+}
+
+
+//Optimal approach
+
+
+class Solution {
+    // maxDistance keeps track of the maximum distance from the target node  to the farthest leaf node encountered so far.
+    private static int maxDistance;
+
+    public static int minTime(Node root, int target) {
+        maxDistance = 0;
+        findMaxBurningTime(root, target);
+        return maxDistance;
+    }
+
+    private static int findMaxBurningTime(Node root, int target) {
+        if (root == null) {
+            return 0;
+        }
+
+        int depth = 0;
+        int leftDepth = findMaxBurningTime(root.left, target);
+        int rightDepth = findMaxBurningTime(root.right, target);
+        // If the current node is the target node, update maxDistance with the maximum depth of its left or right subtree.
+        if (root.data == target) {
+            maxDistance = Math.max(leftDepth, rightDepth);
+            /*
+             We return a negative value to indicate to the parent node that the target 
+             has been found in the subtree. This depth value represents the distance 
+             of the parent node from the target node.
+            */
+            depth = -1;
+        } else if (leftDepth >= 0 && rightDepth >= 0) {
+            // If neither the left nor the right subtree contains the target node, return the depth of the current subtree.
+            depth = Math.max(leftDepth, rightDepth) + 1;
+        } else if (leftDepth < 0) {
+            // If the left subtree contains the target node:
+            int distance = Math.abs(leftDepth) + rightDepth;
+            maxDistance = Math.max(maxDistance, distance);
+            // Decrease depth further (by -1) to indicate how far the immediate ancestor is from the target node.
+            depth = leftDepth - 1;
+        } else {
+            // If the right subtree contains the target node:
+            int distance = leftDepth + Math.abs(rightDepth);
+            maxDistance = Math.max(maxDistance, distance);
+            // Decrease depth further (by -1) to indicate how far the immediate ancestor is from the target node.
+            depth = rightDepth - 1;
+        }
+
+        return depth;
     }
 }
