@@ -13,6 +13,9 @@
  * }
  * }
  */
+
+//Bruteforce approach
+
 class Solution {
     private List<List<Integer>> paths;
 
@@ -67,5 +70,39 @@ class Solution {
 
         // The maximum difference for this path is the difference between max and min.
         return max - min;
+    }
+}
+
+//Optimal approach
+
+class Solution {
+    // Variable to store the maximum difference found between any ancestor and descendant.
+    private int maxDifference;
+
+    public int maxAncestorDiff(TreeNode root) {
+        maxDifference = 0;
+        findMaxDifferenceAcrossAllPaths(root, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        return maxDifference;
+    }
+
+    private void findMaxDifferenceAcrossAllPaths(TreeNode root, int maxInPath, int minInPath) {
+        if (root == null) {
+            return;
+        }
+
+        // Update the current maximum and minimum values with the current node's value.
+        maxInPath = Math.max(maxInPath, root.val);
+        minInPath = Math.min(minInPath, root.val);
+
+        // If the current node is a leaf, update the maxDifference using the current path's difference.
+        if (root.left == null && root.right == null) {
+            int currentPathMaxDifference = maxInPath - minInPath;
+            maxDifference = Math.max(maxDifference, currentPathMaxDifference);
+            return;
+        }
+
+        // Recursively traverse the left and right subtrees.
+        findMaxDifferenceAcrossAllPaths(root.left, maxInPath, minInPath);
+        findMaxDifferenceAcrossAllPaths(root.right, maxInPath, minInPath);
     }
 }
