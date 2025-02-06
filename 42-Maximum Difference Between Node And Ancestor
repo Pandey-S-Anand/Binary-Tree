@@ -1,0 +1,71 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+class Solution {
+    private List<List<Integer>> paths;
+
+    public int maxAncestorDiff(TreeNode root) {
+        paths = new ArrayList<>();
+        // Collect all paths from the root to every leaf in the tree.
+        getAllPaths(root, new ArrayList<>());
+        // Variable to keep track of the maximum difference found across all paths.
+        int maxDifference = 0;
+        // Iterate through each path to compute the difference between the minimum and maximum values in the path.
+        for (List<Integer> path : paths) {
+            maxDifference = Math.max(maxDifference, getPathMaxDifference(path));
+        }
+
+        return maxDifference;
+    }
+
+    private void getAllPaths(TreeNode root, List<Integer> currentPath) {
+        if (root == null) {
+            return;
+        }
+
+        currentPath.add(root.val);
+
+        if (root.left == null && root.right == null) {
+            paths.add(new ArrayList<>(currentPath));
+            currentPath.remove(currentPath.size() - 1);
+            return;
+        }
+
+        getAllPaths(root.left, currentPath);
+        getAllPaths(root.right, currentPath);
+
+        currentPath.remove(currentPath.size() - 1);
+    }
+
+    private int getPathMaxDifference(List<Integer> path) {
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+
+        // Iterate through each number in the path.
+        for (int num : path) {
+            // Update the minimum value if a smaller value is found.
+            if (num < min) {
+                min = num;
+            }
+            // Update the maximum value if a larger value is found.
+            if (num > max) {
+                max = num;
+            }
+        }
+
+        // The maximum difference for this path is the difference between max and min.
+        return max - min;
+    }
+}
