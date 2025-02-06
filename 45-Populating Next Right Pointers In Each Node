@@ -1,0 +1,101 @@
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public Node left;
+    public Node right;
+    public Node next;
+
+    public Node() {}
+    
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, Node _left, Node _right, Node _next) {
+        val = _val;
+        left = _left;
+        right = _right;
+        next = _next;
+    }
+};
+*/
+
+//Recursive approach
+
+class Solution {
+    public Node connect(Node root) {
+        /*
+        If root.left is null, then root.right must also be null since it's a perfect binary tree.  
+        This means that whenever root.left is null, the node is either a leaf or the root itself.  
+        Conversely, if the left child exists, the right child will also exist.  
+        */
+        if (root == null || root.left == null) {
+            return root;
+        }
+
+        // Link the left child to the right child
+        root.left.next = root.right;
+
+        // Link the right child to the left child of the next subtree, if it exists
+        if (root.next != null) {
+            root.right.next = root.next.left;
+        }
+
+        // Recursively process the left and right subtrees
+        connect(root.left);
+        connect(root.right);
+
+        return root;
+    }
+}
+
+
+//Iterative approach
+
+*/
+          1
+        /   \ 
+       /      \
+      /        \
+     2           3
+    / \         / \
+   4   5      6     7
+  / \ / \    / \   / \
+ 8  9 10 11 12 13 14 15
+*/
+
+class Solution {
+    public Node connect(Node root) {
+        if (root == null) {
+            return null;
+        }
+
+        Node leftmost = root;
+         /*
+         * We traverse level by level (top-down), and within each level, 
+         * we move rightward using the next pointers that we establish dynamically.
+         * This is a BFS-like approach, but without an explicit queue—leveraging 
+         * the already established next pointers instead!
+         */
+        while (leftmost.left != null) {
+            Node current = leftmost;
+
+            while (current != null) {
+                // Connect left child to right child
+                current.left.next = current.right;
+
+                // Connect right child to the left child of the next subtree (if exists)
+                if (current.next != null) {
+                    current.right.next = current.next.left;
+                }
+                // Move to the next subtree in the current level
+                current = current.next;
+            }
+            // Move to the leftmost node of the next level
+            leftmost = leftmost.left;
+        }
+
+        return root;
+    }
+}
