@@ -1,0 +1,62 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+
+/**
+ * We cannot simply locate a node in the main tree with the same value as 'subRoot' 
+ * and then check for tree identity from that point. This approach fails in cases where 
+ * multiple nodes in the main tree share the same value as 'subRoot'. 
+ * A premature match may lead to incorrect results.
+ * 
+ * Example:
+ * root = {1, null, 1}
+ * subRoot = {1}
+ * 
+ * If we simply search for a matching value and check for identicality once found,
+ * we might incorrectly reject valid subtrees.
+ * Instead, we need to recursively check all possible subtree roots in 'root'.
+ */
+
+class Solution {
+    public boolean isSubtree(TreeNode root, TreeNode subRoot) {
+        // If the main tree is empty, it cannot contain any subtree.
+        if (root == null) {
+            return false;
+        }
+
+        // If the subtree starting from the current node is identical to subRoot, return true.
+        if (isIdentical(root, subRoot)) {
+            return true;
+        }
+
+        // Otherwise, recursively check the left and right subtrees of the current node.
+        return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot);
+    }
+
+    private boolean isIdentical(TreeNode root, TreeNode subRoot) {
+        // If both trees are empty, they are identical.
+        if (root == null && subRoot == null) {
+            return true;
+        }
+
+        // If one of the trees is empty or the current node values are different, then the trees are not identical.
+        if (root == null || subRoot == null || root.val != subRoot.val) {
+            return false;
+        }
+
+        // Recursively check if the left subtree and right subtree of both trees are identical.
+        return isIdentical(root.left, subRoot.left) && isIdentical(root.right, subRoot.right);
+    }
+}
