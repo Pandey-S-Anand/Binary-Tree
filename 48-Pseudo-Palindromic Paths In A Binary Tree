@@ -71,7 +71,7 @@ class Solution {
         int oddFrequencyCount = 0; // Track the number of digits with odd occurrences
 
         // Iterate through frequency array to count odd occurrences
-        for (int i = 1; i <= 9; i++) { //
+        for (int i = 1; i <= 9; i++) {
             if (pathFrequency[i] % 2 != 0) {
                 oddFrequencyCount++;
             }
