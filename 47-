@@ -1,0 +1,107 @@
+//Naive implementation
+
+class Solution {
+    public TreeNode createBinaryTree(int[][] descriptions) {
+        /*
+         * Map to store the nodes (value → TreeNode reference) using their unique value
+         * as the key as each node has a unique value, we use an integer as the key.
+         */
+        Map<Integer, TreeNode> map = new HashMap<>();
+
+        // A set to keep track of child nodes using their values, since each node in the tree has a unique value.
+        Set<Integer> children = new HashSet<>();
+
+        // Build the Tree Structure
+        for (int[] description : descriptions) {
+            int parent = description[0]; // Parent node value
+            int child = description[1]; // Child node value
+            int isLeftChild = description[2]; // 1 if left child, 0 if right child
+
+            // Get or create parent node
+            TreeNode parentNode;
+
+            if (map.containsKey(parent)) {
+                parentNode = map.get(parent);
+            } else {
+                parentNode = new TreeNode(parent);
+                map.put(parent, parentNode);
+            }
+
+            // Get or create child node
+            TreeNode childNode;
+            if (map.containsKey(child)) {
+                childNode = map.get(child);
+            } else {
+                childNode = new TreeNode(child);
+                map.put(child, childNode);
+            }
+
+            // Establish parent-child relationship
+            if (isLeftChild == 1) {
+                parentNode.left = childNode;
+            } else {
+                parentNode.right = childNode;
+            }
+
+            // Mark this node as a child
+            children.add(child);
+        }
+
+        /*
+         * Identify the Root Node:
+         * The root node is the only node that never appears as a child in `descriptions`.
+         * It is present in `map` but missing in `children` set.
+         */
+        for (int value : map.keySet()) {
+            if (!children.contains(value)) {
+                return map.get(value); // Found the root node
+            }
+        }
+
+        return null; // Should never reach here as input is guaranteed to be a valid tree
+    }
+}
+
+
+//Optimal implementation
+
+class Solution {
+    public TreeNode createBinaryTree(int[][] descriptions) {
+        Map<Integer, TreeNode> map = new HashMap<>();
+        Set<Integer> children = new HashSet<>();
+
+        for (int[] description : descriptions) {
+            int parent = description[0];
+            int child = description[1];
+            int isLeftChild = description[2];
+
+            /*
+             * Efficiently fetch or create parent and child nodes :
+             *
+             * computeIfAbsent(key, mappingFunction) works as follows:
+             * - If the key already exists, it returns the existing value (TreeNode in this case).
+             * - If the key does not exist, it creates a new TreeNode, stores it in the map, and then returns it.
+             */
+            TreeNode parentNode = map.computeIfAbsent(parent, k -> new TreeNode(parent));
+            TreeNode childNode = map.computeIfAbsent(child, k -> new TreeNode(child));
+            map.putIfAbsent(parent, parentNode);
+            map.putIfAbsent(child, childNode);
+
+            if (isLeftChild == 1) {
+                parentNode.left = childNode;
+            } else {
+                parentNode.right = childNode;
+            }
+
+            children.add(child);
+        }
+
+        for (int value : map.keySet()) {
+            if (!children.contains(value)) {
+                return map.get(value);
+            }
+        }
+
+        return null;
+    }
+}
