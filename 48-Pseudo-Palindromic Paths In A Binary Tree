@@ -83,5 +83,4 @@ class Solution {
 }
 
 
-//Optimal approach
-
+//Optimal approach (Bit magic)
