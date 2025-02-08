@@ -1,0 +1,99 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+//Naive approach
+
+class Solution {
+    public TreeNode reverseOddLevels(TreeNode root) {
+        List<TreeNode> levelNodes = new ArrayList<>(); // List to store nodes at odd levels
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root); 
+        boolean isOddLevel = false; // Start with level 0 (even)
+
+        while (!queue.isEmpty()) {
+            int size = queue.size(); // Get the number of nodes at the current level
+
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+
+                // If it's an odd level, add the node to the list for later reversal
+                if (isOddLevel) {
+                    levelNodes.add(node);
+                }
+
+                /*
+                 * Add children to the queue
+                 * 
+                 * In a perfect binary tree, every non-leaf node will always have both left and right children.
+                 * If node.left exists, then node.right must exist too.
+                 * Similarly, if node.left is null, then node.right will also be null.
+                 */
+                if (node.left != null) {
+                    queue.offer(node.left);
+                    queue.offer(node.right);
+                }
+            }
+
+            // If it's an odd level, reverse the collected node values
+            if (isOddLevel) {
+                int low = 0, high = levelNodes.size() - 1;
+
+                while (low < high) {
+                    // Swap values of nodes at opposite ends
+                    int temp = levelNodes.get(low).val;
+                    levelNodes.get(low).val = levelNodes.get(high).val;
+                    levelNodes.get(high).val = temp;
+                    low++;
+                    high--;
+                }
+
+                levelNodes.clear(); // Clear list for the next odd level
+            }
+
+            // Toggle the level status for the next iteration
+            isOddLevel = !isOddLevel;
+        }
+
+        return root;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public TreeNode reverseOddLevels(TreeNode root) {
+        reverseOddLevels(root.left, root.right, 1); // Start DFS from level 1 (odd)
+        return root;
+    }
+
+    private void reverseOddLevels(TreeNode left, TreeNode right, int level) {
+        if (left == null) { // or right == null
+            return; // Base case
+        }
+
+        // If the current level is odd, swap values
+        if (level % 2 == 1) {
+            int temp = left.val;
+            left.val = right.val;
+            right.val = temp;
+        }
+
+        // Recur for the next level
+        reverseOddLevels(left.left, right.right, level + 1); // Outer children
+        reverseOddLevels(left.right, right.left, level + 1); // Inner children
+    }
+}
