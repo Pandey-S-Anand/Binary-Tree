@@ -209,6 +209,43 @@ class Solution {
 
 //Optimal approach
 
+/*
+        9
+       /
+      8
+     /
+    5
+   / \
+  1   2
+ /    / \
+3    6   4
+
+
+Path from root (9) to startValue (3):
+9 → 8 → 5 → 1 → 3  
+Directions: "LLLL"
+
+Path from root (9) to destValue (6):
+9 → 8 → 5 → 2 → 6  
+Directions: "LLRL"
+
+The common part of both paths is:
+9 → 8 → 5  
+Lowest Common Ancestor (LCA) is 5, since it is the last common node in both paths.
+
+Remove Common Part and Convert to Final Path:
+Remaining path from LCA (5) to startValue (3): "LL"
+Remaining path from LCA (5) to destValue (6): "RL"
+
+Since we move up from startValue (3) to LCA (5),
+we replace "L" with "U", so "UU".
+
+Append Remaining Path to destValue:
+"UU" + "RL"
+Final Output: "UURL"
+*/
+
+
 class Solution {
     public String getDirections(TreeNode root, int startValue, int destinationValue) {
         // Step 1: Find the path from the root to startValue.
