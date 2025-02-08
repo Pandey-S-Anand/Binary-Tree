@@ -1,11 +1,6 @@
-//Bruteforce approach
+//Intuitive approach
 
-
-
-
-//Better approach
-
-//Intuitive implementation
+//Naive implementation
 
 class Solution {
     public String getDirections(TreeNode root, int startValue, int destValue) {
