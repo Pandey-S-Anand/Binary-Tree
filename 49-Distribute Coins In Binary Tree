@@ -1,0 +1,105 @@
+/*
+        Binary Tree Structure:
+
+              A (1)
+             /     \
+         B (0)      C (5)
+          /
+      D (0)
+      /   \
+   E (0)  F (0)
+
+    Explanation of Moves:
+
+    Total moves = 0;
+
+    - E receives 0 from its non-existent children. Moves to balance E’s children = 0.
+      E returns its own balance to D: (0 + 0 + 0 - 1) = -1 (E needs 1 coin).
+      
+    - F receives 0 from its non-existent children. Moves to balance F’s children = 0.
+      F returns its own balance to D: (0 + 0 + 0 - 1) = -1 (F needs 1 coin).
+
+    Total moves = 0.
+
+    - D receives -1 from both E and F, meaning both need 1 coin each.
+      Moves to balance D’s children = abs(-1) + abs(-1) = 2.
+      Since only **one coin can be moved per move**, D moves 1 coin to E (move = 1) and 1 coin to F (move = 2).
+      D calculates its own balance: (0 + (-1) + (-1) - 1) = -3 (D needs 3 coins).
+      D returns its own balance to B.
+
+    Total moves = 2.
+
+    - B receives -3 from D and 0 from the right.
+      Moves to balance B’s children = abs(-3) + 0 = 3.
+      Since only **one coin can be moved per move**, B moves 3 coins to D (one at a time in 3 moves).
+      B calculates its own balance: (0 + (-3) + 0 - 1) = -4 (B needs 4 coins).
+      B returns its own balance to A.
+
+    Total moves = 2 + 3 = 5.
+
+    - C receives 0 from both left and right. Moves to balance C’s children = 0.
+      C calculates its own balance: (5 + 0 + 0 - 1) = 4 (C has 4 extra coins).
+      C returns its balance to A.
+
+    - A receives -4 from B and 4 from C.
+      Moves to balance A’s children = abs(-4) + abs(4) = 8.
+      Since only **one coin can be moved per move**, A transfers 4 coins to B (one at a time in 4 moves), and C transfers 4 coins to A (one at a time in 4 moves).
+      A calculates its own balance: (1 + (-4) + 4 - 1) = 0 (A is balanced).
+
+    Total moves = 2 + 3 + 8 = 13.
+*/
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+class Solution {
+    private int totalMoves = 0; // Global variable to keep track of the total moves required.
+
+    public int distributeCoins(TreeNode root) {
+        distributeCoinsHelper(root);
+        return totalMoves;
+    }
+
+    private int distributeCoinsHelper(TreeNode node) {
+        if (node == null) {
+            return 0; // If the node is null, it does not contribute to coin balance.
+        }
+
+        // Recursively calculate the left and right subtree balances.
+        int leftBalance = distributeCoinsHelper(node.left);
+        int rightBalance = distributeCoinsHelper(node.right);
+
+        /*
+         * Each subtree returns a balance, which represents the surplus (positive) or 
+         * deficit (negative) of coins at that subtree. 
+         * The absolute value of this balance represents how many coins need to be 
+         * moved in order to balance that subtree.
+         */
+        totalMoves += Math.abs(leftBalance) + Math.abs(rightBalance);
+
+        /*
+         * The current node's balance is determined as follows:
+         * - `node.val`: The number of coins at the current node.
+         * - `leftBalance + rightBalance`: The net coin balance received from the left and right subtrees.
+         * - `-1`: Every node requires exactly 1 coin for itself.
+         * 
+         * If the result is negative, it means this node needs coins (deficit).
+         * If the result is positive, it means this node has extra coins (surplus).
+         * If the result is zero, this node is already balanced.
+         */
+        return node.val + leftBalance + rightBalance - 1;
+    }
+}
