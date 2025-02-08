@@ -1,4 +1,11 @@
-//Optimal approach
+//Bruteforce approach
+
+
+
+
+//Better approach
+
+//Intuitive implementation
 
 class Solution {
     public String getDirections(TreeNode root, int startValue, int destValue) {
@@ -124,6 +131,128 @@ class Solution {
         path.setLength(path.length() - 1); // Backtrack if the target was not found in the right subtree.
 
         // If neither left nor right subtree contains the target, return false.
+        return false;
+    }
+}
+
+
+//Optimal implementation
+
+class Solution {
+    public String getDirections(TreeNode root, int startValue, int destValue) {
+        TreeNode lca = findLowestCommonAncestor(root, startValue, destValue);
+
+        // Step 2: Find the path from LCA to startValue, replacing moves with 'U' (Up).
+        StringBuilder pathToStart = new StringBuilder();
+        findPath(lca, startValue, pathToStart, true); // true indicates path to startValue
+
+        // Step 3: Find the path from LCA to destValue, keeping 'L' (Left) and 'R' (Right) moves.
+        StringBuilder pathToDestination = new StringBuilder();
+        findPath(lca, destValue, pathToDestination, false); // false indicates path to destValue
+
+        // Step 4: Combine both paths to form the final result.
+        return pathToStart.toString() + pathToDestination.toString();
+    }
+
+    private TreeNode findLowestCommonAncestor(TreeNode root, int sourceValue, int destinationValue) {
+        if (root == null) {
+            return null;
+        }
+
+        if (root.val == sourceValue || root.val == destinationValue) {
+            return root;
+        }
+
+        TreeNode left = findLowestCommonAncestor(root.left, sourceValue, destinationValue);
+        TreeNode right = findLowestCommonAncestor(root.right, sourceValue, destinationValue);
+
+        if (left != null && right != null) {
+            return root;
+        }
+
+        if (left != null) {
+            return left;
+        }
+
+        if (right != null) {
+            return right;
+        }
+
+        return null;
+    }
+
+    private boolean findPath(TreeNode root, int destination, StringBuilder path, boolean isPathToStart) {
+        if (root == null) {
+            return false;
+        }
+
+        if (root.val == destination) {
+            return true;
+        }
+
+        path.append(isPathToStart ? 'U' : 'L');
+        if (findPath(root.left, destination, path, isPathToStart)) {
+            return true;
+        }
+        path.setLength(path.length() - 1);
+
+        path.append(isPathToStart ? 'U' : 'R');
+        if (findPath(root.right, destination, path, isPathToStart)) {
+            return true;
+        }
+        path.setLength(path.length() - 1);
+
+        return false;
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    public String getDirections(TreeNode root, int startValue, int destinationValue) {
+        // Step 1: Find the path from the root to startValue.
+        StringBuilder pathToStart = new StringBuilder();
+        findPath(root, startValue, pathToStart);
+
+        // Step 2: Find the path from the root to destinationValue.
+        StringBuilder pathToDestination = new StringBuilder();
+        findPath(root, destinationValue, pathToDestination);
+
+        // Step 3: Find the first mismatching index to determine the lowest common ancestor (LCA).
+        int i = 0;
+        while (i < pathToStart.length() && i < pathToDestination.length() && pathToStart.charAt(i) == pathToDestination.charAt(i)) {
+            i++;
+        }
+
+        // Step 4: Convert the remaining pathToStart into 'U' moves (moving up from start node to LCA).
+        String upwardMoves = "U".repeat(pathToStart.length() - i);
+
+        // Step 5: Append the remaining pathToDestination to move from LCA to destination node.
+        return upwardMoves + pathToDestination.substring(i);
+    }
+
+    private boolean findPath(TreeNode root, int destinationValue, StringBuilder path) {
+        if (root == null) {
+            return false;
+        }
+
+        if (root.val == destinationValue) {
+            return true;
+        }
+
+        path.append('L');
+        if (findPath(root.left, destinationValue, path)) {
+            return true;
+        }
+        path.setLength(path.length() - 1);
+
+        path.append('R');
+        if (findPath(root.right, destinationValue, path)) {
+            return true;
+        }
+        path.setLength(path.length() - 1);
+
         return false;
     }
 }
