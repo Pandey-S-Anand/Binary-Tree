@@ -1,0 +1,59 @@
+/*
+               1
+            /     \
+          2         3
+        /   \        /   \
+       4     5      6     7
+      /       / \     \
+     8      9   10    11
+
+   Output:
+   [
+     [8, 9, 10, 11, 7], // First set of leaf nodes removed
+     [4, 5, 6],         // New leaf nodes after previous removal
+     [2, 3],            // New leaf nodes after previous removal
+     [1]                // Last remaining node
+   ]
+*/
+
+
+public class Solution {
+    // Map to store leaf nodes grouped by their height in the tree
+    private static Map<Integer, ArrayList<Integer>> heightToLeavesMap;
+
+    public static ArrayList<ArrayList<Integer>> collectLeaves(BinaryTreeNode<Integer> root) {
+        heightToLeavesMap = new HashMap<>();
+        ArrayList<ArrayList<Integer>> leavesCollection = new ArrayList<>();
+
+        // Populate the map with leaf nodes categorized by height
+        calculateHeightAndCollectLeaves(root);
+
+        // Collect leaf nodes from the map in order
+        for (ArrayList<Integer> leafNodes : heightToLeavesMap.values()) {
+            leavesCollection.add(leafNodes);
+        }
+
+        return leavesCollection;
+    }
+
+    private static int calculateHeightAndCollectLeaves(BinaryTreeNode<Integer> root) {
+        if (root == null) {
+            return 0;
+        }
+
+        // Process the left subtree first to ensure leaves are collected in left-to-right order
+        int leftSubtreeHeight = calculateHeightAndCollectLeaves(root.left);
+
+        // Process the right subtree after the left subtree
+        int rightSubtreeHeight = calculateHeightAndCollectLeaves(root.right);
+
+        // Compute the height of the current node
+        int currentHeight = 1 + Math.max(leftSubtreeHeight, rightSubtreeHeight);
+
+        // Store the node value in the corresponding height bucket
+        heightToLeavesMap.putIfAbsent(currentHeight, new ArrayList<>());
+        heightToLeavesMap.get(currentHeight).add(root.data);
+
+        return currentHeight;
+    }
+}
