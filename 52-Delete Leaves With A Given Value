@@ -1,0 +1,36 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+ 
+class Solution {
+    public TreeNode removeLeafNodes(TreeNode root, int target) {
+        // Base case: If the current node is null, return null (no tree exists)
+        if (root == null) {
+            return null;
+        }
+
+        // Recursively process the left and right subtrees to remove target leaf nodes
+        root.left = removeLeafNodes(root.left, target);
+        root.right = removeLeafNodes(root.right, target);
+
+        // After processing children, check if the current node is now a leaf with the target value
+        if (root.left == null && root.right == null && root.val == target) {
+            return null; // Delete the node by returning null
+        }
+
+        // If the node is not deleted, return it
+        return root;
+    }
+}
