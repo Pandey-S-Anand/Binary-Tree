@@ -1,0 +1,83 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+/*
+ * If we use in-order traversal (Left → Root → Right), we process the left subtree first.
+ * If a node in the left subtree is present in the deletion set, we delete it
+ * and move to the root. If the root itself is also marked for
+ * deletion, we remove it and consider its right child as a new tree in the
+ * forest. However, if the right child is also in the deletion * set, we face a
+ * problem—since we have already detached it from the root, we might miss
+ * deleting it properly. A similar issue arises with pre-order traversal (Root → Left → Right),
+ * where we may delete a node before fully processing its children, leading to
+ * incorrect handling of subtree deletions.
+ * 
+ * In contrast, post-order traversal (Left → Right → Root) ensures that all
+ * child nodes are fully processed before handling the current node. This
+ * prevents premature detachments and ensures that all deletions and forest
+ * updates are managed correctly, making it the best choice for this problem.
+ */
+ 
+class Solution {
+    private Set<Integer> toDelete; // Stores nodes that need to be deleted
+    private List<TreeNode> forest; // Stores the roots of trees in the remaining forest
+
+    public List<TreeNode> delNodes(TreeNode root, int[] to_delete) {
+        toDelete = new HashSet<>();
+        forest = new ArrayList<>();
+
+        // Add nodes to be deleted into a HashSet for quick lookup
+        for (int val : to_delete) {
+            toDelete.add(val);
+        }
+
+        // Process the tree using post-order traversal
+        root = deleteNodes(root);
+
+        // If the root itself was not deleted, add it to the forest
+        if (root != null) {
+            forest.add(root);
+        }
+
+        return forest;
+    }
+
+    private TreeNode delNodes(TreeNode root) {
+        if (root == null) {
+            return null;
+        }
+
+        // Post-order traversal: First process left and right children
+        root.left = delNodes(root.left);
+        root.right = delNodes(root.right);
+        // If the current node is in the delete list
+        if (toDelete.contains(root.val)) {
+            // If the left child exists, add it to the forest
+            if (root.left != null) {
+                forest.add(root.left);
+            }
+
+            // If the right child exists, add it to the forest
+            if (root.right != null) {
+                forest.add(root.right);
+            }
+            // Return null to mark this node as deleted
+            return null;
+        }
+        // If the node is not deleted, return it as is
+        return root;
+    }
+}
