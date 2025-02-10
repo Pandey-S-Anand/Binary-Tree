@@ -94,3 +94,65 @@ class Solution {
         return true;
     }
 }
+
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+
+//Using BFS
+
+/*
+ * If the tree were stored as an array, the left child of a node at index i
+ * would be at 2*i + 1, and the right child would be at 2*i + 2.
+ * 
+ * For a complete binary tree, the last node’s index should be exactly
+ * totalNodes - 1, ensuring there are no gaps in the sequence.
+ * 
+ * If, during traversal, we find a node whose index exceeds totalNodes - 1, it
+ * means there's a missing node before it, breaking the completeness property.
+ * In such a case, the tree is not complete.
+ */
+
+class Solution {
+    private int totalNodes; // Stores the total number of nodes in the tree
+
+    public boolean isCompleteTree(TreeNode root) {
+        totalNodes = countNodes(root); // Step 1: Count total nodes in the tree
+        return isValid(root, 0); // Step 2: Validate completeness using DFS
+    }
+
+    private int countNodes(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        return 1 + countNodes(root.left) + countNodes(root.right);
+    }
+
+    private boolean isValid(TreeNode root, int index) {
+        if (root == null) {
+            return true; // Null nodes are valid (they simply don't contribute to the index check)
+        }
+
+        if (index >= totalNodes) {
+            return false; // Index exceeds the expected count, meaning there is a gap → Not a complete binary tree
+        }
+
+        // Recursively validate the left and right subtrees with their expected indices
+        return isValid(root.left, 2 * index + 1) && isValid(root.right, 2 * index + 2);
+    }
+}
