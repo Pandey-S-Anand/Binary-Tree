@@ -1,0 +1,96 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+//Using BFS
+
+class Solution {
+        /*
+         * Example 1 (Incomplete Binary Tree)
+         * 
+         *     1
+         *    / \
+         *   2   3
+         *  /   / \
+         *  5   7  8
+         * / \
+         * 9 10
+         * 
+         * Valid Complete Binary Tree? → No
+         * Reason: Node `2` is missing its right child.
+         */
+
+        /*
+         * Example 2 (Complete Binary Tree)
+         * 
+         *    1
+         *  /  \
+         *  2   3
+         * / \ /
+         * 5 6 7
+         * 
+         * Valid Complete Binary Tree? → Yes
+         * Reason: All levels are fully filled except the last level, which is
+         * left-aligned.
+         */
+
+        /*
+         * Example 3 (Incomplete Binary Tree)
+         * 
+         *   1
+         *  / \
+         *  2  3
+         * / \  \
+         * 5 6   7
+         * 
+         * Valid Complete Binary Tree? → No
+         * Reason: Node `3` is missing its left child.
+         */
+
+        /*
+         * Example 4 (Complete Binary Tree)
+         * 
+         *     1
+         *    / \
+         *   2   3
+         *  / \
+         *  5  6
+         * 
+         * Valid Complete Binary Tree? → Yes
+         * Reason: All levels are fully filled, and the last level is left-aligned.
+         */
+    public boolean isCompleteTree(TreeNode root) {
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        boolean foundNull = false;
+
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+
+            if (node == null) {
+                foundNull = true; // If a null node is found, all subsequent nodes must be null.
+            } else {
+                if (foundNull) {
+                    return false; // If a non-null node appears after a null node, it's not complete.
+                }
+
+                queue.offer(node.left);
+                queue.offer(node.right);
+            }
+        }
+
+        return true;
+    }
+}
