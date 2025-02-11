@@ -1,0 +1,69 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+ //Naive approach
+
+class Solution {
+    public TreeNode addOneRow(TreeNode root, int val, int depth) {
+        // Special case: If depth == 1, create a new root node with 'val' and attach the original tree as its left subtree.
+        if (depth == 1) {
+            TreeNode newRoot = new TreeNode(val);
+            newRoot.left = root;
+            return newRoot;
+        }
+
+        // Initialize level tracker and queue for BFS traversal.
+        int currentDepth = 0;
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+
+        // Traverse the tree level by level until reaching depth - 1.
+        while (currentDepth < depth) {
+            currentDepth++;
+            int size = queue.size(); // Number of nodes at current level
+
+            for (int i = 0; i < size; i++) {
+                TreeNode currentNode = queue.poll();
+
+                // If we have reached depth - 1, insert new nodes at this level
+                if (currentDepth == depth - 1) {
+                    TreeNode newLeftNode = new TreeNode(val);
+                    TreeNode newRightNode = new TreeNode(val);
+
+                    // Attach the existing left and right subtrees to new nodes
+                    newLeftNode.left = currentNode.left;
+                    newRightNode.right = currentNode.right;
+
+                    // Connect the new nodes to the current node
+                    currentNode.left = newLeftNode;
+                    currentNode.right = newRightNode;
+                } else {
+                    // Continue BFS traversal if we haven't reached depth - 1
+                    if (currentNode.left != null) {
+                        queue.offer(currentNode.left);
+                    }
+                    if (currentNode.right != null) {
+                        queue.offer(currentNode.right);
+                    }
+                }
+            }
+        }
+
+        return root;
+    }
+}
+
+//Optimal approach
