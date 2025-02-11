@@ -1,0 +1,57 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+ 
+class Solution {
+    public boolean leafSimilar(TreeNode root1, TreeNode root2) {
+        // Lists to store leaf node values of both trees
+        List<Integer> tree1Leaves = new ArrayList<>();
+        List<Integer> tree2Leaves = new ArrayList<>();
+        
+        // Collect leaf node values for both trees
+        collectLeaves(root1, tree1Leaves);
+        collectLeaves(root2, tree2Leaves);
+
+        // If leaf sequences have different lengths, they cannot be similar
+        if (tree1Leaves.size() != tree2Leaves.size()) {
+            return false;
+        }
+
+        // Compare both leaf sequences element by element
+        for (int i = 0; i < tree1Leaves.size(); i++) {
+            if (!tree1Leaves.get(i).equals(tree2Leaves.get(i))) {
+                return false;
+            }
+        }
+
+        return true; // Both trees have the same leaf sequence
+    }
+
+    private void collectLeaves(TreeNode root, List<Integer> leavesList) {
+        if (root == null) {
+            return;
+        }
+
+        // If the node is a leaf, add its value to the list
+        if (root.left == null && root.right == null) {
+            leavesList.add(root.val);
+            return;
+        }
+
+        // Recursively collect leaves from left and right subtrees
+        collectLeaves(root.left, leavesList);
+        collectLeaves(root.right, leavesList);
+    }
+}
