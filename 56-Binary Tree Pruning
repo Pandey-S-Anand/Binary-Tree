@@ -14,18 +14,18 @@
  * }
  */
 
+/**
+* The core idea behind pruning the tree is to remove any subtree
+* that does not contain a single occurrence of '1'.
+*
+* Key Conditions for Pruning a Node:
+* 1. If both left and right subtrees contain only '0's (i.e they are null after pruning) AND the node itself is also '0',
+*    Then the entire subtree starting from this node is useless and should be removed.
+*
+* 2. If the node or any of its subtrees contain at least one '1',
+*    Then we keep the node, since it contributes to the valid tree.
+*/
 class Solution {
-    /**
-     * The core idea behind pruning the tree is to remove any subtree
-     * that does not contain a single occurrence of '1'.
-     *
-     * Key Conditions for Pruning a Node:
-     * 1. If both left and right subtrees contain only '0's (i.e they are null after pruning) AND the node itself is also '0',
-     *    Then the entire subtree starting from this node is useless and should be removed.
-     *
-     * 2. If the node or any of its subtrees contain at least one '1',
-     * → Then we keep the node, since it contributes to the valid tree.
-     */
     public TreeNode pruneTree(TreeNode root) {
         // Base case: If the current node is null, return null (no subtree to process)
         if (root == null) {
