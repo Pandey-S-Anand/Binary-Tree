@@ -14,7 +14,7 @@
  * }
  */
 
- //Naive approach
+ //Using BFS
 
 class Solution {
     public TreeNode addOneRow(TreeNode root, int val, int depth) {
@@ -66,4 +66,59 @@ class Solution {
     }
 }
 
-//Optimal approach
+
+//Using DFS
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public TreeNode addOneRow(TreeNode root, int val, int depth) {
+        // Special case: If depth == 1, create a new root and attach original tree to it
+        if (depth == 1) {
+            TreeNode newRoot = new TreeNode(val);
+            newRoot.left = root;
+            return newRoot;
+        }
+
+        // Recursively traverse the tree, starting from depth = 1
+        insertRow(root, val, depth, 1);
+        return root;
+    }
+
+    private void insertRow(TreeNode node, int val, int depth, int curDepth) {
+        if (node == null) {
+            return;
+        }
+
+        // When we reach depth - 1, insert new nodes
+        if (curDepth == depth - 1) {
+            TreeNode newLeftNode = new TreeNode(val);
+            TreeNode newRightNode = new TreeNode(val);
+
+            // Attach original left and right subtrees to new nodes
+            newLeftNode.left = node.left;
+            newRightNode.right = node.right;
+
+            // Attach new nodes to current node
+            node.left = newLeftNode;
+            node.right = newRightNode;
+        } else {
+            // Recurse deeper in the tree
+            insertRow(node.left, val, depth, curDepth + 1);
+            insertRow(node.right, val, depth, curDepth + 1);
+        }
+    }
+}
