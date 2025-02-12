@@ -1,0 +1,107 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+ 
+//Using BFS
+
+class Solution {
+    public List<Integer> largestValues(TreeNode root) {
+        // If the tree is empty, return an empty list
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
+        // List to store the largest values at each level
+        List<Integer> largestValues = new ArrayList<>();
+        
+        // Queue for level-order traversal (BFS)
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size(); // Number of nodes at the current level
+            int maxInRow = Integer.MIN_VALUE; // Track the maximum value in the current level
+
+            // Process all nodes in the current level
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll(); // Remove and process the front node
+                
+                // Update the maximum value found at this level
+                maxInRow = Math.max(maxInRow, node.val);
+
+                // Add the left child to the queue if it exists
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+
+                // Add the right child to the queue if it exists
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+
+            // Store the maximum value found at this level
+            largestValues.add(maxInRow);
+        }
+
+        return largestValues;
+    }
+}
+
+
+//Using DFS
+
+class Solution {
+    // Map to store the maximum value at each level
+    private Map<Integer, Integer> map;
+
+    public List<Integer> largestValues(TreeNode root) {
+        // If the tree is empty, return an empty list
+        if (root == null) {
+            return Collections.emptyList();
+        }
+
+        map = new HashMap<>();
+
+        // Perform a recursive traversal to populate the map
+        findMaxInEachRow(root, 0);
+
+        // List to store the largest values at each level
+        List<Integer> largestValues = new ArrayList<>();
+
+        // Retrieve values in level order
+        for (int row : map.keySet()) {
+            largestValues.add(map.get(row));
+        }
+
+        return largestValues;
+    }
+
+    private void findMaxInEachRow(TreeNode root, int currentLevel) {
+        if (root == null) {
+            return;
+        }
+
+        // If the level is encountered for the first time, insert the current node's value
+        map.putIfAbsent(currentLevel, root.val);
+
+        // Update the maximum value for this level
+        map.put(currentLevel, Math.max(map.get(currentLevel), root.val));
+
+        // Recur for left and right subtrees with the next level
+        findMaxInEachRow(root.left, currentLevel + 1);
+        findMaxInEachRow(root.right, currentLevel + 1);
+    }
+}
