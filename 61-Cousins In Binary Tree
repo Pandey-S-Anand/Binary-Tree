@@ -1,0 +1,130 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+//Using BFS
+
+class Solution {
+    public boolean isCousins(TreeNode root, int x, int y) {
+        // Queue for level-order traversal (BFS)
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size(); // Number of nodes at the current level
+            boolean node1Found = false, node2Found = false; // Flags to check if x or y is found
+            TreeNode node1Parent = null, node2Parent = null; // Parent nodes of x and y
+
+            // Process all nodes in the current level
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+
+                // Check left child
+                if (node.left != null) {
+                    if (node.left.val == x) {
+                        node1Found = true;
+                        node1Parent = node;
+                    }
+
+                    if (node.left.val == y) {
+                        node2Found = true;
+                        node2Parent = node;
+                    }
+
+                    queue.offer(node.left);
+                }
+
+                // Check right child
+                if (node.right != null) {
+                    if (node.right.val == x) {
+                        node1Found = true;
+                        node1Parent = node;
+                    }
+
+                    if (node.right.val == y) {
+                        node2Found = true;
+                        node2Parent = node;
+                    }
+
+                    queue.offer(node.right);
+                }
+            }
+
+            // If both nodes are found at the same level, check if they have different parents
+            if (node1Found && node2Found) {
+                return node1Parent != node2Parent; // They are cousins if parents are different
+            }
+
+            /*
+             * If only one node is found at this level, return false because cousins must be at the same level.
+             * Also, it is explicitly stated that nodes have distinct values, so if one is
+             * found without the other, they cannot be cousins.
+             */
+            if (node1Found || node2Found) {
+                return false;
+            }
+
+        }
+
+        /*
+         * If the loop ends without finding both nodes, return false.
+         * However, this scenario won’t occur as it is explicitly given that both target nodes are present in the tree.
+         */
+        return false;
+    }
+}
+
+
+//Using DFS
+
+class Solution {
+    // Helper class to store node depth and parent reference
+    private static class NodeInfo {
+        int depth;
+        TreeNode parent;
+
+        NodeInfo(int depth, TreeNode parent) {
+            this.depth = depth;
+            this.parent = parent;
+        }
+    }
+
+    public boolean isCousins(TreeNode root, int node1, int node2) {
+        // Find depth and parent information for both target nodes
+        NodeInfo info1 = getNodeInfo(root, node1, null, 0);
+        NodeInfo info2 = getNodeInfo(root, node2, null, 0);
+
+        // Two nodes are cousins if they are at the same depth but have different parents
+        return info1.depth == info2.depth && info1.parent != info2.parent;
+    }
+
+    private NodeInfo getNodeInfo(TreeNode root, int target, TreeNode parent, int depth) {
+        if (root == null) {
+            return null;
+        }
+
+        // If the target node is found, return its depth and parent information
+        if (root.val == target) {
+            return new NodeInfo(depth, parent);
+        }
+
+        // Recursively search for the target node in the left and right subtrees
+        NodeInfo leftSearch = getNodeInfo(root.left, target, root, depth + 1);
+        NodeInfo rightSearch = getNodeInfo(root.right, target, root, depth + 1);
+
+        // Return the first non-null result (whichever subtree contains the target node)
+        return leftSearch != null ? leftSearch : rightSearch;
+    }
+}
