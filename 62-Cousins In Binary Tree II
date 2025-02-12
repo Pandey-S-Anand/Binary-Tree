@@ -1,0 +1,67 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+class Solution {
+    public TreeNode replaceValueInTree(TreeNode root) {
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+
+        // Map to store the sum of children's values for each parent node
+        Map<TreeNode, Integer> parentSum = new HashMap<>();
+
+        root.val = 0; // The root has no cousins, so its value is set to 0.
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            int levelSum = 0; // Sum of all nodes' children at the current level
+
+            // First pass: Compute the sum of children for each parent in the level
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                int siblingSum = 0; // Stores the sum of current node's children values
+
+                if (node.left != null) {
+                    siblingSum += node.left.val;
+                    queue.offer(node.left);
+                }
+
+                if (node.right != null) {
+                    siblingSum += node.right.val;
+                    queue.offer(node.right);
+                }
+
+                parentSum.put(node, siblingSum);
+                levelSum += siblingSum; // Add to the total level sum
+            }
+
+            // Second pass: Update each node's children's values to the sum of their cousins' values
+            for (TreeNode node : parentSum.keySet()) {
+                int siblingSum = parentSum.get(node);
+
+                // Cousin sum for a node = total level sum - sibling sum
+                if (node.left != null) {
+                    node.left.val = levelSum - siblingSum;
+                }
+                if (node.right != null) {
+                    node.right.val = levelSum - siblingSum;
+                }
+            }
+
+            parentSum.clear(); // Clear the map before moving to the next level
+        }
+        return root;
+    }
+}
