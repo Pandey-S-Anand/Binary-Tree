@@ -1,0 +1,60 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+ 
+class Solution {
+    // Map to store serialized subtree representations and their frequencies
+    private Map<String, Integer> map;
+
+    // List to store the root nodes of duplicate subtrees
+    private List<TreeNode> duplicateSubtrees;
+
+    // A subtree is considered duplicate if another subtree with the same structure
+    // and values exists.
+    public List<TreeNode> findDuplicateSubtrees(TreeNode root) {
+        map = new HashMap<>();
+        duplicateSubtrees = new ArrayList<>();
+        serializeTree(root);
+        return duplicateSubtrees;
+    }
+
+    // The serialization follows a postorder traversal (left, right, root).
+    private String serializeTree(TreeNode root) {
+        // Base case: Null nodes are represented as "*"
+        if (root == null) {
+            return "*";
+        }
+
+        // Recursively serialize left and right subtrees
+        String leftSubtree = serializeTree(root.left);
+        String rightSubtree = serializeTree(root.right);
+
+        // Create a unique serialization string for the current subtree
+        String subtree = root.val + "," + leftSubtree + "," + rightSubtree;
+
+        // Update the frequency of this subtree in the map
+        map.put(subtree, map.getOrDefault(subtree, 0) + 1);
+
+        /*
+         * If the subtree appears exactly twice, add its root to the result list
+         * We add it when count == 2 to avoid duplicate entries in the result list
+         */
+        if (map.get(subtree) == 2) {
+            duplicateSubtrees.add(root);
+        }
+
+        return subtree; // Return the serialized subtree representation
+    }
+}
