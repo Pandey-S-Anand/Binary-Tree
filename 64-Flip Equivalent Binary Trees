@@ -1,0 +1,43 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+class Solution {
+    public boolean flipEquiv(TreeNode root1, TreeNode root2) {
+        // Base Case 1: If both nodes are null, they are trivially equivalent
+        if (root1 == null && root2 == null) {
+            return true;
+        }
+        
+        // Base Case 2: If one is null or their values don't match, they are not equivalent
+        if (root1 == null || root2 == null || root1.val != root2.val) {
+            return false;
+        }
+
+        // Case 1: Check equivalence without flipping (left-to-left and right-to-right)
+        boolean withoutFlip = flipEquiv(root1.left, root2.left) && flipEquiv(root1.right, root2.right);
+
+        // If trees are already equivalent without flipping, return true
+        if (withoutFlip) {
+            return true;
+        }
+
+        // Case 2: Check equivalence with flipping (left-to-right and right-to-left)
+        boolean withFlip = flipEquiv(root1.left, root2.right) && flipEquiv(root1.right, root2.left);
+
+        // Return the result of the flipped case
+        return withFlip;
+    }
+}
