@@ -1,0 +1,92 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+//Bruteforce approach
+
+class Solution {
+    private List<int[]> levels;
+
+    public int minimumOperations(TreeNode root) {
+        levels = new ArrayList<>();
+        // Perform BFS to get all levels of the tree
+        getAllLevels(root);
+
+        int operations = 0;
+        // For each level, calculate the minimum swaps needed to sort it using selection sort
+        for (int[] level : levels) {
+            operations += selectionSortSwaps(level);
+        }
+
+        return operations;
+    }
+
+    private void getAllLevels(TreeNode root) {
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            int[] level = new int[size];
+            int index = 0;
+
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                level[index++] = node.val;
+                if (node.left != null) {
+                    queue.add(node.left);
+                }
+                if (node.right != null) {
+                    queue.add(node.right);
+                }
+            }
+            levels.add(level);
+        }
+    }
+
+    // Find the minimum number of swaps needed to sort the list using selection sort
+    private int selectionSortSwaps(int[] level) {
+        int swaps = 0;
+
+        // Selection Sort with swap counting, using List directly
+        for (int i = 0; i < level.length - 1; i++) {
+            // Find the minimum element in the unsorted part of the list
+            int minIdx = i;
+            for (int j = i + 1; j < level.length; j++) {
+                if (level[j] < level[minIdx]) {
+                    minIdx = j;
+                }
+            }
+
+            // If the minimum element is not already in the correct position, swap
+            if (minIdx != i) {
+                swap(level, i, minIdx); // Swap the elements in the arr
+                swaps++; // Increment swap count
+            }
+        }
+
+        return swaps;
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+//Optimal approach
+
