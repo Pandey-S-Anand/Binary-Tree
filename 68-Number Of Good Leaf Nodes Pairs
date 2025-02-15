@@ -14,7 +14,7 @@
  * }
  */
 
-//Bruteforce appraoch
+//Bruteforce approach
 
 class Solution {
     private int count = 0;
