@@ -213,3 +213,88 @@ class Solution {
         return -1; // This case should never happen, as both nodes exist in the tree
     }
 }
+
+
+//Better approach
+
+class Solution {
+    private Map<TreeNode, TreeNode> parentMap;
+    private Set<TreeNode> leafNodes;
+
+    public int countPairs(TreeNode root, int distance) {
+        leafNodes = new HashSet<>();
+        parentMap = new HashMap<>();
+        int count = 0;
+
+        collectLeafNodes(root, null);
+        /*
+         * For each leaf node, perform a BFS to find all other leaves within the given distance.
+         * Since the distance from leafNode1 to leafNode2 is the same as from leafNode2 to leafNode1,
+         * each valid pair is counted twice. Therefore, we divide the final count by 2.
+         */
+        for (TreeNode leafNode : leafNodes) {
+            count += findDistanceBFS(leafNode, distance);
+        }
+
+        return count / 2;
+    }
+
+    private void collectLeafNodes(TreeNode node, TreeNode parent) {
+        if (node == null) {
+            return;
+        }
+
+        parentMap.put(node, parent);
+
+        if (node.left == null && node.right == null) {
+            leafNodes.add(node);
+        }
+
+        collectLeafNodes(node.left, node);
+        collectLeafNodes(node.right, node);
+    }
+
+    private int findDistanceBFS(TreeNode root, int maxDistance) {
+        Set<TreeNode> visited = new HashSet<>();
+        Queue<TreeNode> queue = new ArrayDeque<>();
+
+        queue.add(root);
+        visited.add(root);
+
+        int distance = 0;
+        int count = 0;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+
+                // If we find another leaf node within the max distance, count it
+                if (node != root && leafNodes.contains(node) && distance <= maxDistance) {
+                    count++;
+                }
+
+                if (node.left != null && !visited.contains(node.left)) {
+                    queue.add(node.left);
+                    visited.add(node.left);
+                }
+
+                if (node.right != null && !visited.contains(node.right)) {
+                    queue.add(node.right);
+                    visited.add(node.right);
+                }
+
+                TreeNode parent = parentMap.get(node);
+                if (parent != null && !visited.contains(parent)) {
+                    queue.add(parent);
+                    visited.add(parent);
+                }
+            }
+
+            distance++;
+        }
+
+        return count;
+    }
+}
