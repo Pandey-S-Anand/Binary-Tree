@@ -114,3 +114,102 @@ class Solution {
         return findDepth(currentNode.right, targetNode, currentDepth + 1);
     }
 }
+
+
+//Improved approach
+
+class Solution {
+    private Map<TreeNode, TreeNode> parentMap; // Stores the parent of each node
+    private List<TreeNode> leafNodes; // Stores all leaf nodes
+
+    public int countPairs(TreeNode root, int distance) {
+        leafNodes = new ArrayList<>();
+        parentMap = new HashMap<>();
+
+        // Step 1: Populate the parent map and collect leaf nodes using DFS
+        collectLeafNodes(root, null);
+
+        int count = 0;
+
+        // Step 2: Compare every pair of leaf nodes using BFS to find distance
+        for (int i = 0; i < leafNodes.size(); i++) {
+            for (int j = i + 1; j < leafNodes.size(); j++) {
+                TreeNode leaf1 = leafNodes.get(i);
+                TreeNode leaf2 = leafNodes.get(j);
+
+                // Step 3: Use BFS to calculate the shortest distance between the two leaves
+                if (findDistanceBFS(leaf1, leaf2) <= distance) {
+                    count++; // Count valid pairs
+                }
+            }
+        }
+
+        return count; // Return the total count of good leaf node pairs
+    }
+
+    private void collectLeafNodes(TreeNode node, TreeNode parent) {
+        if (node == null) {
+            return;
+        }
+
+        // Store the parent of the current node
+        parentMap.put(node, parent);
+
+        // If the node is a leaf (both left and right children are null), add to the leaf list
+        if (node.left == null && node.right == null) {
+            leafNodes.add(node);
+        }
+
+        // Recursively traverse left and right subtrees
+        collectLeafNodes(node.left, node);
+        collectLeafNodes(node.right, node);
+    }
+
+    private int findDistanceBFS(TreeNode node1, TreeNode node2) {
+        Set<TreeNode> visited = new HashSet<>(); // Keep track of visited nodes to prevent cycles
+        Queue<TreeNode> queue = new ArrayDeque<>(); // Queue for BFS traversal
+
+        // Start BFS from node1
+        queue.add(node1);
+        visited.add(node1);
+
+        int distance = 0; // Track the number of levels traversed
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            // Process all nodes at the current level
+            for (int i = 0; i < size; i++) {
+                TreeNode currentNode = queue.poll();
+
+                // If we reached node2, return the distance
+                if (currentNode == node2) {
+                    return distance;
+                }
+
+                // Add the left child to the queue if not visited
+                if (currentNode.left != null && !visited.contains(currentNode.left)) {
+                    queue.add(currentNode.left);
+                    visited.add(currentNode.left);
+                }
+
+                // Add the right child to the queue if not visited
+                if (currentNode.right != null && !visited.contains(currentNode.right)) {
+                    queue.add(currentNode.right);
+                    visited.add(currentNode.right);
+                }
+
+                // Move up to the parent node if not visited
+                TreeNode parent = parentMap.get(currentNode);
+                if (parent != null && !visited.contains(parent)) {
+                    queue.add(parent);
+                    visited.add(parent);
+                }
+            }
+
+            distance++; // Increment distance after processing one level
+        }
+
+        return -1; // This case should never happen, as both nodes exist in the tree
+    }
+}
