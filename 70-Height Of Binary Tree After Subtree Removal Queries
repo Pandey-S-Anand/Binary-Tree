@@ -1,0 +1,101 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+
+class Solution {
+    private static class TreeNodeDetails {
+        TreeNode node; // The node that matches the query value
+        TreeNode parent; // Parent of the matching node
+        boolean isLeftChild; // True if the node is the left child of its parent
+
+        TreeNodeDetails(TreeNode node, TreeNode parent, boolean isLeftChild) {
+            this.node = node;
+            this.parent = parent;
+            this.isLeftChild = isLeftChild;
+        }
+    }
+
+    public int[] treeQueries(TreeNode root, int[] queries) {
+        int[] heightsAfterDeletion = new int[queries.length];
+
+        // Process each query one by one
+        for (int i = 0; i < queries.length; i++) {
+            // Find the node with the target value and its details (parent and side info)
+            TreeNodeDetails nodeDetails = findAndDetachNode(root, null, queries[i], null);
+            TreeNode parent = nodeDetails.parent;
+
+            /*
+             * Temporarily detach the target node from its parent.
+             * This simulates removing the node from the tree so that we can compute the height of the tree without this node.
+             * We do this by setting the corresponding child pointer of the parent to null.
+             */
+            if (nodeDetails.isLeftChild) {
+                parent.left = null; // If the node is the left child, disconnect it by setting parent's left to null.
+            } else {
+                parent.right = null; // If the node is the right child, disconnect it by setting parent's right to null.
+            }
+
+            /*
+             * Compute the height of the tree after the node has been removed.
+             * The computeHeight(root) method returns the total number of nodes along the longest path from the root to a leaf.
+             * Since the number of edges in the tree is one less than the number of nodes (i.e., height - 1),
+             * we subtract 1 from the computed height to get the number of edges.
+             */
+            heightsAfterDeletion[i] = computeHeight(root) - 1;
+
+            /*
+             * Restore the removed node back to its original position.
+             * This is crucial so that the original tree structure is maintained for subsequent queries.
+             * We do this by reassigning the removed node back to the appropriate child pointer of its parent.
+             */
+            if (nodeDetails.isLeftChild) {
+                parent.left = nodeDetails.node; // Reattach the node as the left child.
+            } else {
+                parent.right = nodeDetails.node; // Reattach the node as the right child.
+            }
+
+        }
+
+        return heightsAfterDeletion;
+    }
+
+    private int computeHeight(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        return 1 + Math.max(computeHeight(root.left), computeHeight(root.right));
+    }
+
+    private TreeNodeDetails findAndDetachNode(TreeNode root, TreeNode parent, int target, Boolean isLeftChild) {
+        if (root == null) {
+            return null; // If reached a null node, target not found here
+        }
+
+        if (root.val == target) {
+            // Found the target node; return its details (node, parent, and whether it's a left child)
+            return new TreeNodeDetails(root, parent, isLeftChild);
+        }
+
+        // Recursively search in the left subtree
+        TreeNodeDetails leftSearch = findAndDetachNode(root.left, root, target, true);
+        if (leftSearch != null) {
+            return leftSearch; // Target found in left subtree; return details
+        }
+
+        // If not found in left, search in the right subtree
+        return findAndDetachNode(root.right, root, target, false);
+    }
+}
