@@ -1,0 +1,116 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+//Bruteforce appraoch
+
+class Solution {
+    private int count = 0;
+    private List<TreeNode> leafNodes;
+
+    public int countPairs(TreeNode root, int distance) {
+        // Step 1: Collect all the leaf nodes
+        leafNodes = new ArrayList<>();
+        collectLeafNodes(root);
+
+        // Step 2: Compare every pair of leaves
+        for (int i = 0; i < leafNodes.size(); i++) {
+            for (int j = i + 1; j < leafNodes.size(); j++) {
+                TreeNode leaf1 = leafNodes.get(i);
+                TreeNode leaf2 = leafNodes.get(j);
+                if (findDistance(root, leaf1, leaf2) <= distance) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    // Step 1: Collect all leaf nodes
+    private void collectLeafNodes(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+
+        if (node.left == null && node.right == null) {
+            leafNodes.add(node);
+            return;
+        }
+
+        collectLeafNodes(node.left);
+        collectLeafNodes(node.right);
+    }
+
+    // Step 2: Find the LCA of two nodes
+    private TreeNode findLCA(TreeNode root, TreeNode node1, TreeNode node2) {
+        if (root == null) {
+            return null;
+        }
+
+        if (root == node1 || root == node2) {
+            return root;
+        }
+
+        TreeNode left = findLCA(root.left, node1, node2);
+        TreeNode right = findLCA(root.right, node1, node2);
+
+        if (left != null && right != null) {
+            return root;
+        }
+
+        if (left != null) {
+            return left;
+        }
+
+        if (right != null) {
+            return right;
+        }
+
+        return null;
+    }
+
+    // Step 3: Find the distance between two nodes
+    private int findDistance(TreeNode root, TreeNode node1, TreeNode node2) {
+        TreeNode lca = findLCA(root, node1, node2);
+        int distance1 = findDepth(lca, node1, 0);
+        int distance2 = findDepth(lca, node2, 0);
+        return distance1 + distance2;
+    }
+
+    // Step 4: Find the depth of a target node from the given root
+    private int findDepth(TreeNode currentNode, TreeNode targetNode, int currentDepth) {
+        // Base case: If the current node is null, return -1 to indicate the node is not found
+        if (currentNode == null) {
+            return -1;
+        }
+
+        // If the current node is the target node, return the current depth
+        if (currentNode == targetNode) {
+            return currentDepth;
+        }
+
+        // Search the left subtree for the target node by increasing the depth
+        int leftDepth = findDepth(currentNode.left, targetNode, currentDepth + 1);
+
+        // If the target node was found in the left subtree, return the depth
+        if (leftDepth != -1) {
+            return leftDepth;
+        }
+
+        // If the target node is not found in the left subtree, search the right subtree
+        return findDepth(currentNode.right, targetNode, currentDepth + 1);
+    }
+}
