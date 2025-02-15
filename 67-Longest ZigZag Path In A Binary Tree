@@ -1,0 +1,107 @@
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ * int val;
+ * TreeNode left;
+ * TreeNode right;
+ * TreeNode() {}
+ * TreeNode(int val) { this.val = val; }
+ * TreeNode(int val, TreeNode left, TreeNode right) {
+ * this.val = val;
+ * this.left = left;
+ * this.right = right;
+ * }
+ * }
+ */
+
+//Bruteforce approach
+
+class Solution {
+    private int maxZigZag = 0; // Stores the maximum ZigZag length found
+
+    public int longestZigZag(TreeNode root) {
+        if (root == null) {
+            return 0; // Edge case: If the tree is empty, return 0
+        }
+        
+        // Start a new ZigZag path from the root by moving to the left child
+        dfs(root.left, 1, true);
+
+        // Start a new ZigZag path from the root by moving to the right child
+        dfs(root.right, 1, false);
+
+        return maxZigZag; // Return the longest ZigZag path found
+    }
+
+    private void dfs(TreeNode node, int length, boolean isLeft) {
+        if (node == null) {
+            return; // Base case: If the node is null, stop recursion
+        }
+
+        // Update the maximum ZigZag length found so far
+        maxZigZag = Math.max(maxZigZag, length);
+
+        // Start a new ZigZag path from the current node by moving to the left child
+        dfs(node.left, 1, true);
+        
+        // Start a new ZigZag path from the current node by moving to the right child
+        dfs(node.right, 1, false);
+
+        // Continue the current ZigZag path by switching direction
+        if (isLeft) {
+            dfs(node.right, length + 1, false); // If the last move was left, move right
+        } else {
+            dfs(node.left, length + 1, true); // If the last move was right, move left
+        }
+    }
+}
+
+
+//Optimal approach
+
+/*
+ * Crux:
+ *
+ * - If the previous move was left:
+ *     - Continue the ZigZag path by moving right (length + 1).
+ *     - Start a new path by moving left (length = 1).
+ *     - We do not start a new path moving right because continuing (length + 1) is always greater than restarting at length = 1.
+ * 
+ * - If the previous move was right:
+ *     - Continue the ZigZag path by moving left (length + 1).
+ *     - Start a new path by moving right (length = 1).
+ *     - We do not start a new path moving left because continuing (length + 1) is always greater than restarting at length = 1.
+ */
+ 
+class Solution {
+    private int maxZigZag = 0; // Variable to store the maximum ZigZag length found
+
+    public int longestZigZag(TreeNode root) {
+        // Start a new ZigZag path from the root's left child, moving left
+        dfs(root.left, 1, true);
+
+        // Start a new ZigZag path from the root's right child, moving right
+        dfs(root.right, 1, false);
+
+        // Return the longest ZigZag length found
+        return maxZigZag;
+    }
+
+    private void dfs(TreeNode node, int length, boolean isLeft) {
+        if (node == null) {
+            return; // Base case: Stop recursion if the node is null
+        }
+
+        // Update the maximum ZigZag length found so far
+        maxZigZag = Math.max(maxZigZag, length);
+
+        // If the last move was left, continue ZigZag by moving right
+        if (isLeft) {
+            dfs(node.left, 1, true);  // Start a new ZigZag path by moving left to the left child
+            dfs(node.right, length + 1, false); // Continue ZigZag path by moving right to the right child
+        } else { // If the last move was right, continue ZigZag by moving left
+            dfs(node.right, 1, false); // Start a new ZigZag path by moving right to the right child
+            dfs(node.left, length + 1, true);  // Continue ZigZag path by moving left to the left child
+        }
+    }
+}
