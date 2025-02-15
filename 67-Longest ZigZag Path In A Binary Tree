@@ -20,10 +20,6 @@ class Solution {
     private int maxZigZag = 0; // Stores the maximum ZigZag length found
 
     public int longestZigZag(TreeNode root) {
-        if (root == null) {
-            return 0; // Edge case: If the tree is empty, return 0
-        }
-        
         // Start a new ZigZag path from the root by moving to the left child
         dfs(root.left, 1, true);
 
