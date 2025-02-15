@@ -298,3 +298,114 @@ class Solution {
         return count;
     }
 }
+
+
+//Optimal approach
+
+//Naive implementation
+
+class Solution {
+    private int count = 0;
+
+    public int countPairs(TreeNode root, int distance) {
+        dfs(root, distance);
+        return count;
+    }
+
+    private List<Integer> dfs(TreeNode node, int distance) {
+        if (node == null) {
+            return Collections.emptyList();
+        }
+
+        // If the node is a leaf
+        if (node.left == null && node.right == null) {
+            return Collections.singletonList(1); // Leaf at distance 1 from its parent
+        }
+
+        /*
+         * leftLeafDistances: the size of this list indicates the number of leaf nodes in the left subtree,
+         * and the value at each index represents the distance of each leaf node from the current node.
+         */
+        List<Integer> leftLeafDistances = dfs(node.left, distance);
+        /*
+         * rightLeafDistances: the size of this list indicates the number of leaf nodes in the right subtree,
+         * and the value at each index represents the distance of each leaf node from the current node.
+         */
+        List<Integer> rightLeafDistances = dfs(node.right, distance);
+
+        // Count good leaf pairs
+        for (int leftDistance : leftLeafDistances) {
+            for (int rightDistance : rightLeafDistances) {
+                if (leftDistance + rightDistance <= distance) {
+                    count++; // Valid pair of leaf nodes
+                }
+            }
+        }
+
+        // Prepare and return updated distances to parent (increment each by 1)
+        List<Integer> distancesToParent = new ArrayList<>();
+
+        for (int leftDistance : leftLeafDistances) {
+            distancesToParent.add(leftDistance + 1);
+        }
+
+        for (int rightDistance : rightLeafDistances) {
+            distancesToParent.add(rightDistance + 1);
+        }
+
+        return distancesToParent;
+    }
+}
+
+
+//Optimal implementation
+
+class Solution {
+    private int count = 0;
+
+    public int countPairs(TreeNode root, int distance) {
+        dfs(root, distance);
+        return count;
+    }
+
+    private List<Integer> dfs(TreeNode node, int distance) {
+        if (node == null) {
+            return Collections.emptyList();
+        }
+
+        if (node.left == null && node.right == null) {
+            return Collections.singletonList(1);
+        }
+
+        List<Integer> leftLeafDistances = dfs(node.left, distance);
+        List<Integer> rightLeafDistances = dfs(node.right, distance);
+
+        for (int leftDistance : leftLeafDistances) {
+            for (int rightDistance : rightLeafDistances) {
+                if (leftDistance + rightDistance <= distance) {
+                    count++;
+                }
+            }
+        }
+
+        List<Integer> distancesToParent = new ArrayList<>();
+        /*
+         * Optimization: Only add leaf distances < 'distance' to avoid unnecessary computation.
+         * Since we are only interested in leaf nodes that can form valid pairs,
+         * discarding distances greater than equal to 'distance' prevents unnecessary processing in higher recursive calls.
+         */
+        for (int leftDistance : leftLeafDistances) {
+            if (leftDistance < distance) {
+                distancesToParent.add(leftDistance + 1);
+            }
+        }
+
+        for (int rightDistance : rightLeafDistances) {
+            if (rightDistance < distance) {
+                distancesToParent.add(rightDistance + 1);
+            }
+        }
+
+        return distancesToParent;
+    }
+}
