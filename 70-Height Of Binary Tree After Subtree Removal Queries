@@ -14,6 +14,8 @@
  * }
  */
 
+//Bruteforce approach
+
 class Solution {
     private static class TreeNodeDetails {
         TreeNode node; // The node that matches the query value
@@ -97,5 +99,125 @@ class Solution {
 
         // If not found in left, search in the right subtree
         return findAndDetachNode(root.right, root, target, false);
+    }
+}
+
+
+//Optimal approach
+
+/*
+ * The height of a tree is determined by the longest root-to-leaf path.
+ * If we remove a node at a certain level, we remove that node's subtree, which only affects paths that go through that subtree.
+ * A clever approach is as follows:
+ * - If the removed node's subtree contained the tallest path in the tree, the new height will be determined by the second tallest path passing through
+ *   another node at the same level (i.e., the max height achievable from some other node at the same level).
+ * - If the removed node does not contain the tallest path in the tree, the tree height remains unchanged,
+ *   and we get it from the max height achievable from the node's level.
+ */
+
+class Solution {
+    // Class to store the level and height of a node
+    private static class NodeInfo {
+        int level;  // The level of the node in the tree
+        int height; // The height of the node, i.e., the longest path from the node to a leaf
+
+        NodeInfo(int level, int height) {
+            this.level = level;
+            this.height = height;
+        }
+    }
+
+    // Class to store the maximum and second maximum heights at each level
+    private static class LevelInfo {
+        int maxHeight;       // Maximum height at a given level
+        int secondMaxHeight; // Second maximum height at the given level
+
+        LevelInfo() {
+            this.maxHeight = 0;
+            this.secondMaxHeight = 0;
+        }
+    }
+
+    private Map<Integer, NodeInfo> nodeInfoMap;  // Maps node value to its level and height
+    private Map<Integer, LevelInfo> levelInfoMap; // Maps level to max and second max height at that level
+
+    public int[] treeQueries(TreeNode root, int[] queries) {
+        nodeInfoMap = new HashMap<>();
+        levelInfoMap = new HashMap<>();
+
+        // Precompute the height and level for each node in the tree
+        computeHeight(root, 0);
+
+        int[] heightsAfterDeletion = new int[queries.length];
+
+        // Process each query
+        for (int i = 0; i < queries.length; i++) {
+            int nodeValue = queries[i];
+
+            // Retrieve the level and height of the queried node
+            NodeInfo nodeInfo = nodeInfoMap.get(nodeValue);
+            int nodeLevel = nodeInfo.level;
+            int nodeHeight = nodeInfo.height;
+
+            // Retrieve the max and second max height for the queried node's level
+            LevelInfo levelInfo = levelInfoMap.get(nodeLevel);
+            int levelMaxHeight = levelInfo.maxHeight;
+            /*
+             * Each level in the tree contains multiple nodes.
+             * We maintain the second maximum height at each level because the node
+             * contributing to the longest root-to-leaf path might be the one getting deleted.
+             * In such a case, we need to rely on the second maximum height from that level to determine the new tree height.
+             */
+            int secondMaxHeight = levelInfo.secondMaxHeight;
+
+            // Calculate the height after deletion of the node
+            heightsAfterDeletion[i] = nodeLevel;
+            // If the node being deleted was part of the tallest path, use the second longest path
+            if (levelMaxHeight == nodeHeight) {
+                heightsAfterDeletion[i] += secondMaxHeight;
+            } else {
+                // Otherwise, the height remains the same as the max height at that level
+                heightsAfterDeletion[i] += levelMaxHeight;
+            }
+
+            /*
+             * We reduce the height by 1 because the problem defines the height in terms of the number of edges, not the number of nodes. 
+             * Therefore, number of edges = number of nodes in the path - 1.
+             */
+            heightsAfterDeletion[i] -= 1;
+        }
+
+        return heightsAfterDeletion;
+    }
+
+    private int computeHeight(TreeNode root, int nodeLevel) {
+        // Base case: if the current node is null, return height 0
+        if (root == null) {
+            return 0;
+        }
+
+        // Recursively compute the height of the left and right subtrees
+        int leftHeight = computeHeight(root.left, nodeLevel + 1);
+        int rightHeight = computeHeight(root.right, nodeLevel + 1);
+        
+        // The height of the current node is 1 plus the maximum height of its subtrees
+        int nodeHeight = 1 + Math.max(leftHeight, rightHeight);
+
+        // Store the node's level and height in the nodeInfoMap
+        nodeInfoMap.put(root.val, new NodeInfo(nodeLevel, nodeHeight));
+
+        levelInfoMap.putIfAbsent(nodeLevel, new LevelInfo());
+        LevelInfo levelInfo = levelInfoMap.get(nodeLevel);
+
+        // Update maxHeight and secondMaxHeight for the current level
+        if (nodeHeight > levelInfo.maxHeight) {
+            levelInfo.secondMaxHeight = levelInfo.maxHeight;
+            levelInfo.maxHeight = nodeHeight;
+        } else if (nodeHeight > levelInfo.secondMaxHeight) {
+            levelInfo.secondMaxHeight = nodeHeight;
+        }
+
+        // Return the height of the current node
+        return nodeHeight;
     }
 }
