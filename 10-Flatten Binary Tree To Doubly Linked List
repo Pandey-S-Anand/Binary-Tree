@@ -1,0 +1,73 @@
+//Bruteforce approach
+
+class Solution {
+    private List<Node> inorderTraversal;
+
+    Node bToDLL(Node root) {
+        inorderTraversal = new ArrayList<>();
+        findInorderTraversal(root); // Perform inorder traversal and store nodes in the list
+
+        Node prevNode = inorderTraversal.get(0); // The first node in the inorder list is the head of DLL
+
+        // Iterate through the inorder list and link nodes to form a doubly linked list
+        for (int i = 1; i < inorderTraversal.size(); i++) {
+            Node currentNode = inorderTraversal.get(i);
+            currentNode.left = prevNode; // Set left pointer to previous node
+            prevNode.right = currentNode; // Set right pointer of previous node to current node
+            prevNode = currentNode; // Move prevNode to the current node for next iteration
+        }
+
+        return inorderTraversal.get(0); // Return the head of the DLL
+    }
+
+    private void findInorderTraversal(Node root) {
+        if (root == null) {
+            return;
+        }
+
+        findInorderTraversal(root.left);
+        inorderTraversal.add(root);
+        findInorderTraversal(root.right);
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    private Node head; // Head of the Doubly Linked List
+    private Node prevNode; // Pointer to track the previous node in DLL
+
+    Node bToDLL(Node root) {
+        head = prevNode = null;
+
+        // Perform inorder traversal and convert the tree into a DLL
+        findInorderTraversal(root);
+
+        // Return the head of the DLL
+        return head;
+    }
+
+    private void findInorderTraversal(Node root) {
+        if (root == null) {
+            return; // Base case: Stop if the node is null
+        }
+
+        // Recur on the left subtree
+        findInorderTraversal(root.left);
+
+        if (prevNode == null) { // This condition is true for the first (leftmost) node in inorder traversal
+            root.left = null; // Not strictly necessary, as the leftmost node already has left = null
+            head = root; // The first node encountered becomes the head of the DLL
+        } else {
+            root.left = prevNode; // Current node's left points to previous node
+            prevNode.right = root; // Previous node's right points to current node
+        }
+
+        // Move the prevNode pointer to the current node
+        prevNode = root;
+
+        // Recur on the right subtree
+        findInorderTraversal(root.right);
+    }
+}
