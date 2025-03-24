@@ -17,13 +17,16 @@
 //Bruteforce approach
 
 class Solution {
-    public void flatten(TreeNode root) {
-        // Get the preorder traversal of the tree as a list of nodes
-        List<TreeNode> preorderNodes = getPreorder(root);
+    private List<TreeNode> preorderTraversal;
 
-        for (int i = 0; i < preorderNodes.size() - 1; i++) {
-            TreeNode currentNode = preorderNodes.get(i);
-            TreeNode next = preorderNodes.get(i + 1);
+    public void flatten(TreeNode root) {
+        preorderTraversal = new ArrayList<>();
+        // Get the preorder traversal of the tree as a list of nodes
+        findPreorderTraversal(root);
+
+        for (int i = 0; i < preorderTraversal.size() - 1; i++) {
+            TreeNode currentNode = preorderTraversal.get(i);
+            TreeNode next = preorderTraversal.get(i + 1);
             // Set current node's left child to null as we are flattening into a linked list
             currentNode.left = null;
             // Link current node's right to the next node in preorder sequence
@@ -31,39 +34,55 @@ class Solution {
         }
     }
 
-    private List<TreeNode> getPreorder(TreeNode root) {
+    private void findPreorderTraversal(TreeNode root) {
         if (root == null) {
-            return Collections.emptyList();
+            return;
         }
-
-        List<TreeNode> preorderTraversal = new ArrayList<>();
-        TreeNode currentNode  = root;
-
-        while (currentNode != null) {
-            if (currentNode.left == null) {
-                preorderTraversal.add(currentNode);
-                currentNode = currentNode.right;
-            } else {
-                TreeNode rightmostNode = currentNode.left;
-
-                while (rightmostNode.right != null && rightmostNode.right != currentNode) {
-                    rightmostNode = rightmostNode.right;
-                }
-
-                if (rightmostNode.right == currentNode) {
-                    rightmostNode.right = null;
-                    currentNode = currentNode.right;
-                } else {
-                    preorderTraversal.add(currentNode);
-                    rightmostNode.right = currentNode;
-                    currentNode = currentNode.left;
-                }
-            }
-        }
-
-        return preorderTraversal;
+        
+        preorderTraversal.add(root);
+        findPreorderTraversal(root.left);
+        findPreorderTraversal(root.right);
     }
 }
+
+
+//Better Approach
+
+class Solution {
+    private TreeNode prevNode;
+
+    public void flatten(TreeNode root) {
+        prevNode = null;
+        findPreorderTraversal(root);
+    }
+
+    private void findPreorderTraversal(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+
+        if (prevNode != null) {
+            prevNode.left = null;
+            prevNode.right = root;
+        }
+
+        prevNode = root;
+
+        TreeNode rightSubtree = root.right;
+        /*
+         * The `flatten(root.left)` call may modify the original right subtree structure
+         * if `root` has a left child. As a result, when `flatten(root.right)` is
+         * called, `root.right` might no longer point to the original right subtree.
+         * To prevent this, we store a reference to the original right subtree
+         * before making the recursive call.
+         */
+        findPreorderTraversal(root.left);
+        findPreorderTraversal(rightSubtree);
+    }
+}
+
+
+//Optimal approach
 
 /*
 Dry Run for the tree:
@@ -131,8 +150,6 @@ Final Flattened Tree:
 1 -> 2 -> 3 -> 4 -> 5 -> 6
 */
 
-
-//Optimal approach
 
 class Solution {
     public void flatten(TreeNode root) {
