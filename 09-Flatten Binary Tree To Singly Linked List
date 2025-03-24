@@ -24,13 +24,16 @@ class Solution {
         // Get the preorder traversal of the tree as a list of nodes
         findPreorderTraversal(root);
 
-        for (int i = 0; i < preorderTraversal.size() - 1; i++) {
+        TreeNode prevNode = root;
+
+        for (int i = 1; i < preorderTraversal.size(); i++) {
             TreeNode currentNode = preorderTraversal.get(i);
-            TreeNode next = preorderTraversal.get(i + 1);
-            // Set current node's left child to null as we are flattening into a linked list
-            currentNode.left = null;
-            // Link current node's right to the next node in preorder sequence
-            currentNode.right = next;
+            // Set previous node's left child to null as we are flattening into a singly linked list
+            prevNode.left = null;
+            // Link previous node's right to the current node
+            prevNode.right = currentNode;
+            // Update the previous node to current node
+            prevNode = currentNode;
         }
     }
 
@@ -38,7 +41,7 @@ class Solution {
         if (root == null) {
             return;
         }
-        
+
         preorderTraversal.add(root);
         findPreorderTraversal(root.left);
         findPreorderTraversal(root.right);
