@@ -176,7 +176,7 @@ Step-by-Step:
    
      3 <-> 2 <-> 4 <-> 1 <-> 5 <-> 6
 
-Final Flattened Tree:
+Final Flattened Binary Tree:
 3 <-> 2 <-> 4 <-> 1 <-> 5 <-> 6
 */
 
@@ -195,7 +195,7 @@ class Solution {
         while (current != null) {
             // Case 1: If there is no left subtree, process the node and move right
             if (current.left == null) {
-                processNode(current)  // Process the current node
+                processNode(current);  // Process the current node
                 current = current.right;// Move to the right subtree
             } else {
                 // Case 2: If left subtree exists, find the rightmost node in the left subtree
