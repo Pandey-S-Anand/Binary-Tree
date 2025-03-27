@@ -1,0 +1,110 @@
+/*
+Node defined as
+class Node{
+    int data;
+    Node left,right;
+    Node(int d){
+        data=d;
+        left=right=null;
+    }
+}
+*/
+
+//Brutefoce approach
+
+class Solution {
+    boolean isHeap(Node root) {
+        // Check if the tree is complete
+        if (!isCompleteTree(root)) {
+            return false;
+        }
+
+        // Check if the tree satisfies the Max-Heap property
+        return satisfiesMaxHeap(root);
+    }
+
+    private boolean isCompleteTree(Node root) {
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(root);
+        boolean foundNull = false; // Flag to track if a null node is encountered
+
+        while (!queue.isEmpty()) {
+            Node node = queue.poll();
+
+            if (node == null) {
+                foundNull = true; // If a null node is found, all subsequent nodes must also be null
+            } else {
+                if (foundNull) {
+                    // If a non-null node appears after a null node, the tree is not complete
+                    return false;
+                }
+
+                // Enqueue left and right children
+                queue.offer(node.left);
+                queue.offer(node.right);
+            }
+        }
+
+        return true; // Tree is complete
+    }
+
+    private boolean satisfiesMaxHeap(Node root) {
+        // Base case: If the tree is empty, it can't be a heap
+        if (root == null) {
+            return false;
+        }
+
+        // Leaf node is always a valid max heap
+        if (root.left == null && root.right == null) {
+            return true;
+        }
+
+        // Check for the violation of max heap property for left and right children (if they exist)
+        if ((root.left != null && root.data < root.left.data) || (root.right != null && root.data < root.right.data)) {
+            return false; // If parent is smaller than child, it's not a max heap
+        }
+
+        // Recursively check the left and right subtrees
+        return satisfiesMaxHeap(root.left) && satisfiesMaxHeap(root.right);
+    }
+}
+
+
+//Optimal approach
+
+class Solution {
+    boolean isHeap(Node root) {
+        if (root == null){ 
+           return true; // An empty tree is a valid heap
+        }
+        
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(root);
+        
+        boolean foundNull = false; // Flag to check completeness
+        
+        while (!queue.isEmpty()) {
+            Node node = queue.poll();
+            
+            // If a null child is found, all subsequent nodes must also be null
+            if (node == null) {
+                foundNull = true;
+            } else {
+                if (foundNull) {
+                    // If a non-null node appears after a null node, it's not complete
+                    return false;
+                }
+
+                // Check for the violation of max heap property for left and right children (if they exist)
+                if ((root.left != null && root.data < root.left.data) || (root.right != null && root.data < root.right.data)) {
+                    return false; // If parent is smaller than child, it's not a max heap
+                 }
+                
+                queue.offer(node.left);
+                queue.offer(node.right);
+            }
+        }
+        
+        return true; // Tree is both complete and satisfies max-heap property
+    }
+}
