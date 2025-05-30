@@ -63,14 +63,14 @@
 //Recursive approach
 
 class Solution {
-    private List<Integer> preorderTraversal;
+    private List<Integer> preorder;
 
     public List<Integer> preorderTraversal(TreeNode root) {
-        preorderTraversal = new ArrayList<>();
+        preorder = new ArrayList<>();
         // Perform the recursive preorder traversal starting from the root
         performPreorderTraversal(root);
         // Return the list containing the preorder traversal
-        return preorderTraversal;
+        return preorder;
     }
 
     private void performPreorderTraversal(TreeNode root) {
@@ -79,7 +79,7 @@ class Solution {
             return;
         }
         // Visit the root node: add the node value to the result list
-        preorderTraversal.add(root.val);
+        preorder.add(root.val);
         // Recursively traverse the left subtree
         performPreorderTraversal(root.left);
         // Recursively traverse the right subtree
@@ -97,7 +97,7 @@ class Solution {
             return Collections.emptyList();
         }
 
-        List<Integer> preorderTraversal = new ArrayList<>();
+        List<Integer> preorder = new ArrayList<>();
         
         // Stack to help with the iterative preorder traversal (using DFS)
         Deque<TreeNode> stack = new ArrayDeque<>();
@@ -110,7 +110,7 @@ class Solution {
             TreeNode node = stack.pop();
             
             // Visit the node: add the node value to the result list
-            preorderTraversal.add(node.val);
+            preorder.add(node.val);
 
             // If the node has a right child, push it onto the stack (right child is pushed first) because we want to process the left child before the right child
             if (node.right != null) {
@@ -123,7 +123,7 @@ class Solution {
             }
         }
 
-        return preorderTraversal;
+        return preorder;
     }
 }
 
@@ -131,7 +131,16 @@ class Solution {
 
 //Optimal approach 
 
-// Modifying the tree structure in place (Morris Preorder Traversal)
+/*
+Morris Traversal Key Insight:
+In recursive or stack-based traversals, we naturally return from the left subtree to process the right subtree.
+But without recursion or a stack, there's no return path.
+Morris traversal solves this by temporarily modifying the tree:
+It makes the rightmost node of the left subtree point to the current node’s right child,
+ensuring we can traverse the right subtree after finishing the left.
+This allows O(1) space traversal while maintaining correct preorder/inorder sequence.
+*/
+
 
 /*
 Dry Run for the tree:
@@ -208,6 +217,7 @@ Preorder Traversal Collected:
 [1, 2, 3, 4, 5, 6]
 */
 
+// Morris preorder traversal by altering the original tree structure
 
 class Solution {
     public List<Integer> preorderTraversal(TreeNode root) {
@@ -215,18 +225,18 @@ class Solution {
             return Collections.emptyList();
         }
 
-        TreeNode current = root;
-        List<Integer> preorderTraversal = new ArrayList<>();
+        TreeNode currentNode = root;
+        List<Integer> preorder = new ArrayList<>();
 
         // Start with the root node
-        while (current != null) {
+        while (currentNode != null) {
             // Add the current node's value to the result list
-            preorderTraversal.add(current.val);
+            preorder.add(currentNode.val);
             // If the current node has a left child
-            if (current.left != null) {
+            if (currentNode.left != null) {
 
                 // Step 1: Find the rightmost node in the left subtree
-                TreeNode predecessor = current.left;
+                TreeNode predecessor = currentNode.left;
                 while (predecessor.right != null) {
                     predecessor = predecessor.right;
                 }
@@ -236,21 +246,21 @@ class Solution {
                  * This ensures that after moving the left subtree, the right subtree will still be preserved
                  * and linked to the end of the left subtree.
                  */
-                predecessor.right = current.right;
+                predecessor.right = currentNode.right;
 
                 /*
                  * Step 3: Move the left subtree to the right and set current's left to null
                  * The left child is now null, and the left subtree has been moved to the right
                  */
-                current.right = current.left;
-                current.left = null;
+                currentNode.right = currentNode.left;
+                currentNode.left = null;
             }
 
             // Move to the next node in the flattened tree
-            current = current.right;
+            currentNode = currentNode.right;
         }
 
-        return preorderTraversal;
+        return preorder;
     }
 }
 
