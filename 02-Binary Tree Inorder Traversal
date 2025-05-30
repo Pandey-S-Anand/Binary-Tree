@@ -61,13 +61,13 @@
 //Recursive approach
 
 class Solution {
-    private List<Integer> inorderTraversal;
+    private List<Integer> inorder;
 
     public List<Integer> inorderTraversal(TreeNode root) {
-        inorderTraversal = new ArrayList<>();
+        inorder = new ArrayList<>();
         // Perform the recursive inorder traversal
         performInorderTraversal(root);
-        return inorderTraversal;
+        return inorder;
     }
 
     private void performInorderTraversal(TreeNode root) {
@@ -80,7 +80,7 @@ class Solution {
         performInorderTraversal(root.left);
 
         // Add the value of the current node to the traversal list
-        inorderTraversal.add(root.val);
+        inorder.add(root.val);
 
         // Recur on the right subtree
         performInorderTraversal(root.right);
@@ -92,31 +92,31 @@ class Solution {
 
 class Solution {
     public List<Integer> inorderTraversal(TreeNode root) {
-        List<Integer> inorderTraversal = new ArrayList<>();
+        List<Integer> inorder = new ArrayList<>();
 
         Deque<TreeNode> stack = new ArrayDeque<>();
 
         // Start with the root of the tree
-        TreeNode current = root;
+        TreeNode currentNode = root;
 
-        while (current != null || !stack.isEmpty()) {
+        while (currentNode != null || !stack.isEmpty()) {
             // Reach the leftmost node (push all left nodes onto the stack)
-            while (current != null) {
-                stack.push(current);
-                current = current.left;
+            while (currentNode != null) {
+                stack.push(currentNode);
+                currentNode = currentNode.left;
             }
 
             // Pop the top node from the stack, this is the node that should be visited
-            current = stack.pop();
+            currentNode = stack.pop();
 
             // Add the value of the current node to the inorder traversal list
-            inorderTraversal.add(current.val);
+            inorder.add(currentNode.val);
 
             // Move to the right child of the current node
-            current = current.right;
+            currentNode = currentNode.right;
         }
 
-        return inorderTraversal;
+        return inorder;
     }
 }
 
@@ -125,23 +125,116 @@ class Solution {
 
 //With modification of the original tree structure
 
+/*
+ * Morris Inorder Traversal Dry Run:
+ *
+ * Input Tree:
+ *         1
+ *        / \
+ *       2   5
+ *      / \   \
+ *     3   4   6
+ *
+ * Expected Inorder Traversal: [3, 2, 4, 1, 5, 6]
+ *
+ * ------------------------------------------------------------
+ * Step 1: current = 1
+ * - 1 has left child → find rightmost in left subtree (rightmost = 4)
+ * - Create thread: 4.right = 1
+ * - Move current to 2
+ *
+ * Tree after threading:
+ *
+ *       2   
+ *      / \  
+ *     3   4   
+ *          \
+ *           1
+ *            \
+ *             5
+ *              \
+ *               6
+ *
+ * ------------------------------------------------------------
+ * Step 2: current = 2
+ * - 2 has left child → rightmost in left subtree = 3
+ * - Create thread: 3.right = 2
+ * - Move current to 3
+ *
+ * Tree after threading:
+ *
+ *     3
+ *      \
+ *       2   
+ *        \  
+ *         4   
+ *          \
+ *           1
+ *            \
+ *             5
+ *              \
+ *               6
+ *
+ * ------------------------------------------------------------
+ * Step 3: current = 3
+ * - 3 has no left → add 3 to result
+ * - Move right → move to 2
+ *
+ * Result so far: [3]
+ *
+ * ------------------------------------------------------------
+ * Step 4: current = 2
+ * - 2 has no left → add 2 to result
+ * - Move right → move to 4
+ *
+ * Result so far: [3, 2]
+ *
+ * ------------------------------------------------------------
+ * Step 5: current = 4
+ * - 4 has no left → add 4 to result
+ * - Move right → move to 1
+ *
+ * Result so far: [3, 2, 4]
+ *
+ * ------------------------------------------------------------
+ * Step 6: current = 1
+ * - 1 has no left → add 1 to result
+ * - Move right → move to 5
+ *
+ * Result so far: [3, 2, 4, 1]
+ *
+ * ------------------------------------------------------------
+ * Step 7: current = 5
+ * - 5 has no left → add 5 to result
+ * - Move right → move to 6
+ *
+ * Result so far: [3, 2, 4, 1, 5]
+ *
+ * ------------------------------------------------------------
+ * Step 8: current = 6
+ * - 6 has no left → add 6 to result
+ * - Move to null (end)
+ *
+ * Final Result: [3, 2, 4, 1, 5, 6]
+ */
+
 class Solution {
     public List<Integer> inorderTraversal(TreeNode root) {
         if (root == null) {
             return Collections.emptyList();
         }
 
-        List<Integer> inorderList = new ArrayList<>();
-        TreeNode current = root;
+        List<Integer> inorder = new ArrayList<>();
+        TreeNode currentNode = root;
 
-        while (current != null) {
+        while (currentNode != null) {
             // Case 1: If there is no left subtree, process the node and move right
-            if (current.left == null) {
-                inorderList.add(current.val);  // Add current node value to the list
-                current = current.right;       // Move to the right subtree
+            if (currentNode.left == null) {
+                inorder.add(currentNode.val);  // Add current node value to the list
+                currentNode = currentNode.right;       // Move to the right subtree
             } else {
                 // Case 2: If left subtree exists, find the rightmost node in the left subtree
-                TreeNode rightmost = current.left;
+                TreeNode rightmost = currentNode.left;
 
                 // Move to the rightmost node in the left subtree
                 while (rightmost.right != null) {
@@ -149,16 +242,16 @@ class Solution {
                 }
 
                 // Create a temporary thread from the rightmost node to the current node
-                rightmost.right = current;
-                TreeNode temp = current;  // Store current node reference
-                current = current.left;   // Move current to its left subtree
+                rightmost.right = currentNode;
+                TreeNode temp = currentNode;  // Store current node reference
+                currentNode = currentNode.left;   // Move current to its left subtree
 
                 // Remove the left link to avoid infinite loops
                 temp.left = null;
             }
         }
 
-        return inorderList;
+        return inorder;
     }
 }
 
