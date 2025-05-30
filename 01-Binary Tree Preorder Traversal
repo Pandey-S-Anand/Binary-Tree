@@ -132,17 +132,6 @@ class Solution {
 //Optimal approach 
 
 /*
-Morris Traversal Key Insight:
-In recursive or stack-based traversals, we naturally return from the left subtree to process the right subtree.
-But without recursion or a stack, there's no return path.
-Morris traversal solves this by temporarily modifying the tree:
-It makes the rightmost node of the left subtree point to the current node’s right child,
-ensuring we can traverse the right subtree after finishing the left.
-This allows O(1) space traversal while maintaining correct preorder/inorder sequence.
-*/
-
-
-/*
 Dry Run for the tree:
 
 Input Tree:
@@ -217,6 +206,15 @@ Preorder Traversal Collected:
 [1, 2, 3, 4, 5, 6]
 */
 
+/*
+Morris Traversal – Core Insight:
+In recursive or stack-based traversals, returning from the left subtree to the right is handled by the call stack.
+However, without recursion or a stack, there's no natural way to return.
+Morris traversal overcomes this by creating temporary threads (links) to predecessors,
+allowing the traversal to return back after visiting the left subtree.
+This enables O(1) space traversal while preserving the correct preorder or inorder sequence.
+*/
+
 // Morris preorder traversal by altering the original tree structure
 
 class Solution {
@@ -273,43 +271,43 @@ class Solution {
             return Collections.emptyList();
         }
 
-        List<Integer> preorderTraversal = new ArrayList<>();
-        TreeNode current = root;
+        List<Integer> preorder = new ArrayList<>();
+        TreeNode currentNode = root;
 
-        while (current != null) {
+        while (currentNode != null) {
             // Case 1: If there is no left subtree, process the node and move right
-            if (current.left == null) {
-                preorderTraversal.add(current.val); // Add current node value to the list
-                current = current.right; // Move to the right subtree
+            if (currentNode.left == null) {
+                preorder.add(currentNode.val); // Add current node value to the list
+                currentNode = currentNode.right; // Move to the right subtree
             } else {
                 // Case 2: If left subtree exists, find the rightmost node in the left subtree
-                TreeNode rightmost = current.left;
+                TreeNode rightmost = currentNode.left;
 
                 // Move to the rightmost node in the left subtree
                 /*
-                 * rightmost.right != current condition is detecting the temporary link
-                 * If rightmost.right is already pointing to current, we need to revert the changes we made.
+                 * predecessor.right != current condition is detecting the temporary link
+                 * If predecessor.right is already pointing to currentNode, we need to revert the changes we made.
                  */
-                while (rightmost.right != null && rightmost.right != current) {
+                while (rightmost.right != null && rightmost.right != currentNode) {
                     rightmost = rightmost.right;
                 }
 
-                if (rightmost.right == current) {
+                if (rightmost.right == currentNode) {
                     /*
                      * This condition indicates that we have finished processing the left subtree.
                      * so remove the temporary link, and move to the right subtree.
                      */
                     rightmost.right = null; // Remove the temporary link
-                    current = current.right; // Move to the right subtree
+                    currentNode = currentNode.right; // Move to the right subtree
                 } else {
-                    preorderTraversal.add(current.val); // Add current node value to the list
+                    preorder.add(currentNode.val); // Add current node value to the list
                     // Create a temporary link from the rightmost node to the current node
-                    rightmost.right = current;
-                    current = current.left; // Move to the left subtree
+                    rightmost.right = currentNode;
+                    currentNode = currentNode.left; // Move to the left subtree
                 }
             }
         }
 
-        return preorderTraversal;
+        return preorder;
     }
 }
