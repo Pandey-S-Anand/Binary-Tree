@@ -264,43 +264,43 @@ class Solution {
             return Collections.emptyList();
         }
 
-        List<Integer> inorderList = new ArrayList<>();
-        TreeNode current = root;
+        List<Integer> inorder = new ArrayList<>();
+        TreeNode currentNode = root;
 
-        while (current != null) {
+        while (currentNode != null) {
             // Case 1: If there is no left subtree, process the node and move right
-            if (current.left == null) {
-                inorderList.add(current.val); // Add current node value to the list
-                current = current.right; // Move to the right subtree
+            if (currentNode.left == null) {
+                inorder.add(currentNode.val); // Add current node value to the list
+                currentNode = currentNode.right; // Move to the right subtree
             } else {
                 // Case 2: If left subtree exists, find the rightmost node in the left subtree
-                TreeNode rightmost = current.left;
+                TreeNode rightmost = currentNode.left;
 
                 // Move to the rightmost node in the left subtree
                 /*
                  * rightmost.right != current condition is detecting the temporary link
                  * If rightmost.right is already pointing to current, we need to revert the changes we made.
                  */
-                while (rightmost.right != null && rightmost.right != current) {
+                while (rightmost.right != null && rightmost.right != currentNode) {
                     rightmost = rightmost.right;
                 }
 
-                if (rightmost.right == current) {
+                if (rightmost.right == currentNode) {
                     /*
                      * This condition indicates that we have finished processing the left subtree.
                      * We add the current node value to the result, remove the temporary link, and move to the right subtree.
                      */
-                    inorderList.add(current.val); // Add current node value to the list
+                    inorder.add(currentNode.val); // Add current node value to the list
                     rightmost.right = null; // Revert the temporary link (remove the thread)
-                    current = current.right; // Move to the right subtree
+                    currentNode = currentNode.right; // Move to the right subtree
                 } else {
                     // Create a temporary thread from the rightmost node to the current node
-                    rightmost.right = current;
-                    current = current.left; // Move to the left subtree
+                    rightmost.right = currentNode;
+                    currentNode = currentNode.left; // Move to the left subtree
                 }
             }
         }
 
-        return inorderList;
+        return inorder;
     }
 }
