@@ -68,29 +68,27 @@
 //Recursive implementation
 
 class Solution {
-    private List<Integer> postorderTraversal;
+    private List<Integer> postorder;
 
     public List<Integer> postorderTraversal(TreeNode root) {
-        postorderTraversal = new ArrayList<>();
+        postorder = new ArrayList<>();
         performPostorderTraversal(root);
-        return postorderTraversal;
+        return postorder;
     }
 
     private void performPostorderTraversal(TreeNode root) {
-        if (root == null) { // Base case: If the node is null, return
+        if (root == null) {
             return;
         }
 
         performPostorderTraversal(root.left); // Recursively traverse the left subtree
         performPostorderTraversal(root.right); // Recursively traverse the right subtree
-        postorderTraversal.add(root.val); // Process the current node (add its value to the result list)
+        postorder.add(root.val); // Process the current node (add its value to the result list)
     }
 }
 
 
 //Iterative implementation
-
-//Naive implementation
 
 class Solution {
     public List<Integer> postorderTraversal(TreeNode root) {
@@ -99,19 +97,17 @@ class Solution {
             return Collections.emptyList();
         }
 
-        List<Integer> postorderTraversal = new ArrayList<>();
-
+        List<Integer> postorder = new ArrayList<>();
         Deque<TreeNode> stack = new ArrayDeque<>();
+        stack.push(root); // Start the traversal by pushing the root node onto the stack
 
-        // Start the traversal by pushing the root node onto the stack
-        stack.push(root);
+        TreeNode currentNode = root;
         // The traversal is stored in the order: root -> right -> left
         while (!stack.isEmpty()) {
             // Pop the top node from the stack
             TreeNode node = stack.pop();
-
             // Add the node's value to the result list
-            postorderTraversal.add(node.val);
+            postorder.add(node.val);
 
             // If the node has a left child, push it onto the stack (left child is pushed last to be processed after the right child)
             if (node.left != null) {
@@ -123,243 +119,140 @@ class Solution {
                 stack.push(node.right);
             }
         }
-        
+
         // Reverse the result list to get the postorder traversal: left -> right -> root
-        Collections.reverse(postorderTraversal);
+        Collections.reverse(postorder);
 
-        return postorderTraversal;
+        return postorder;
     }
 }
 
-
-//Optimal implementation
-
-class Solution {
-    public List<Integer> postorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
-
-        // Use LinkedList to efficiently insert elements at the beginning (mimicking postorder)
-        List<Integer> postorderTraversal = new LinkedList<>();
-
-        Deque<TreeNode> stack = new ArrayDeque<>();
-
-        stack.push(root);
-        while (!stack.isEmpty()) {
-            TreeNode node = stack.pop();
-
-            postorderTraversal.add(0, node.val);
-
-            if (node.left != null) {
-                stack.push(node.left);
-            }
-
-            if (node.right != null) {
-                stack.push(node.right);
-            }
-        }
-
-        return postorderTraversal;
-    }
-}
 
 
 //Optimal approach
 
-//Modifing the original tree structure
+/*
+Dry Run for the tree:
 
-//Naive implementation
+Input Tree:
+         1
+       /   \
+      2     5
+     /     / \
+    3      6  7
 
-class Solution {
-    public List<Integer> postorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
+Step-by-Step:
 
-        // Start with the root node
-        TreeNode current = root;
-        List<Integer> postorderTraversal = new ArrayList<>();
+1. Start at node 1:
+   - 1 has right child 5, so find the leftmost node in the right subtree (6).
+   - 4.left = 1 (create temporary thread).
+   - value collected: 1
+   - Move to the right child of 1 (i.e., 5)
 
-        
-        // The traversal is stored in the order: root -> right -> left
-        while (current != null) {
-            // Add the current node's value to the result list
-            postorderTraversal.add(current.val);
-            // If the current node has a right child
-            if (current.right != null) {
-
-                // Step 1: Find the leftmost node in the right subtree
-                TreeNode leftmostNode = current.right;
-                while (leftmostNode.left != null) {
-                    leftmostNode = leftmostNode.left;
-                }
-
-                /*
-                 * Step 2: Attach the leftmost node of the right subtree to the current node's left subtree.
-                 * This ensures that after moving the right subtree, the left subtree will still be preserved
-                 * and linked to the end of the right subtree.
-                 */
-                leftmostNode.left = current.left;
-
-                /*
-                 * Step 3: Move the right subtree to the left and set current's right to null
-                 * The right child is now null, and the right subtree has been moved to the left
-                 */
-                current.left = current.right;
-                current.right = null;
-            }
-
-            // Move to the next node in the flattened tree
-            current = current.left;
-        }
-        
-        // Reverse the result list to get the postorder traversal: left -> right -> root
-        Collections.reverse(postorderTraversal);
-
-        return postorderTraversal;
-    }
-}
+   Tree becomes:
+          1
+        / | \
+       2  |  5
+      /   | / \
+     3     6   7
 
 
-//Optimal implementation
+2. Start at node 5:
+   - 5 has right child 7, so find the leftmost node in the right subtree (7).
+   - 7.left = 5 (create temporary thread).
+   - value collected: 5
+   - Move to the right child of 5 (i.e., 7)
 
-class Solution {
-    public List<Integer> postorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
+   Tree becomes:
+          1
+        / | \
+       2  |  5
+      /   | /|\
+     3     6 <-7
 
-        // Start with the root node
-        TreeNode current = root;
-        // Use LinkedList to efficiently insert elements at the beginning (mimicking postorder)
-        List<Integer> postorderTraversal = new LinkedList<>();
+3. Start at node 7:
+   - 7 has no right child.
+   - value collected: 7
+   - Move to left (i.e., 5 via temporary thread)
 
-        // The traversal is stored in the order: root -> right -> left
-        while (current != null) {
-            // Add the current node's value to the result list
-            postorderTraversal.add(0, current.val);
-            // If the current node has a right child
-            if (current.right != null) {
+4. Start at node 5 again:
+   - Temporary link detected (leftmost node  in right subtree of 5 (i.e 7) has left pointer pointing to current node i.e 5)
+   - Remove temporary link.
+   - Move to left (i.e., 6)
 
-                // Step 1: Find the leftmost node in the right subtree
-                TreeNode leftmostNode = current.right;
-                while (leftmostNode.left != null) {
-                    leftmostNode = leftmostNode.left;
-                }
+       Tree becomes:
+          1
+        / | \
+       2  |  5
+      /   | /|\
+     3     6 <-7
 
-                /*
-                 * Step 2: Attach the leftmost node of the right subtree to the current node's left subtree.
-                 * This ensures that after moving the right subtree, the left subtree will still be preserved
-                 * and linked to the end of the right subtree.
-                 */
-                leftmostNode.left = current.left;
+5. Start at node 6:
+   - 6 has no right child.
+   - value collected: 6
+   - Move to left (i.e., 1 via temporary thread)
 
-                /*
-                 * Step 3: Move the right subtree to the left and set current's right to null
-                 * The right child is now null, and the right subtree has been moved to the left
-                 */
-                current.left = current.right;
-                current.right = null;
-            }
+6. Start at node 1 again:
+   - Temporary link detected (leftmost node  in right subtree of 1 (i.e 6) has left pointer pointing to current node i.e 1)
+   - Remove temporary link.
+   - Move to left (i.e., 2)
 
-            // Move to the next node in the flattened tree
-            current = current.left;
-        }
+7. Start at node 2:
+   - 2 has no right child.
+   - value collected: 2
+   - Move to left (i.e., 3)
 
-        return postorderTraversal;
-    }
-}
+8. Start at node 3:
+   - 3 has no right child.
+   - value collected: 3
+   - Move to left (i.e., null)
 
+Values Collected:
+[1, 5, 7, 6, 2, 3]
 
-
-//Without modifing the original tree structure
-
-//Naive implementation
+Preorder Traversal Collected:
+[3, 2, 6, 7, 5, 1]
+*/
 
 class Solution {
     public List<Integer> postorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
-
-        List<Integer> postorderTraversal = new ArrayList<>();
-        TreeNode current = root;
+        List<Integer> postorder = new ArrayList<>();
+        TreeNode currentNode = root;
         // The traversal is stored in the order: root -> right -> left
-        while (current != null) {
-            // Case 1: If there is no left subtree, process the node and move right
-            if (current.right == null) {
-                postorderTraversal.add(current.val); // Add current node value to the list
-                current = current.left; // Move to the right subtree
+        while (currentNode != null) {
+            // Case 1: If there is no right subtree, process the node and move to the left subtree
+            if (currentNode.right == null) {
+                postorder.add(currentNode.val);
+                currentNode = currentNode.left;
             } else {
-                // Case 2: If left subtree exists, find the rightmost node in the left subtree
-                TreeNode leftmost = current.right;
-
-                // Move to the leftmost node in the left subtree
+                // Case 2: If right subtree exists, find the leftMost node in the right subtree
+                TreeNode leftMostNode = currentNode.right;
+                // Move to the leftmost node in the right subtree
                 /*
-                 * leftmost.left != current condition is detecting the temporary link
-                 * If leftmost.left is already pointing to current, we need to revert the changes we made.
+                 * leftMostNode.left != current condition is detecting the temporary link
+                 * If leftMostNode.left is already pointing to current, we need to revert the changes we made.
                  */
-                while (leftmost.left != null && leftmost.left != current) {
-                    leftmost = leftmost.left;
+                while (leftMostNode.left != null && leftMostNode.left != currentNode) {
+                    leftMostNode = leftMostNode.left;
                 }
 
-                if (leftmost.left == current) {
+                if (leftMostNode.left == currentNode) {
                     /*
                      * This condition indicates that we have finished processing the right subtree.
                      * so remove the temporary link, and move to the left subtree.
                      */
-                    leftmost.left = null; // Remove the temporary link
-                    current = current.left; // Move to the left subtree
+                    leftMostNode.left = null; // Remove the temporary link
+                    currentNode = currentNode.left; // Move to the left subtree
                 } else {
-                    postorderTraversal.add(current.val); // Add current node value to the list
-                    // Create a temporary link from the leftmost node to the current node
-                    leftmost.left = current;
-                    current = current.right; // Move to the left subtree
+                    postorder.add(currentNode.val); // Add current node value to the list
+                    leftMostNode.left = currentNode; // Create a temporary link from the leftmost node to the current node
+                    currentNode = currentNode.right; // Move to the right subtree
                 }
             }
         }
         // Reverse the result list to get the postorder traversal: left -> right -> root
-        Collections.reverse(postorderTraversal);
-        return postorderTraversal;
-    }
-}
+        Collections.reverse(postorder);
 
-
-//Optimal implementation
-
-class Solution {
-    public List<Integer> postorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
-        
-        // Use LinkedList to efficiently insert elements at the beginning (mimicking postorder)
-        List<Integer> postorderTraversal = new LinkedList<>();
-        TreeNode current = root;
-
-        while (current != null) {
-            if (current.right == null) {
-                postorderTraversal.add(0, current.val);
-                current = current.left;
-            } else {
-                TreeNode leftmost = current.right;
-
-                while (leftmost.left != null && leftmost.left != current) {
-                    leftmost = leftmost.left;
-                }
-
-                if (leftmost.left == current) {
-                    leftmost.left = null;
-                    current = current.left;
-                } else {
-                    postorderTraversal.add(0, current.val);
-                    leftmost.left = current;
-                    current = current.right;
-                }
-            }
-        }
-
-        return postorderTraversal;
+        return postorder;
     }
 }
