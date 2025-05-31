@@ -15,49 +15,45 @@
  */
 
 class Solution {
-    private int postorderIndex; // Tracks the current root in the preorder traversal.
-    private Map<Integer, Integer> inorderIndexMap; // Maps each value in inorder to its index for quick lookup.
+
+    private int postorderIndex; // Index tracking the current root node in the postorder array
+    private Map<Integer, Integer> inorderIndexMap; // Maps node values to their indices in the inorder array for O(1) access
 
     public TreeNode buildTree(int[] inorder, int[] postorder) {
-        postorderIndex = postorder.length - 1; // Start from the last element in the postorder array because the root node is always at the end.
-        inorderIndexMap = new HashMap<>();
+        // Start from the last index in postorder, since root is the last node in postorder traversal
+        postorderIndex = postorder.length - 1;
 
+        // Build a hashmap to quickly lookup the index of any value in inorder array
+        inorderIndexMap = new HashMap<>();
         for (int i = 0; i < inorder.length; i++) {
             inorderIndexMap.put(inorder[i], i);
         }
 
-        // Recursively construct the binary tree and return the root.
+        // Construct the tree from postorder and inorder arrays
         return constructTree(postorder, 0, inorder.length - 1);
     }
 
-    /**
-     * @param inorderStart Starting index of the current subtree in the inorder array.
-     * @param inorderEnd   Ending index of the current subtree in the inorder array.
-     */
     private TreeNode constructTree(int[] postorder, int inorderStart, int inorderEnd) {
-        // Base case: If the start index exceeds the end index, the subtree is empty.
+        // Base condition: no elements to construct the subtree
         if (inorderStart > inorderEnd) {
             return null;
         }
 
-        // The current root is the next element in preorder traversal.
+        // The current root node is the last unprocessed element in postorder array
         int rootValue = postorder[postorderIndex--];
         TreeNode root = new TreeNode(rootValue);
 
-        // Find the index of the root in the inorder array using the map.
+        // Find the index of this root node in inorder array
         int inorderIndex = inorderIndexMap.get(rootValue);
+
         /*
-         * The right subtree must be constructed before the left subtree.
-         * In postorder (Left → Right → Root), we process nodes in reverse order.
-         * Since right subtree elements appear earlier in postorder, building them first ensures correct placement.
-         * Constructing the left subtree first could cause right subtree nodes to be incorrectly attached to the left.
+         * IMPORTANT: Recurse on right subtree BEFORE left subtree.
+         * Why? In postorder: Left → Right → Root. When processing in reverse: Root → Right → Left.
+         * So after consuming the root, next comes the right child, then the left child.
          */
-        // Recursively construct the right subtree using elements to the right of the root in inorder.
-        root.right = constructTree(postorder, inorderIndex + 1, inorderEnd);
+        root.right = constructTree(postorder, inorderIndex + 1, inorderEnd); // Build right subtree first
+        root.left = constructTree(postorder, inorderStart, inorderIndex - 1); // Then build left subtree
 
-        // Recursively construct the left subtree using elements to the left of the root in inorder.
-        root.left = constructTree(postorder, inorderStart, inorderIndex - 1);
-
-        return root;
+        return root; // Return the constructed subtree rooted at 'root'
     }
 }
