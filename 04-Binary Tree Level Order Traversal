@@ -18,8 +18,7 @@ class Solution {
     public List<List<Integer>> levelOrder(TreeNode root) {
         // Stores the node values level by level (each inner list represents one level of the tree)
         List<List<Integer>> levelOrderTraversal = new ArrayList<>();
-        // List to store values of the nodes at the current level
-        List<Integer> nodesAtCurrentLevel = new ArrayList();
+    
         // Return an empty list if the tree is empty
         if (root == null) {
             return levelOrderTraversal;
@@ -33,6 +32,8 @@ class Solution {
         while (!queue.isEmpty()) {
              // Number of nodes at the current level
             int currentSize = queue.size();
+            // List to store values of the nodes at the current level
+            List<Integer> nodesAtCurrentLevel = new ArrayList();
 
             // Process all nodes at the current level
             while (currentSize-- > 0) {
@@ -50,7 +51,6 @@ class Solution {
             }
             // Add the current level’s values to the result list
             levelOrderTraversal.add(nodesAtCurrentLevel);
-            nodesAtCurrentLevel.clear();
         }
 
         return levelOrderTraversal;
