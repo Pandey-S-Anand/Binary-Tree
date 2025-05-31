@@ -14,7 +14,6 @@
  * }
  */
 
-
 /**
  * 
  * The approach is based on the following principles:
@@ -31,9 +30,6 @@
  * - Pick the next element from **preorder** as the root for the current subtree.
  * - Find this root in the **inorder** array to identify the left and right subtrees.
  * - Recursively build the left and right subtrees using the divided **inorder** subarrays.
- *
- * @param preorder Array representing preorder traversal (Root -> Left -> Right).
- * @param inorder  Array representing inorder traversal (Left -> Root -> Right).
  */
 class Solution {
     private int preorderIndex; // Tracks the current root in the preorder traversal.
@@ -51,10 +47,6 @@ class Solution {
         return constructTree(preorder, 0, inorder.length - 1);
     }
 
-    /**
-     * @param inorderStart Starting index of the current subtree in the inorder array.
-     * @param inorderEnd   Ending index of the current subtree in the inorder array.
-     */
     private TreeNode constructTree(int[] preorder, int inorderStart, int inorderEnd) {
         // Base case: If the start index exceeds the end index, the subtree is empty.
         if (inorderStart > inorderEnd) {
