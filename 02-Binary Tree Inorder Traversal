@@ -123,147 +123,90 @@ class Solution {
 
 //Optimal approach (Morris inorder traversal)
 
-//With modification of the original tree structure
-
 /*
- * Morris Inorder Traversal Dry Run:
- *
- * Input Tree:
- *         1
- *        / \
- *       2   5
- *      / \   \
- *     3   4   6
- *
- * Expected Inorder Traversal: [3, 2, 4, 1, 5, 6]
- *
- * ------------------------------------------------------------
- * Step 1: current = 1
- * - 1 has left child → find rightmost in left subtree (rightmost = 4)
- * - Create thread: 4.right = 1
- * - Move current to 2
- *
- * Tree after threading:
- *
- *       2   
- *      / \  
- *     3   4   
- *          \
- *           1
- *            \
- *             5
- *              \
- *               6
- *
- * ------------------------------------------------------------
- * Step 2: current = 2
- * - 2 has left child → rightmost in left subtree = 3
- * - Create thread: 3.right = 2
- * - Move current to 3
- *
- * Tree after threading:
- *
- *     3
- *      \
- *       2   
- *        \  
- *         4   
- *          \
- *           1
- *            \
- *             5
- *              \
- *               6
- *
- * ------------------------------------------------------------
- * Step 3: current = 3
- * - 3 has no left → add 3 to result
- * - Move right → move to 2
- *
- * Result so far: [3]
- *
- * ------------------------------------------------------------
- * Step 4: current = 2
- * - 2 has no left → add 2 to result
- * - Move right → move to 4
- *
- * Result so far: [3, 2]
- *
- * ------------------------------------------------------------
- * Step 5: current = 4
- * - 4 has no left → add 4 to result
- * - Move right → move to 1
- *
- * Result so far: [3, 2, 4]
- *
- * ------------------------------------------------------------
- * Step 6: current = 1
- * - 1 has no left → add 1 to result
- * - Move right → move to 5
- *
- * Result so far: [3, 2, 4, 1]
- *
- * ------------------------------------------------------------
- * Step 7: current = 5
- * - 5 has no left → add 5 to result
- * - Move right → move to 6
- *
- * Result so far: [3, 2, 4, 1, 5]
- *
- * ------------------------------------------------------------
- * Step 8: current = 6
- * - 6 has no left → add 6 to result
- * - Move to null (end)
- *
- * Final Result: [3, 2, 4, 1, 5, 6]
- */
+Dry Run for the tree:
+
+Input Tree:
+        1
+       / \
+      2   5
+     / \   \
+    3   4   6
+
+Step-by-Step:
+
+1. Start at node 1:
+   - 1 has left child 2, so find the rightmost node in the left subtree (4).
+   - 4.right = 1 (create temporary thread).
+   - Move to the left child of 1 (i.e., 2)
+
+   Tree becomes:
+         1
+       / | \
+      2  |  5
+     / \ |   \
+    3   4     6
+
+
+2. Start at node 2:
+   - 2 has left child 3, so find the rightmost node in the left subtree (3).
+   - 3.right = 2 (create temporary thread).
+   - Move to the left child of 2 (i.e., 3)
+
+   Tree becomes:
+         1
+       / | \
+      2  |  5
+     /|\ |   \
+    3→| 4     6
+
+
+3. Start at node 3:
+   - 3 has no left child.
+   - Inorder value collected: 3
+   - Move to right (i.e., 2 via temporary thread)
+
+4. Start at node 2 again:
+   - Temporary link detected (3.right == 2). (rightmost node  in left subtree of 2 (i.e 3) has right pointer pointing to current node i.e 2)
+   - Inorder value collected: 2
+   - Remove temporary link.
+   - Move to right (i.e., 4)
+
+   Tree becomes:
+         1
+       / | \
+      2  |  5
+     / \ |   \
+    3   4     6
+
+
+5. Start at node 4:
+   - 4 has no left child.
+   - Inorder value collected: 4
+   - Move to right (i.e., 1 via temporary thread)
+
+6. Start at node 1 again:
+   - Temporary link detected (rightmost node  in left subtree of 1 (i.e 3) has right pointer pointing to current node i.e 1)
+   - Inorder value collected: 4
+   - Remove temporary link.
+   - Move to right (i.e., 5)
+
+7. Start at node 5:
+   - 5 has no left child.
+   - Inorder value collected: 5
+   - Move to right (i.e., 6)
+
+8. Start at node 6:
+   - 6 has no left child.
+   - Inorder value collected: 6
+   - Move to right (i.e., null)
+
+Preorder Traversal Collected:
+[3, 2, 4, 1, 5, 6]
+*/
 
 class Solution {
     public List<Integer> inorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
-
-        List<Integer> inorder = new ArrayList<>();
-        TreeNode currentNode = root;
-
-        while (currentNode != null) {
-            // Case 1: If there is no left subtree, process the node and move right
-            if (currentNode.left == null) {
-                inorder.add(currentNode.val);  // Add current node value to the list
-                currentNode = currentNode.right;       // Move to the right subtree
-            } else {
-                // Case 2: If left subtree exists, find the rightmost node in the left subtree
-                TreeNode rightmost = currentNode.left;
-
-                // Move to the rightmost node in the left subtree
-                while (rightmost.right != null) {
-                    rightmost = rightmost.right;
-                }
-
-                // Create a temporary thread from the rightmost node to the current node
-                rightmost.right = currentNode;
-                TreeNode temp = currentNode;  // Store current node reference
-                currentNode = currentNode.left;   // Move current to its left subtree
-
-                // Remove the left link to avoid infinite loops
-                temp.left = null;
-            }
-        }
-
-        return inorder;
-    }
-}
-
-
-//Without modification of the original tree structure
-
-class Solution {
-    public List<Integer> inorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
-
         List<Integer> inorder = new ArrayList<>();
         TreeNode currentNode = root;
 
@@ -273,29 +216,27 @@ class Solution {
                 inorder.add(currentNode.val); // Add current node value to the list
                 currentNode = currentNode.right; // Move to the right subtree
             } else {
-                // Case 2: If left subtree exists, find the rightmost node in the left subtree
-                TreeNode rightmost = currentNode.left;
-
+                TreeNode rightMostNode = currentNode.left;
                 // Move to the rightmost node in the left subtree
                 /*
                  * rightmost.right != current condition is detecting the temporary link
                  * If rightmost.right is already pointing to current, we need to revert the changes we made.
                  */
-                while (rightmost.right != null && rightmost.right != currentNode) {
-                    rightmost = rightmost.right;
+                while (rightMostNode.right != null && rightMostNode.right != currentNode) {
+                    rightMostNode = rightMostNode.right;
                 }
 
-                if (rightmost.right == currentNode) {
+                if (rightMostNode.right == currentNode) {
                     /*
                      * This condition indicates that we have finished processing the left subtree.
                      * We add the current node value to the result, remove the temporary link, and move to the right subtree.
                      */
                     inorder.add(currentNode.val); // Add current node value to the list
-                    rightmost.right = null; // Revert the temporary link (remove the thread)
+                    rightMostNode.right = null; // Revert the temporary link (remove the thread)
                     currentNode = currentNode.right; // Move to the right subtree
                 } else {
                     // Create a temporary thread from the rightmost node to the current node
-                    rightmost.right = currentNode;
+                    rightMostNode.right = currentNode;
                     currentNode = currentNode.left; // Move to the left subtree
                 }
             }
