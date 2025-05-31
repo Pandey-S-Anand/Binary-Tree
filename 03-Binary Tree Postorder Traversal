@@ -214,6 +214,8 @@ Preorder Traversal Collected:
 [3, 2, 6, 7, 5, 1]
 */
 
+//Intuitive implementation
+
 class Solution {
     public List<Integer> postorderTraversal(TreeNode root) {
         List<Integer> postorder = new ArrayList<>();
@@ -252,6 +254,41 @@ class Solution {
         }
         // Reverse the result list to get the postorder traversal: left -> right -> root
         Collections.reverse(postorder);
+
+        return postorder;
+    }
+}
+
+
+//Optimal implementation
+
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        // LinkedList allows adding nodes at front (offerFirst) to reverse root-right-left order into correct postorder (left-right-root) without extra reversal.
+        LinkedList<Integer> postorder = new LinkedList<>();
+        TreeNode currentNode = root;
+
+        while (currentNode != null) {
+            if (currentNode.right == null) {
+                postorder.offerFirst(currentNode.val);
+                currentNode = currentNode.left;
+            } else {
+                TreeNode leftMostNode = currentNode.right;
+
+                while (leftMostNode.left != null && leftMostNode.left != currentNode) {
+                    leftMostNode = leftMostNode.left;
+                }
+
+                if (leftMostNode.left == currentNode) {
+                    leftMostNode.left = null;
+                    currentNode = currentNode.left;
+                } else {
+                    postorder.offerFirst(currentNode.val);
+                    leftMostNode.left = currentNode;
+                    currentNode = currentNode.right;
+                }
+            }
+        }
 
         return postorder;
     }
