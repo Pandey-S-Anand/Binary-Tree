@@ -145,164 +145,104 @@ Step-by-Step:
 
 1. Start at node 1:
    - 1 has left child 2, so find the rightmost node in the left subtree (4).
-   - 4.right = 5 (current.right).
-   - Move left subtree (2) to the right, set 1.left = null.
+   - 4.right = 1 (create temporary thread).
    - Preorder value collected: 1
+   - Move to the left child of 1 (i.e., 2)
+
    Tree becomes:
-        1
-         \
-          2
-         / \
-        3   4
-             \
-              5
-               \
-                6
-   Move to 2.
+         1
+       / | \
+      2  |  5
+     / \ |   \
+    3   4     6
+
 
 2. Start at node 2:
    - 2 has left child 3, so find the rightmost node in the left subtree (3).
-   - 3.right = 4 (current.right).
-   - Move left subtree (3) to the right, set 2.left = null.
+   - 3.right = 2 (create temporary thread).
    - Preorder value collected: 2
+   - Move to the left child of 2 (i.e., 3)
+
    Tree becomes:
-        1
-         \
-          2
-           \
-            3
-             \
-              4
-               \
-                5
-                 \
-                  6
-   Move to 3.
+         1
+       / | \
+      2  |  5
+     /|\ |   \
+    3→| 4     6
+
 
 3. Start at node 3:
    - 3 has no left child.
    - Preorder value collected: 3
-   Move to 4.
+   - Move to right (i.e., 2 via temporary thread)
 
-4. Start at node 4:
+4. Start at node 2 again:
+   - Temporary link detected (3.right == 2). (rightmost node  in left subtree of 2 (i.e 3) has right pointer pointing to current node i.e 2)
+   - Remove temporary link.
+   - Move to right (i.e., 4)
+
+   Tree becomes:
+         1
+       / | \
+      2  |  5
+     / \ |   \
+    3   4     6
+
+
+5. Start at node 4:
    - 4 has no left child.
    - Preorder value collected: 4
-   Move to 5.
+   - Move to right (i.e., 1 via temporary thread)
 
-5. Start at node 5:
+6. Start at node 1 again:
+   - Temporary link detected (rightmost node  in left subtree of 1 (i.e 3) has right pointer pointing to current node i.e 1)
+   - Remove temporary link.
+   - Move to right (i.e., 5)
+
+7. Start at node 5:
    - 5 has no left child.
    - Preorder value collected: 5
-   Move to 6.
+   - Move to right (i.e., 6)
 
-6. Start at node 6:
+8. Start at node 6:
    - 6 has no left child.
    - Preorder value collected: 6
-   Move to null.
-
-Final Flattened Tree:
-1 -> 2 -> 3 -> 4 -> 5 -> 6
+   - Move to right (i.e., null)
 
 Preorder Traversal Collected:
 [1, 2, 3, 4, 5, 6]
 */
-
-/*
-Morris Traversal – Core Insight:
-In recursive or stack-based traversals, returning from the left subtree to the right is handled by the call stack.
-However, without recursion or a stack, there's no natural way to return.
-Morris traversal overcomes this by creating temporary threads (links) to predecessors,
-allowing the traversal to return back after visiting the left subtree.
-This enables O(1) space traversal while preserving the correct preorder or inorder sequence.
-*/
-
-// Morris preorder traversal by altering the original tree structure
-
 class Solution {
     public List<Integer> preorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
-
-        TreeNode currentNode = root;
-        List<Integer> preorder = new ArrayList<>();
-
-        // Start with the root node
-        while (currentNode != null) {
-            // Add the current node's value to the result list
-            preorder.add(currentNode.val);
-            // If the current node has a left child
-            if (currentNode.left != null) {
-
-                // Step 1: Find the rightmost node in the left subtree
-                TreeNode predecessor = currentNode.left;
-                while (predecessor.right != null) {
-                    predecessor = predecessor.right;
-                }
-
-                /*
-                 * Step 2: Attach the rightmost node of the left subtree to the current node's right subtree.
-                 * This ensures that after moving the left subtree, the right subtree will still be preserved
-                 * and linked to the end of the left subtree.
-                 */
-                predecessor.right = currentNode.right;
-
-                /*
-                 * Step 3: Move the left subtree to the right and set current's left to null
-                 * The left child is now null, and the left subtree has been moved to the right
-                 */
-                currentNode.right = currentNode.left;
-                currentNode.left = null;
-            }
-
-            // Move to the next node in the flattened tree
-            currentNode = currentNode.right;
-        }
-
-        return preorder;
-    }
-}
-
-
-// Morris preorder traversal without altering the original tree structure
-
-class Solution {
-    public List<Integer> preorderTraversal(TreeNode root) {
-        if (root == null) {
-            return Collections.emptyList();
-        }
-
         List<Integer> preorder = new ArrayList<>();
         TreeNode currentNode = root;
 
         while (currentNode != null) {
-            // Case 1: If there is no left subtree, process the node and move right
             if (currentNode.left == null) {
-                preorder.add(currentNode.val); // Add current node value to the list
-                currentNode = currentNode.right; // Move to the right subtree
+                preorder.add(currentNode.val);
+                currentNode = currentNode.right;
             } else {
                 // Case 2: If left subtree exists, find the rightmost node in the left subtree
-                TreeNode rightmost = currentNode.left;
+                TreeNode rightMostNode = currentNode.left;
 
-                // Move to the rightmost node in the left subtree
                 /*
-                 * predecessor.right != current condition is detecting the temporary link
-                 * If predecessor.right is already pointing to currentNode, we need to revert the changes we made.
-                 */
-                while (rightmost.right != null && rightmost.right != currentNode) {
-                    rightmost = rightmost.right;
+                * predecessor.right != current condition is detecting the temporary link
+                * If predecessor.right is already pointing to currentNode, we need to revert the changes we made.
+                */
+                while (rightMostNode.right != null && rightMostNode.right != currentNode) {
+                    rightMostNode = rightMostNode.right;
                 }
 
-                if (rightmost.right == currentNode) {
-                    /*
-                     * This condition indicates that we have finished processing the left subtree.
-                     * so remove the temporary link, and move to the right subtree.
-                     */
-                    rightmost.right = null; // Remove the temporary link
+                /*
+                * This condition indicates that we have finished processing the left subtree.
+                * so remove the temporary link, and move to the right subtree.
+                */
+                if (rightMostNode.right == currentNode) {
+                    rightMostNode.right = null; // Remove the temporary link
                     currentNode = currentNode.right; // Move to the right subtree
                 } else {
                     preorder.add(currentNode.val); // Add current node value to the list
-                    // Create a temporary link from the rightmost node to the current node
-                    rightmost.right = currentNode;
+                    rightMostNode.right = currentNode; // Create a temporary link from the rightmost node to the current node
                     currentNode = currentNode.left; // Move to the left subtree
                 }
             }
