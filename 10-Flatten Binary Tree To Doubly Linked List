@@ -1,33 +1,39 @@
 //Bruteforce approach
 
 class Solution {
-    private List<Node> inorderTraversal;
+    // List to hold nodes in inorder sequence
+    private List<Node> inorder;
 
     Node bToDLL(Node root) {
-        inorderTraversal = new ArrayList<>();
-        findInorderTraversal(root); // Perform inorder traversal and store nodes in the list
+        inorder = new ArrayList<>();
 
-        Node prevNode = inorderTraversal.get(0); // The first node in the inorder list is the head of DLL
+        // Populate the inorder list using in-order traversal
+        collectNodesInInorder(root);
 
-        // Iterate through the inorder list and link nodes to form a doubly linked list
-        for (int i = 1; i < inorderTraversal.size(); i++) {
-            Node currentNode = inorderTraversal.get(i);
-            currentNode.left = prevNode; // Set left pointer to previous node
-            prevNode.right = currentNode; // Set right pointer of previous node to current node
-            prevNode = currentNode; // Move prevNode to the current node for next iteration
+        // Link nodes to form doubly linked list
+        for (int i = 1; i < inorder.size(); i++) {
+            Node prevNode = inorder.get(i - 1);
+            Node currentNode = inorder.get(i);
+
+            // Set the right pointer of the previous node to the current node
+            prevNode.right = currentNode;
+
+            // Set the left pointer of the current node to the previous node
+            currentNode.left = prevNode;
         }
 
-        return inorderTraversal.get(0); // Return the head of the DLL
+        // Head of the doubly linked list will be the first node in inorder traversal
+        return inorder.get(0);
     }
 
-    private void findInorderTraversal(Node root) {
+    private void collectNodesInInorder(Node root) {
         if (root == null) {
             return;
         }
 
-        findInorderTraversal(root.left);
-        inorderTraversal.add(root);
-        findInorderTraversal(root.right);
+        collectNodesInInorder(root.left);   
+        inorder.add(root);                 
+        collectNodesInInorder(root.right); 
     }
 }
 
@@ -36,40 +42,40 @@ class Solution {
 //Better approach
 
 class Solution {
-    private Node head; // Head of the Doubly Linked List
-    private Node prevNode; // Pointer to track the previous node in DLL
+    private Node head;      // Will point to the head of the doubly linked list
+    private Node prevNode;  // Pointer to the last linked node during inorder traversal
 
     Node bToDLL(Node root) {
-        head = prevNode = null;
-
-        // Perform inorder traversal and convert the tree into a DLL
-        findInorderTraversal(root);
-
-        // Return the head of the DLL
-        return head;
+        head = prevNode = null;  // Initialize pointers
+        flattenToDLLInorder(root);  // Perform in-place inorder traversal and linking
+        return head;  // Return the head of the constructed DLL
     }
 
-    private void findInorderTraversal(Node root) {
+    private void flattenToDLLInorder(Node root) {
         if (root == null) {
-            return; // Base case: Stop if the node is null
+            return;
         }
 
-        // Recur on the left subtree
-        findInorderTraversal(root.left);
+        // Traverse left subtree
+        flattenToDLLInorder(root.left);
 
-        if (prevNode == null) { // This condition is true for the first (leftmost) node in inorder traversal
-            root.left = null; // Not strictly necessary, as the leftmost node already has left = null
-            head = root; // The first node encountered becomes the head of the DLL
-        } else {
-            root.left = prevNode; // Current node's left points to previous node
-            prevNode.right = root; // Previous node's right points to current node
+        // Process current node:
+        // If there's a last linked node , link it with the current node
+        if (prevNode != null) {
+            prevNode.right = root;  // Link previous node's right to current
+            root.left = prevNode;   // Link current node's left to previous
         }
 
-        // Move the prevNode pointer to the current node
+        // Update prevNode to the current node
         prevNode = root;
 
-        // Recur on the right subtree
-        findInorderTraversal(root.right);
+        // If head hasn't been set yet, set it to the leftmost node (first in inorder)
+        if (head == null) {
+            head = root;
+        }
+
+        // Traverse right subtree
+        flattenToDLLInorder(root.right);
     }
 }
 
@@ -182,51 +188,58 @@ Final Flattened Binary Tree:
 
 
 class Solution {
-    private Node head = null; // Head of the Doubly Linked List
-    private Node prevNode = null; // Tracks the previous node in DLL
+    // Utility class to help build the doubly linked list during traversal
+    private static class NodeBuilder {
+        private Node head; // Head of the constructed DLL
+        private Node tail; // Tail of the constructed DLL
 
-    Node bToDLL(Node root) {
-        if (root == null) {
-            return null;
+        NodeBuilder() {
+            head = tail = null;
         }
 
-        Node current = root;
+        // Appends a node to the tail of the doubly linked list
+        private void append(Node node) {
+            if (head == null) {
+                head = tail = node; // First node becomes both head and tail
+            } else {
+                tail.right = node;  // Link current tail to new node
+                node.left = tail;   // Link new node back to current tail
+                tail = node;        // Move tail to the new last node
+            }
+        }
+    }
 
-        while (current != null) {
-            // Case 1: If there is no left subtree, process the node and move right
-            if (current.left == null) {
-                processNode(current);  // Process the current node
-                current = current.right;// Move to the right subtree
+    Node bToDLL(Node root) {
+        NodeBuilder dll = new NodeBuilder(); // DLL builder to keep track of head and tail
+        Node currentNode = root;
+
+        // Morris Inorder Traversal
+        while (currentNode != null) {
+            if (currentNode.left == null) {
+                // If no left child, visit the node and move right
+                dll.append(currentNode);
+                currentNode = currentNode.right;
             } else {
                 // Case 2: If left subtree exists, find the rightmost node in the left subtree
-                Node rightmost = current.left;
+                Node rightMostNode = currentNode.left;
 
-                // Move to the rightmost node in the left subtree
-                while (rightmost.right != null) {
-                    rightmost = rightmost.right;
+                while (rightMostNode.right != null) {
+                    rightMostNode = rightMostNode.right;
                 }
 
-                // Create a temporary thread from the rightmost node to the current node
-                rightmost.right = current;
-                Node temp = current;  // Store current node reference
-                current = current.left;   // Move current to its left subtree
+               // Create a temporary thread from the rightmost node to the current node to return to currentNode later
+                rightMostNode.right = currentNode;
+
+                // Store current node and move to left child
+                Node temp = currentNode;
+                currentNode = currentNode.left;
 
                 // Remove the left link to avoid infinite loops
                 temp.left = null;
             }
         }
 
-
-        return head; // Return the head of the DLL
-    }
-
-    private void processNode(Node current) {
-        if (prevNode == null) {
-            head = current; // First node is the head of DLL
-        } else {
-            prevNode.right = current;
-            current.left = prevNode;
-        }
-        prevNode = current;
+        // Return the head of the formed doubly linked list
+        return dll.head;
     }
 }
