@@ -1,72 +1,68 @@
 /*
-         10 (0)
-       /       \
-    20 (-1)    30 (+1)
-    /    \
- 40 (-2)  60 (0)
+              20 (0)
+            /        \
+        8 (-1)       22 (+1)
+      /     \       /     \
+  5 (-2)   3 (0)  4 (0)   25 (+2)
+           /   \
+      10 (-1) 14 (+1)
 
 ----------------------------
 Bottom View of the Binary Tree:
 ----------------------------
 
 Nodes at Each Horizontal Distance (HD):
-- HD = -2 → Node 40
-- HD = -1 → Node 20
-- HD =  0 → Node 60 (Replaces 10, as it is at a lower level)
-- HD = +1 → Node 30
+- HD = -2 → Node 5
+- HD = -1 → Node 10 (comes **after** 8 in level order, replaces 8 a HD = -1)
+- HD =  0 → Node 4 (comes **after** 20 and 3 in level order, replaces 20 and 3 at HD = 0)
+- HD = +1 → Node 14 (comes **after** 22 in level order, replaces 22 at HD = 1)
+- HD = +2 → Node 25
 
 Bottom View (Left to Right based on HD):
-[40, 20, 60, 30]
+[5, 10, 4, 14, 25]
 
 Explanation:
-- 40 is the only node at HD = -2.
-- 20 is the lowest node at HD = -1.
-- 60 is lower than 10 at HD = 0, so we take 60.
-- 30 is the only node at HD = +1.
+- 5 is the only node at HD = -2.
+- 10 replaces 8 for HD = -1 as it's seen **later** in BFS.
+- 4 replaces 20 and 3 at HD = 0 as it comes later.
+- 14 replaces 22 at HD = +1 as it appears later in BFS.
+- 25 is the only node at HD = +2.
 */
 
 
-class Solution{
+class Solution {
     // Pair class to store a node and its horizontal distance (hd) from the root
-    private static class Pair {
-        Node node;
-        int hd; // horizontal distance from root
-        
-        Pair(Node node, int hd) {
-            this.node = node;
-            this.hd = hd;
-        }
+    private static class Pair{
+      private Node node;
+      private int hd;
+      
+      Pair(Node node, int hd){
+        this.node=node;
+        this.hd=hd;
+      }
     }
     
-    public ArrayList <Integer> bottomView(Node root){
-         // If the tree is empty, return an empty list
-        if (root == null) {
-            return new ArrayList<>();
-        }
-
-        // Map to store the last / bottom node at each horizontal distance
-        // TreeMap is used to keep keys (horizontal distances) in sorted order
+    public ArrayList<Integer> bottomView(Node root) {
+        /*
+        * Map to store the bottommost (latest encountered in level-order) node at each horizontal distance (HD).
+        * TreeMap is used to keep the keys (HDs) sorted in ascending order (left to right view).
+        */
         Map<Integer, Integer> map = new TreeMap<>();
+        Queue<Pair> queue = new ArrayDeque<>();// Queue for level-order traversal (BFS)
+        queue.offer(new Pair(root, 0)); // Root is at horizontal distance 0
 
-        // Queue for level order traversal, stores pairs of node and its horizontal distance
-        Queue<Pair> queue = new ArrayDeque<>();
-        
-        // Start by adding the root node with horizontal distance 0
-        queue.offer(new Pair(root, 0));
-
-        // Perform level order traversal
         while (!queue.isEmpty()) {
             int size = queue.size();
 
-            // Traverse nodes at the current level
-            for (int i = 0; i < size; i++) {
-                // Extract the front node and its horizontal distance
+            while (size-- > 0) {
                 Pair pair = queue.poll();
                 Node node = pair.node;
                 int hd = pair.hd;
 
-                // Update the node value for this HD (bottom-most node at each HD)
-                // Since we traverse level by level, the last encountered node at each HD will be the bottom-most node.
+               /*
+                * For bottom view, we always overwrite the value at a horizontal distance,
+                * because the bottommost node will be the last one encountered in BFS at that HD.
+                */
                 map.put(hd, node.data);
 
                 // Add the left child to the queue with updated horizontal distance (hd - 1)
@@ -80,13 +76,8 @@ class Solution{
                 }
             }
         }
-
-        // Prepare the top view from the map by retrieving all values
-        ArrayList<Integer> topView = new ArrayList<>();
-        for (int value : map.values()) {
-            topView.add(value);
-        }
-
-        return topView;
+        
+        // Extract and return the values in order of increasing horizontal distance (left to right)
+        return new ArrayList<>(map.values());
     }
 }
