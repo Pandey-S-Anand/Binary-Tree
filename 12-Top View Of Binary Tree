@@ -50,11 +50,11 @@ Horizontal Distance Breakdown:
 
 
 class Solution {
-    // Pair class to store a node and its horizontal distance (hd) from the root
+    // Helper class to store a node along with its horizontal distance (HD) from the root
     private static class Pair {
-        Node node;
-        int hd; // horizontal distance from root
-        
+        private Node node;
+        private int hd;
+
         Pair(Node node, int hd) {
             this.node = node;
             this.hd = hd;
@@ -62,33 +62,23 @@ class Solution {
     }
 
     static ArrayList<Integer> topView(Node root) {
-        // If the tree is empty, return an empty list
-        if (root == null) {
-            return new ArrayList<>();
-        }
-
-        // Map to store the first / top node at each horizontal distance
-        // TreeMap is used to keep keys (horizontal distances) in sorted order
+        /*
+         Map to store the first / top node at each horizontal distance
+         TreeMap is used to keep keys (horizontal distances) in sorted order
+         */
         Map<Integer, Integer> map = new TreeMap<>();
+        Queue<Pair> queue = new ArrayDeque<>();// Queue for level-order traversal (BFS)
+        queue.offer(new Pair(root, 0)); // Root is at horizontal distance 0
 
-        // Queue for level order traversal, stores pairs of node and its horizontal distance
-        Queue<Pair> queue = new ArrayDeque<>();
-        
-        // Start by adding the root node with horizontal distance 0
-        queue.offer(new Pair(root, 0));
-
-        // Perform level order traversal
         while (!queue.isEmpty()) {
             int size = queue.size();
 
-            // Traverse nodes at the current level
-            for (int i = 0; i < size; i++) {
-                // Extract the front node and its horizontal distance
+            while (size-- > 0) {
                 Pair pair = queue.poll();
                 Node node = pair.node;
                 int hd = pair.hd;
 
-                // If this horizontal distance has not been seen before, add the node to the map
+                // If this HD is being encountered the first time, add to result Because we want the topmost/first node at each HD
                 if (!map.containsKey(hd)) {
                     map.put(hd, node.data);
                 }
@@ -104,13 +94,7 @@ class Solution {
                 }
             }
         }
-
-        // Prepare the top view from the map by retrieving all values
-        ArrayList<Integer> topView = new ArrayList<>();
-        for (int value : map.values()) {
-            topView.add(value);
-        }
-
-        return topView;
+        // Extract the values from leftmost HD to rightmost HD
+        return new ArrayList<>(map.values());
     }
 }
