@@ -1,84 +1,170 @@
 class Solution {
+    // List to store the final boundary traversal
     private ArrayList<Integer> boundaryTraversal;
 
+    // Main function to perform boundary traversal
     ArrayList<Integer> boundaryTraversal(Node root) {
         boundaryTraversal = new ArrayList<>();
-        
-        // Add root node if it is not a leaf to avoid duplicate insertion in the leafNodes method
+
+        // Add the root node only if it's not a leaf
         if (!isLeafNode(root)) {
             boundaryTraversal.add(root.data);
         }
 
         // Traverse the left boundary excluding leaf nodes
-        leftBoundary(root);
-        
-        // Add all leaf nodes in left-to-right order
-        leafNodes(root);
-        
-        // Traverse the right boundary in bottom-up order, excluding leaf nodes
-        rightBoundary(root);
-        
+        traverseLeftBoundary(root.left);
+
+        // Add all the leaf nodes from left to right
+        traverseLeafNodes(root);
+
+        // Traverse the right boundary excluding leaf nodes (added in reverse order)
+        traverseRightBoundary(root.right);
+
         return boundaryTraversal;
     }
 
-    private void leftBoundary(Node root) {
-        Node leftNode = root.left;
-
-        if(leftNode==null){
-          return;    
+    // Traverse the left boundary (excluding leaf nodes)
+    private void traverseLeftBoundary(Node node) {
+        if (node == null) {
+            return;
         }
-         
-        // Traverse downward, preferring the left child over the right child
-        while (!isLeafNode(leftNode)) {
-            boundaryTraversal.add(leftNode.data);
-            if (leftNode.left != null) {
-                leftNode = leftNode.left;
+
+        Node currentNode = node;
+
+        // Continue until a leaf node is encountered
+        while (!isLeafNode(currentNode)) {
+            boundaryTraversal.add(currentNode.data);
+
+            // Prefer going left; if not possible, go right
+            if (currentNode.left != null) {
+                currentNode = currentNode.left;
             } else {
-                leftNode = leftNode.right;
+                currentNode = currentNode.right;
             }
         }
     }
 
-    private void rightBoundary(Node root) {
-        Deque<Integer> stack = new ArrayDeque<>();
-        Node rightNode = root.right;
-
-        if(rightNode==null){
-           return;    
+    // Traverse the right boundary (excluding leaf nodes), add them in reverse order
+    private void traverseRightBoundary(Node node) {
+        if (node == null) {
+            return;
         }
 
-        // Traverse downward, preferring the right child over the left child
-        while (!isLeafNode(rightNode)) {
-            stack.push(rightNode.data); // Store in stack to retrieve in bottom-up order
-            if (rightNode.right != null) {
-                rightNode = rightNode.right;
+        Node currentNode = node;
+        Deque<Integer> stack = new ArrayDeque<>();
+
+        // Store the nodes in a stack to reverse the order later
+        while (!isLeafNode(currentNode)) {
+            stack.push(currentNode.data);
+
+            // Prefer going right; if not possible, go left
+            if (currentNode.right != null) {
+                currentNode = currentNode.right;
             } else {
-                rightNode = rightNode.left;
+                currentNode = currentNode.left;
             }
         }
 
-        // Retrieve nodes from the stack to maintain bottom-up order
+        // Add the right boundary nodes in reverse order
         while (!stack.isEmpty()) {
             boundaryTraversal.add(stack.pop());
         }
     }
 
-    private void leafNodes(Node node) {
-        if (node == null) {
+    // Recursively add all the leaf nodes from left to right
+    private void traverseLeafNodes(Node root) {
+        if (root == null) {
             return;
         }
 
-        // If it's a leaf node, add it to the result
-        if (isLeafNode(node)) {
-            boundaryTraversal.add(node.data);
+        // If it's a leaf node, add it to the list
+        if (isLeafNode(root)) {
+            boundaryTraversal.add(root.data);
+            return;
         }
 
-        // Recursively check the left and right subtrees for leaf nodes (left-to-right order)
-        leafNodes(node.left);
-        leafNodes(node.right);
+        // Recurse into left and right subtrees
+        traverseLeafNodes(root.left);
+        traverseLeafNodes(root.right);
     }
 
-    private Boolean isLeafNode(Node node) {
+    // Helper function to check if a node is a leaf node
+    private boolean isLeafNode(Node node) {
+        return node.left == null && node.right == null;
+    }
+}
+
+
+//Aliter 
+
+
+class Solution {
+    private ArrayList<Integer> boundaryTraversal;
+
+    ArrayList<Integer> boundaryTraversal(Node root) {
+        boundaryTraversal = new ArrayList<>();
+
+        if (root == null) return boundaryTraversal;
+
+        if (!isLeafNode(root)) {
+            boundaryTraversal.add(root.data);
+        }
+
+        // Traverse left boundary excluding leaves
+        traverseLeftBoundary(root.left);
+
+        traverseLeafNodes(root);
+
+        traverseRightBoundary(root.right);
+
+        return boundaryTraversal;
+    }
+
+    private void traverseLeftBoundary(Node node) {
+        if (node == null) return;
+
+        Node currentNode = node;
+        while (!isLeafNode(currentNode)) {
+            boundaryTraversal.add(currentNode.data);
+            if (currentNode.left != null) {
+                currentNode = currentNode.left;
+            } else {
+                currentNode = currentNode.right;
+            }
+        }
+    }
+
+    private void traverseRightBoundary(Node node) {
+        if (node == null) return;
+
+        Node currentNode = node;
+        LinkedList<Integer> reversedRightBoundary = new LinkedList<>();
+
+        while (!isLeafNode(currentNode)) {
+            reversedRightBoundary.offerFirst(currentNode.data);  // Add to front to maintain reverse order
+            if (currentNode.right != null) {
+                currentNode = currentNode.right;
+            } else {
+                currentNode = currentNode.left;
+            }
+        }
+
+        boundaryTraversal.addAll(reversedRightBoundary);
+    }
+
+    private void traverseLeafNodes(Node root) {
+        if (root == null) return;
+
+        if (isLeafNode(root)) {
+            boundaryTraversal.add(root.data);
+            return;
+        }
+
+        traverseLeafNodes(root.left);
+        traverseLeafNodes(root.right);
+    }
+
+    private boolean isLeafNode(Node node) {
         return node.left == null && node.right == null;
     }
 }
