@@ -14,34 +14,62 @@
  * }
  */
 
-/*
- * Tree structure:
- *        1
- *       / \
- *      2   3
- *     /     
- *    4
- *   /
- *  5
- * 
- * At node 5:
- * Left subtree height is 0, right subtree height is 0, so it is balanced (difference <= 1).
- *
- * At node 4:
- * Left subtree height is 1, right subtree height is 0, so it is balanced (difference <= 1).
- *
- * At node 2:
- * Left subtree height is 2 (calculated from node 4), right subtree height is 0 (calculated from null),
- * so we detect that the tree is unbalanced at this node because the height difference is greater than 1.
- * The recursive calls will pass the -1 check for left and right subtrees, but we need to check if the left and 
- * right subtrees at node 2 are balanced by verifying the height difference (Math.abs(leftHeight - rightHeight) > 1).
- *
- * The check: if (Math.abs(leftHeight - rightHeight) > 1) return -1;
- * This check will only come into play when one of the subtrees is missing (i.e., only one side, left or right, is 
- * present and height-balanced — for example, at node 2, the left subtree is present and balanced), leading to a height 
- * difference greater than 1, or when at a leaf node (both left and right children are null).
- */
+//Bruteforce approach
 
+class Solution {
+    // A binary tree is considered balanced if the left and right subtrees of every node differ in height by no more than 1.
+    public boolean isBalanced(TreeNode root) {
+        // Base case: An empty tree is balanced
+        if (root == null) {
+            return true;
+        }
+
+        // Calculate heights of left and right subtrees
+        int leftSubtreeHeight = getHeight(root.left);
+        int rightSubtreeHeight = getHeight(root.right);
+
+        // If the height difference is more than 1, it's not balanced
+        if (Math.abs(leftSubtreeHeight - rightSubtreeHeight) > 1) {
+            return false;
+        }
+
+        // Recursively check if left and right subtrees are also balanced
+        return isBalanced(root.left) && isBalanced(root.right);
+    }
+
+    /**
+     * Computes the height of a binary tree rooted at the given node.
+     *
+     * Definition:
+     *   The height of a binary tree is the number of nodes on the longest path from the current node down to a leaf.
+     *
+     * Example:
+     *     1
+     *    / \
+     *   2   3
+     *  /
+     * 4
+     * Height of node 1 = 3 (1 → 2 → 4)
+     * Height of node 2 = 2 (2 → 4)
+     * Height of node 4 = 1
+     */
+    private int getHeight(TreeNode root) {
+        // Base case: The height of an empty tree is 0
+        if (root == null) {
+            return 0;
+        }
+
+        // Recursively get the height of left and right subtrees
+        int leftHeight = getHeight(root.left);
+        int rightHeight = getHeight(root.right);
+
+        // Height = 1 (current node) + max height of left/right subtree
+        return 1 + Math.max(leftHeight, rightHeight);
+    }
+}
+
+
+//Optimal approach
 
 class Solution {
     public boolean isBalanced(TreeNode root) {
@@ -60,14 +88,14 @@ class Solution {
             return 0;
         }
 
-        // Recursively find the max depth of left subtree
+        // Recursively find the height of left subtree
         int leftHeight = checkHeight(node.left);
         // If the right subtree is unbalanced , returns -1
         if (leftHeight == -1) {
             return -1;
         }
 
-        // Recursively find the max depth of right subtree
+        // Recursively find the height of right subtree
         int rightHeight = checkHeight(node.right);
         // If the right subtree is unbalanced , returns -1
         if (rightHeight == -1) {
@@ -79,7 +107,7 @@ class Solution {
             return -1;
         }
 
-        // Return the maximum height (or depth) from the current node's (through either left or right subtree)
+        // Return the height (or depth) from the current node's (through either left or right subtree)
         return 1 + Math.max(leftHeight, rightHeight);
     }
 }
