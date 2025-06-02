@@ -19,40 +19,23 @@
 
 class Solution {
     public boolean isSymmetric(TreeNode root) {
-        // Check if the left and right subtrees are mirror images of each other
-        return isMirror(root.left, root.right);
+        // A tree is symmetric if its left and right subtrees are mirror images of each other
+        return isSymmetric(root.left, root.right);
     }
 
-    private boolean isMirror(TreeNode left, TreeNode right) {
-        // If both subtrees are null, they are symmetric
-        if (left == null && right == null) {
+    private boolean isSymmetric(TreeNode root1, TreeNode root2) {
+        // Both nodes are null: symmetric
+        if (root1 == null && root2 == null) {
             return true;
         }
 
-        // If only one of them is null, they are not symmetric
-        if (left == null || right == null) {
+        // One node is null or values don't match: not symmetric
+        if (root1 == null || root2 == null || root1.val != root2.val) {
             return false;
         }
 
-        // Check if the values are equal and the subtrees are symmetric  (left subtree's left child with right subtree's right child and vice versa)
-        return left.val == right.val && isMirror(left.left, right.right) && isMirror(left.right, right.left);
-    }
-}
-
-//Concise implementation
-
-class Solution {
-    public boolean isSymmetric(TreeNode root) {
-        return isMirror(root.left, root.right);
-    }
-
-    private boolean isMirror(TreeNode left, TreeNode right) {
-        if (left == null || right == null) {
-            // If both subtrees are null, they are symmetric otherwise if only one of them is null, they are not symmetric
-            return left==right;
-        }
-
-        return left.val == right.val && isMirror(left.left, right.right) && isMirror(left.right, right.left);
+        // Recursively compare left with right and right with left
+        return isSymmetric(root1.left, root2.right) && isSymmetric(root1.right, root2.left);
     }
 }
 
@@ -61,7 +44,9 @@ class Solution {
 
 class Solution {
     public boolean isSymmetric(TreeNode root) {
-        if (root == null) return true;
+        if (root == null) {
+            return true;
+        }
 
         // Use a queue to compare nodes in pairs, utilizing LinkedList to allow null values
         Queue<TreeNode> queue = new LinkedList<>();
@@ -70,20 +55,24 @@ class Solution {
 
         while (!queue.isEmpty()) {
             // Retrieve two nodes for comparison 
-            TreeNode left = queue.poll();
-            TreeNode right = queue.poll();
+            TreeNode leftNode = queue.poll();
+            TreeNode rightNode = queue.poll();
 
             // If both nodes are null, continue to the next pair
-            if (left == null && right == null) continue;
+            if (leftNode == null && rightNode == null) {
+                continue;
+            }
 
             // If one node is null or their values differ, the tree is not symmetric
-            if (left == null || right == null || left.val != right.val) return false;
+            if (leftNode == null || rightNode == null || leftNode.val != rightNode.val) {
+                return false;
+            }
 
             // Enqueue child nodes in mirrored order for further comparison
-            queue.add(left.left);   // Left subtree's left child
-            queue.add(right.right); // Right subtree's right child
-            queue.add(left.right);  // Left subtree's right child
-            queue.add(right.left);  // Right subtree's left child
+            queue.add(leftNode.left); // Left subtree's left child
+            queue.add(rightNode.right); // Right subtree's right child
+            queue.add(leftNode.right); // Left subtree's right child
+            queue.add(rightNode.left); // Right subtree's left child
         }
 
         // If no asymmetry is found, the tree is symmetric
