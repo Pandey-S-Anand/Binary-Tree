@@ -20,7 +20,7 @@ class Solution {
             return new ArrayList<>();
         }
 
-        ArrayList<Integer> leftView = new ArrayList<>();
+        ArrayList<Integer> leftSideView = new ArrayList<>();
 
         // Queue to to track nodes at the current level (BFS)
         Queue<Node> queue = new ArrayDeque<>();
@@ -36,7 +36,7 @@ class Solution {
 
                 // If it's the first node in the current level, add it to the result
                 if (i == 0) {
-                    leftView.add(node.data);
+                    leftSideView.add(node.data);
                 }
 
                 // Enqueue the left child if it exists
@@ -51,7 +51,7 @@ class Solution {
             }
         }
 
-        return leftView;
+        return leftSideView;
     }
 }
 
@@ -59,24 +59,30 @@ class Solution {
 //Optimal approach
 
 class Solution {
-    private ArrayList<Integer> leftView;
-
+    // List to store the result of the left view
+    private ArrayList<Integer> leftSideView;
+    
     ArrayList<Integer> leftView(Node root) {
-        leftView = new ArrayList<>();
-        dfs(root, 0);
-        return leftView;
+        leftSideView = new ArrayList<>();
+        dfs(root, 0);  // Start DFS from root at depth 0
+        return leftSideView;
     }
-
-    private void dfs(Node node, int depth) {
-        if (node == null) {
+    
+    private void dfs(Node root, int depth) {
+        // Base case: if the current node is null, just return
+        if (root == null) {
             return;
         }
 
-        if (depth == leftView.size()) {
-            leftView.add(node.data);
+        // If this is the first node we're visiting at the current depth, it will be the leftmost node of that level.
+        if (depth == leftSideView.size()) {
+            leftSideView.add(root.data);
         }
 
-        dfs(node.left, depth + 1);
-        dfs(node.right, depth + 1);
+        // Explore the left subtree first to ensure leftmost nodes are added first
+        dfs(root.left, depth + 1);
+
+        // Then explore the right subtree
+        dfs(root.right, depth + 1);
     }
 }
