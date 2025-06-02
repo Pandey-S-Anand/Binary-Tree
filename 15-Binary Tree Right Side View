@@ -18,28 +18,28 @@
 
 class Solution {
     public List<Integer> rightSideView(TreeNode root) {
-        // Return an empty list if the tree is empty
+        // Base case: If tree is empty, return empty list
         if (root == null) {
             return Collections.emptyList();
         }
 
-        List<Integer> rightView = new ArrayList<>();
+        List<Integer> rightSideView = new ArrayList<>();
 
-        // Queue to to track nodes at the current level (BFS)
-        Queue<TreeNode> queue = new LinkedList<>();
-        queue.offer(root); // Start traversal from the root node
+        // Queue for level-order traversal (BFS)
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root); // Start BFS from root
 
+        // Perform level-order traversal
         while (!queue.isEmpty()) {
-            // Number of nodes at the current level
-            int size = queue.size();
+            int size = queue.size(); // Number of nodes at current level
 
-            // Process all nodes at the current level
-            for (int i = 0; i < size; i++) {
+            // Traverse all nodes at this level
+            while (size-- > 0) {
                 TreeNode node = queue.poll();
 
-                // If it's the last node in the current level, add it to the result
-                if (i == size - 1) {
-                    rightView.add(node.val);
+                // The last node processed in this level is the rightmost node
+                if (size == 0) {
+                    rightSideView.add(node.val);
                 }
 
                 // Enqueue the left child if it exists
@@ -54,9 +54,10 @@ class Solution {
             }
         }
 
-        return rightView;
+        return rightSideView;
     }
 }
+
 
 
 //Optimal approach
@@ -70,20 +71,20 @@ class Solution {
         return rightView;
     }
 
-    private void dfs(TreeNode node, int depth) {
-        if (node == null) {
+    private void dfs(TreeNode root, int depth) {
+        if (root == null) {
             return;
         }
 
         // If this is the first node at the current depth, add it to the right view
         if (depth == rightView.size()) {
-            rightView.add(node.val);
+            rightView.add(root.val);
         }
 
         // Prioritize the right subtree to ensure rightmost nodes are processed first
-        dfs(node.right, depth + 1);
-        
+        dfs(root.right, depth + 1);
+
         // Process the left subtree after the right subtree
-        dfs(node.left, depth + 1);
+        dfs(root.left, depth + 1);
     }
 }
