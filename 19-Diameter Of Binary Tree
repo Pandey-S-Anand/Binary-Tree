@@ -14,36 +14,33 @@
  * }
  */
 
-/*
- * For each node in the tree, the diameter (longest path passing through that node)
- * is the sum of the maximum depth of its left subtree and the maximum depth of its right subtree.
- * Update the global maximum diameter whenever a larger value is found.
- */
-
 class Solution {
-    private int maxDiameter = 0;
+    private int maxNodesInPath; // max number of nodes in any path between two nodes
 
     public int diameterOfBinaryTree(TreeNode root) {
-        depth(root);
-        return maxDiameter;
+        maxNodesInPath = 0; // initialize max path length
+        getMaxPathLength(root); // calculate max path length in nodes
+        return maxNodesInPath - 1; // diameter = max nodes in path - 1 (edges)
     }
 
-    private int depth(TreeNode node) {
+    private int getMaxPathLength(TreeNode node) {
         if (node == null) {
-            return 0;
+            return 0; // height of empty subtree is 0 nodes
         }
 
-        // Recursively find the max depth of left and right subtrees
-        int maxLeftDepth = depth(node.left);
-        int maxRightDepth = depth(node.right);
+        int left = getMaxPathLength(node.left); // height of left subtree (nodes)
+        int right = getMaxPathLength(node.right); // height of right subtree (nodes)
 
-        // Diameter for the current node
-        int currentDiameter = maxLeftDepth + maxRightDepth;
+        int nodesInCurrentPath = left + right + 1; // nodes in path through current node
+        maxNodesInPath = Math.max(maxNodesInPath, nodesInCurrentPath);
 
-        // Update max diameter
-        maxDiameter = Math.max(maxDiameter, currentDiameter);
-
-        // Return the maximum height (or depth) from the current node's (through either left or right subtree)
-        return 1 + Math.max(maxLeftDepth, maxRightDepth);
+        /*
+         * Height of subtree rooted at current node =
+         * 1 (current node) + max height of left or right subtree
+         *
+         * Height defined as the number of nodes on the longest path from that node down to
+         * any leaf node (including the starting node and the leaf node)
+         */
+        return 1 + Math.max(left, right);
     }
 }
