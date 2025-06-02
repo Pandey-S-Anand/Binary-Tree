@@ -21,32 +21,39 @@ class Solution {
 //Iterative approach
 
 class Solution {
+    // This iterative solution uses a queue to perform level-order traversal on both trees in parallel.
     public boolean isSameTree(TreeNode root1, TreeNode root2) {
-        // Initialize a stack to hold pairs of nodes to compare
-        Deque<TreeNode[]> stack = new ArrayDeque<>();
-        stack.push(new TreeNode[] { root1, root2 });
+        Queue<TreeNode> queue = new LinkedList<>();
 
-        while (!stack.isEmpty()) {
-            TreeNode[] nodes = stack.pop();
-            TreeNode node1 = nodes[0];
-            TreeNode node2 = nodes[1];
+        // Enqueue both roots to start parallel comparison
+        queue.offer(root1);
+        queue.offer(root2);
 
-            // If both nodes are null, they are the same at this point
+        // Process nodes in pairs
+        while (!queue.isEmpty()) {
+            TreeNode node1 = queue.poll();
+            TreeNode node2 = queue.poll();
+
+            // If both nodes are null, continue to next pair
             if (node1 == null && node2 == null) {
                 continue;
             }
 
-            // If one of the nodes is null or their values are different, return false
+            // If one is null or values don't match, trees are not the same
             if (node1 == null || node2 == null || node1.val != node2.val) {
                 return false;
             }
 
-            // Add the left and right children of both nodes to the stack
-            stack.push(new TreeNode[] { node1.left, node2.left });
-            stack.push(new TreeNode[] { node1.right, node2.right });
+            // Enqueue left children of both nodes for next comparison
+            queue.offer(node1.left);
+            queue.offer(node2.left);
+
+            // Enqueue right children of both nodes for next comparison
+            queue.offer(node1.right);
+            queue.offer(node2.right);
         }
 
-        // If all comparisons are successful, the trees are the same
+        // All nodes matched
         return true;
     }
 }
