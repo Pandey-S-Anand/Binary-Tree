@@ -17,52 +17,51 @@
 //Bruteforce approach
 
 class Solution {
-    // List to store all root-to-leaf paths in the tree
-    private List<List<Integer>> paths;
+    // Global variable to store the total sum of all root-to-leaf numbers
+    private int sum;
 
     public int sumNumbers(TreeNode root) {
-        paths = new ArrayList<>(); 
-        getAllPaths(root, new ArrayList<>());  // Get all root-to-leaf paths
-
-        // Variable to store the sum of all path numbers
-        int totalPathsNumberSum = 0;
-
-        // For each path, calculate the number formed and add it to the total sum
-        for (List<Integer> path : paths) {
-            totalPathsNumberSum += getPathNumber(path);  // Add the number formed from the path
-        }
-
-        return totalPathsNumberSum;  // Return the final sum of all path numbers
+        sum = 0;
+        getAllPathsSum(root, new ArrayList<>());
+        return sum;
     }
 
-    private void getAllPaths(TreeNode root, List<Integer> currentPath) {
+    private void getAllPathsSum(TreeNode root, List<Integer> path) {
         if (root == null) {
+            return; // Base case: If current node is null, return
+        }
+
+        // Add the current node's value to the path
+        path.add(root.val);
+
+        // If it's a leaf node, form the number from path and add to sum
+        if (isLeafNode(root)) {
+            int number = getPathNumber(path); // Convert list of digits to actual number
+            sum += number;
+
+            // Backtrack: remove last added node value before returning
+            path.remove(path.size() - 1);
             return;
         }
 
-        currentPath.add(root.val);
+        // Recursive calls to left and right subtrees
+        getAllPathsSum(root.left, path);
+        getAllPathsSum(root.right, path);
 
-        if (root.left == null && root.right == null) {
-            paths.add(new ArrayList<>(currentPath));
-            currentPath.remove(currentPath.size() - 1);
-            return;
-        }
-
-        // Recurse on the left and right subtrees
-        getAllPaths(root.left, currentPath);
-        getAllPaths(root.right, currentPath);
-
-        currentPath.remove(currentPath.size() - 1);
+        // Backtrack after exploring both children
+        path.remove(path.size() - 1);
     }
 
-    private int getPathNumber(List<Integer> path) {
-        int number = 0;  // Variable to store the number formed by the path
-        for (int value : path) {
-            // Form the number by appending each node's value to the current number
-            number = number * 10 + value;
+    private int getPathNumber(List<Integer> number) {
+        int num = 0;
+        for (int val : number) {
+            num = num * 10 + val;
         }
+        return num;
+    }
 
-        return number;  // Return the final number formed by the path
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
     }
 }
 
@@ -84,32 +83,35 @@ class Solution {
  */
 
 class Solution {
-    // Variable to store the sum of all path numbers
-    private int totalPathsNumberSum;
+    private int sum;
 
     public int sumNumbers(TreeNode root) {
-        totalPathsNumberSum = 0;
-        getAllPathsSum(root, 0);
-        return totalPathsNumberSum;
+        sum = 0;
+        getAllPathsSum(root, 0); // Start recursive traversal with initial number as 0
+        return sum;
     }
 
-    private void getAllPathsSum(TreeNode root, int currentPathNumber) {
-        // Base case: If the node is null, simply return (no path to process)
+    private void getAllPathsSum(TreeNode root, int num) {
+        // Base case: if the node is null, return immediately
         if (root == null) {
             return;
         }
 
-        // Update the current path number by appending the current node's value
-        currentPathNumber = currentPathNumber * 10 + root.val;
+        // Append current node's digit to the path number
+        num = num * 10 + root.val;
 
-        // If the current node is a leaf (no left or right children), add the path number to the total sum
-        if (root.left == null && root.right == null) {
-            totalPathsNumberSum += currentPathNumber;  // Add the current path number to the total sum
+        // If current node is a leaf, add the formed number to the global sum
+        if (isLeafNode(root)) {
+            sum += num;
             return;
         }
 
-        // Recursively calculate the sum for both left and right subtrees
-        getAllPathsSum(root.left, currentPathNumber); 
-        getAllPathsSum(root.right, currentPathNumber);
+        // Recursively process left and right subtrees
+        getAllPathsSum(root.left, num);
+        getAllPathsSum(root.right, num);
+    }
+
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
     }
 }
