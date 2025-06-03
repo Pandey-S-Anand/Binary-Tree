@@ -1,32 +1,39 @@
 //Recursive approach
 
 class Solution {
+    /*
+     * Note:
+     * Minimum depth of a binary tree is defined as the shortest path length from the root node down to the nearest leaf node.
+     * When finding max depth of a binary tree, these null-child corner cases
+     * do not need special handling because max depth naturally picks the longer path.
+     * But for min depth, we must handle null children explicitly to avoid
+     * incorrectly counting missing paths as zero depth.
+     */
     public int minDepth(TreeNode root) {
-        // If the root is null, return 0 as there is no tree.
         if (root == null) {
-            return 0;
+            return 0; // Empty tree has depth 0
         }
+        
+        int leftDepth = minDepth(root.left);
+        int rightDepth = minDepth(root.right);
 
-        // If both left and right subtrees are null, we are at a leaf node, so the depth is 1.
+        // If both children are null, this is a leaf node
         if (root.left == null && root.right == null) {
             return 1;
         }
 
-        // If the left subtree is null, only consider the right subtree.
+        // If left child is null, recurse only on right subtree
         if (root.left == null) {
-            return 1 + minDepth(root.right);
+            return 1 + rightDepth;
         }
 
-        // If the right subtree is null, only consider the left subtree.
+        // If right child is null, recurse only on left subtree
         if (root.right == null) {
-            return 1 + minDepth(root.left);
+            return 1 + leftDepth;
         }
 
-        // If both subtrees are non-null, calculate the depth of both subtrees and return the minimum depth between them.
-        int minDepthLeft = minDepth(root.left);
-        int minDepthRight = minDepth(root.right);
-        
-        return 1 + Math.min(minDepthLeft, minDepthRight); 
+        // Both children exist, take minimum of both depths + 1
+        return 1 + Math.min(leftDepth, rightDepth);
     }
 }
 
@@ -35,40 +42,44 @@ class Solution {
 
 class Solution {
     public int minDepth(TreeNode root) {
-        // If the tree is empty, depth is 0
         if (root == null) {
-            return 0;
+            return 0; // Empty tree has depth 0
         }
 
         Queue<TreeNode> queue = new ArrayDeque<>();
-        queue.offer(root);
-        int depth = 0;
+        queue.offer(root); // Start BFS from root
+        int depth = 0; // Initialize depth counter
 
-        // Perform level-order traversal
+        // Level-order traversal (BFS)
         while (!queue.isEmpty()) {
-            // Number of nodes at the current level
-            int size = queue.size();
-            depth++; // Increase depth at each level
+            depth++; // Increment depth at each level
+            int size = queue.size(); // Number of nodes at current level
 
-            // Process all nodes at the current level
-            for (int i = 0; i < size; i++) {
-                TreeNode currentNode = queue.poll();
+            // Process all nodes at current level
+            while (size-- > 0) {
+                TreeNode node = queue.poll();
                 
-                // If we reach a leaf node, return the current depth
-                if(currentNode.left==null && currentNode.right==null){
-                   return depth;
+                //The first encountered leaf node in BFS traversal represents the minimum depth, so we can return the current depth immediately.
+                if (isLeafNode(node)) {
+                    return depth;
                 }
-                
-                // Add child nodes to the queue
-                if (currentNode.left != null) {
-                    queue.offer(currentNode.left);
+
+                // Add left child to queue if exists
+                if (node.left != null) {
+                    queue.offer(node.left);
                 }
-                if (currentNode.right != null) {
-                    queue.offer(currentNode.right);
+
+                // Add right child to queue if exists
+                if (node.right != null) {
+                    queue.offer(node.right);
                 }
             }
         }
 
-        return depth; // This statement will never be reached
+        return -1; // Should never reach here for a valid binary tree
+    }
+
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
     }
 }
