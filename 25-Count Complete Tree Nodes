@@ -2,64 +2,78 @@
 
 class Solution {
     public int countNodes(TreeNode root) {
-        // Base case: If the tree is empty, return 0
+        // Base case: if the current node is null, return 0 (no node to count)
         if (root == null) {
             return 0;
         }
 
-        // Recursively count the nodes in the left and right subtrees
-        int leftSubtreeCount = countNodes(root.left);
-        int rightSubtreeCount = countNodes(root.right);
-
-        // Return the total count, including the current node
-        return 1 + leftSubtreeCount + rightSubtreeCount;
+        /*
+         * Recursively count:
+         * - The current node (1)
+         * - Total nodes in the left subtree
+         * - Total nodes in the right subtree
+         */
+        return 1 + countNodes(root.left) + countNodes(root.right);
     }
 }
+
 
 //Optimal approach
 
 class Solution {
     public int countNodes(TreeNode root) {
-        // Base case: If the tree is empty, return 0
         if (root == null) {
             return 0;
         }
 
-        // Calculate the height of the leftmost and rightmost paths
+        //Compute the height of the leftmost path from a node
         int leftHeight = getLeftHeight(root);
+        //Compute the height of the rightmost path from a node
         int rightHeight = getRightHeight(root);
 
         /*
-         * Since the tree is guaranteed to be a complete binary tree, missing nodes will
-         * always appear on the leftmost side, ensuring no gaps on the right. When the
-         * heights of both left and right subtrees are equal, it indicates a perfect
-         * binary tree for that part, allowing you to directly compute the node count
-         * using the formula (2 ^ height) − 1
-         * This drastically reduces the time complexity when compared to recursively counting each node.
-         */
+        Perfect Binary Tree:
+        - In a perfect binary tree, all internal nodes have exactly two children, and all leaf nodes are at the same level.
+        - The total number of nodes in a perfect binary tree of height `h` is (2^h) - 1.
+        
+        Why is the "complete binary tree" property helpful for optimization?
+        
+        Since the given tree is guaranteed to be a complete binary tree:
+        - All levels except possibly the last are completely filled.
+        - Nodes in the last level are filled from left to right without any gaps in between.
+        - This means it's not possible to have a missing node on the left and a present node on the right.
+        
+        Optimization Insight:
+        - For any subtree, if the height of the leftmost path and the rightmost path are the same, then the subtree is a perfect binary tree.
+        - This is because, due to the complete binary tree structure, there are no missing nodes in the intermediate levels,
+          and any missing nodes in the last level will appear only at the end (right side).
+        - So, if both left and right heights match, the subtree must be fully filled (i.e., perfect),
+          and we can directly use the formula (2^h) - 1 to count nodes, avoiding full traversal.
+        */
+        // Check if the current tree/subtree is a perfect binary tree
         if (leftHeight == rightHeight) {
-            return (1 << leftHeight) - 1; // Equivalent to 2^leftHeight - 1
+            return (int) Math.pow(2, leftHeight) - 1;
         }
 
-        // If the tree is not perfect, recursively count nodes in the left and right subtrees
+        // If not a perfect tree, recursively count nodes in left and right subtrees
         return 1 + countNodes(root.left) + countNodes(root.right);
     }
 
     private int getLeftHeight(TreeNode node) {
-        int height = 0;
+        int count = 0;
         while (node != null) {
-            height++;
+            count++;
             node = node.left;
         }
-        return height;
+        return count;
     }
 
     private int getRightHeight(TreeNode node) {
-        int height = 0;
+        int count = 0;
         while (node != null) {
-            height++;
+            count++;
             node = node.right;
         }
-        return height;
+        return count;
     }
 }
