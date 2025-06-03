@@ -13,20 +13,20 @@ class Node
 //Naive implementation
 
 class Solution {
-    private ArrayList<Integer> path;  // List to store the path to the target node
+    private ArrayList<Integer> path; // List to store the path to the target node
 
     public ArrayList<Integer> Ancestors(Node root, int target) {
         path = new ArrayList<>();
-        findPath(root, target);  // Find the path to the target node
+        boolean isTargetFound = findPath(root, target); // Find the path to the target node
 
-        // Remove the target node from the path (the target itself isn't considered an ancestor)
-        if (!path.isEmpty()) {
+        // If the target is found ,remove the last element (which is the target itself) (the target itself isn't considered an ancestor)
+        if (isTargetFound) {
             path.remove(path.size() - 1);
         }
 
         // Reverse the path to get the ancestors in the correct order (from parent to root)
         Collections.reverse(path);
-        return path;  // Return the list of ancestors
+        return path; // Return the list of ancestors
     }
 
     private boolean findPath(Node root, int target) {
@@ -54,18 +54,18 @@ class Solution {
     }
 }
 
+
 //Optimal implementation
 
 class Solution {
-    private List<Integer> path;  // List to store the path to the target node
+    private LinkedList<Integer> path;  
 
-    // Public method to find the ancestors of a node
     public ArrayList<Integer> Ancestors(Node root, int target) {
         path = new LinkedList<>();  // Initialize the path list (we use LinkedList for efficient insertions at the front)
-        findPath(root, target);  // Find the path to the target node
+        boolean targetFound=findPath(root, target);
 
-        // If the path is not empty, remove the first element (which is the target itself, not an ancestor)
-        if (!path.isEmpty()) {
+        // If the target is found , remove the first element (which is the target itself)
+        if (targetFound) {
             path.remove(0);
         }
 
@@ -80,7 +80,7 @@ class Solution {
         }
 
         // Add the current node to the path (at the front of the list)
-        path.add(0, root.data);
+        path.offerFirst(root.data);
 
         // If the current node matches the target, return true
         if (root.data == target) {
@@ -93,7 +93,7 @@ class Solution {
         }
 
         // If the current node isn't part of the path to the target, remove it from the path
-        path.remove(0);
+        path.pollFirst();
         return false;
     }
 }
