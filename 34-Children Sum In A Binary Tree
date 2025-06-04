@@ -1,29 +1,20 @@
-/*Complete the function below
-Node is as follows:
-class Node{
-	int data;
-	Node left,right;
-	
-	Node(int key)
-	{
-	    data = key;
-	    left = right = null;
-	}
-}
-*/
-
 //Recursive approach
 
 class Solution {
+    /*
+    * Children Sum Property conditions:
+    * - If both left and right children exist:
+    *      node.data == left.data + right.data
+    * - If only one child exists:
+    *      node.data == that child's data (missing child considered as 0)
+    * - If node is a leaf (no children):
+    *      property is valid by definition
+    */
     public static int isSumProperty(Node root) {
         return checkSumProperty(root) ? 1 : 0;
     }
 
     private static boolean checkSumProperty(Node root) {
-        if (root == null) {
-            return true; // Null nodes are considered to satisfy the property.
-        }
-
         if (root.left == null && root.right == null) {
             return true; // Leaf nodes always satisfy the property.
         }
@@ -37,8 +28,24 @@ class Solution {
             return false;
         }
 
-        // Recursively check left and right subtrees.
-        return checkSumProperty(root.left) && checkSumProperty(root.right);
+        /* By default, leftCheck and rightCheck are set to true because:
+         * The children sum property only applies if the child node exists.
+         * If a child is null (does not exist), it is considered to satisfy the property by default (true).
+         */
+        boolean leftCheck = true;
+        if (root.left != null) {
+            // Recursively check left subtrees.
+            leftCheck = checkSumProperty(root.left);
+        }
+
+        boolean rightCheck = true;
+        if (root.right != null) {
+            // Recursively check right subtrees.
+            rightCheck = checkSumProperty(root.right);
+        }
+        
+        // Return true only if both left and right subtrees satisfy the property.
+        return leftCheck && rightCheck;
     }
 }
 
@@ -47,10 +54,6 @@ class Solution {
 
 class Solution {
     public static int isSumProperty(Node root) {
-        if (root == null) {
-            return 1; // An empty tree satisfies the property.
-        }
-
         // Queue for level-order traversal (BFS).
         Queue<Node> queue = new ArrayDeque<>();
         queue.offer(root);
