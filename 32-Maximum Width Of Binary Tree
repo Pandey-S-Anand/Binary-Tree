@@ -13,83 +13,116 @@
  * }
  * }
  */
+/*
+                             1 (0)
+                          /       \
+                    3 (1)          2 (2)
+                  /     \       /     \
+             5 (3)   null(4) null(5)  9 (6)
+            /     \                  /
+       6 (7)   null(8)              7 (14)
 
-/**
- * Example Binary Tree with Index Assignments:
- *
- *         1 (0)
- *        /     \
- *      2 (1)   3 (2)
- *     /   \      \
- *  4 (3)  5 (4)  6 (6)
- *
- * How the Indices are Assigned (0-based full binary tree indexing):
- * - Root (1) gets index 0.
- * - Left child of 1 (2) → index = 2 × 0 + 1 = 1.
- * - Right child of 1 (3) → index = 2 × 0 + 2 = 2.
- * - Left child of 2 (4) → index = 2 × 1 + 1 = 3.
- * - Right child of 2 (5) → index = 2 × 1 + 2 = 4.
- * - Right child of 3 (6) → index = 2 × 2 + 2 = 6.
- *
- * Width Calculation at Each Level:
- * - Level 0: [1] → Indices [0] → Width = 0 - 0 + 1 = 1
- * - Level 1: [2, 3] → Indices [1, 2] → Width = 2 - 1 + 1 = 2
- * - Level 2: [4, 5, 6] → Indices [3, 4, 6] → Width = 6 - 3 + 1 = 4
- *
- * Maximum Width = 4
- */
+Explanation:
+-------------
+- We assign indices as if the tree is a complete binary tree.
+- Even though some nodes are null (like 3.right or 2.left), we still reserve their positions.
+- For example, null at index 4 would have:
+    - left child at index 2*4 + 1 = 9
+    - right child at index 2*4 + 2 = 10
+- We don’t enqueue nulls, but we use these index calculations to:
+    - Maintain the correct horizontal structure
+    - Correctly compute width using (lastIndex - firstIndex + 1)
 
+This approach ensures we capture the true "width" of the level, including null gaps in between actual nodes.
+*/
+
+
+/* 
+                          (0) 
+                           1
+                         /    \
+                       /        \
+                  (1) /          \ (2)
+                    3              2 
+            (3)   /  \            /   \
+                 5   null(4)   null(5) 9 (6)
+                / \                   /
+            (7)6 null(8)         (13)7 
+
+Explanation:
+-------------
+- We assign indices as if the tree is a complete binary tree.
+- Even though some nodes are null (like 3.right or 2.left), we still reserve their positions.
+  For example, 3's right child would have index 4 and 2's left child would have index 5.
+- For example, the null node at index 4 would have:
+    - left child index = 2 * 4 + 1 = 9
+    - right child index = 2 * 4 + 2 = 10
+- Similarly, the null node at index 5 would have:
+    - left child index = 2 * 5 + 1 = 11
+    - right child index = 2 * 5 + 2 = 12
+- We don’t enqueue null nodes, but we use these index calculations to:
+    - Maintain the correct horizontal structure
+    - Correctly compute width using (lastIndex - firstIndex + 1)
+
+This approach ensures we capture the true "width" of the level, including null gaps between actual nodes.
+*/
 
 class Solution {
-    /**
-     * Class to store a node along with its corresponding index in the tree.
-     * The index is used to calculate the width of each level.
-     */
-    private class Pair {
-        TreeNode node;
-        int index; // Represents the index of the node in a 0-based, imaginary full binary tree.
+    // Helper class to hold a TreeNode along with its "index" as if the tree is complete binary tree
+    private static class NodeInfo {
+        private TreeNode node; // current node
+        private int index;     // index of the node in the conceptual complete binary tree
 
-        Pair(TreeNode node, int index) {
+        NodeInfo(TreeNode node, int index) {
             this.node = node;
             this.index = index;
         }
     }
 
-    /*
-     * The width of a level is determined by the indices of the leftmost and rightmost nodes in that level.
-     * Nodes are indexed as if they were in a full binary tree.
-     */
     public int widthOfBinaryTree(TreeNode root) {
-        int maxWidth = 0;
-        Queue<Pair> queue = new ArrayDeque<>();
-        queue.offer(new Pair(root, 0)); // Start with root node at index 0
+        // Initialize maxWidth with smallest integer to track maximum width found so far
+        int maxWidth = Integer.MIN_VALUE;
 
+        // Queue for level order traversal, storing NodeInfo (node + its index)
+        Queue<NodeInfo> queue = new ArrayDeque<>();
+        queue.offer(new NodeInfo(root, 0)); // Start with root at index 0
+
+        // Process the tree level by level
         while (!queue.isEmpty()) {
             int size = queue.size();
-            int firstIndex = queue.peek().index; // First node's index at this level
-            int lastIndex = firstIndex; // Will update to the last node's index
 
-            for (int i = 0; i < size; i++) {
-                Pair pair = queue.poll();
-                TreeNode node = pair.node;
-                int index = pair.index;
-                lastIndex = index; // Update last index at this level
+            // The leftmost index in the current level (index of the first node in queue)
+            int leftMostIndex = queue.peek().index;
+            // Initialize rightMostIndex to leftMostIndex for this level, will be updated while processing nodes
+            int rightMostIndex = leftMostIndex;
 
-                // Add left child to queue with index formula: 2 * index + 1
+            // Process all nodes at the current level
+            while (size-- > 0) {
+                NodeInfo nodeInfo = queue.poll();
+                TreeNode node = nodeInfo.node;
+                int nodeIndex = nodeInfo.index;
+
+                // Update rightMostIndex to the current node's index
+                rightMostIndex = nodeIndex;
+
+                // Enqueue left child with calculated index: 2 * nodeIndex + 1 (complete tree index logic)
                 if (node.left != null) {
-                    queue.offer(new Pair(node.left, 2 * index + 1));
+                    queue.offer(new NodeInfo(node.left, 2 * nodeIndex + 1));
                 }
 
-                // Add right child to queue with index formula: 2 * index + 2
+                // Enqueue right child with calculated index: 2 * nodeIndex + 2
                 if (node.right != null) {
-                    queue.offer(new Pair(node.right, 2 * index + 2));
+                    queue.offer(new NodeInfo(node.right, 2 * nodeIndex + 2));
                 }
             }
 
-            // Compute width of the current level and update maxWidth
-            maxWidth = Math.max(maxWidth, lastIndex - firstIndex + 1);
+            // Calculate current level width as difference between rightmost and leftmost indices + 1
+            int currentLevelWidth = rightMostIndex - leftMostIndex + 1;
+            // Update maxWidth if current level width is greater
+            maxWidth = Math.max(maxWidth, currentLevelWidth);
         }
 
+        // Return the maximum width found across all levels
         return maxWidth;
     }
 }
