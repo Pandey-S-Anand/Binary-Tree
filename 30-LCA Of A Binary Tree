@@ -12,48 +12,52 @@
  
 class Solution {
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-        // Lists to store paths
-        List<TreeNode> pAncestors = new ArrayList<>();
-        List<TreeNode> qAncestors = new ArrayList<>();
+        // Store the paths from root to node p and root to node q
+        List<TreeNode> pAncestor = new ArrayList<>();
+        List<TreeNode> qAncestor = new ArrayList<>();
 
-        // Find paths from root to p and q
-        if(!findPath(root, p, pAncestors) ||  !findPath(root, q, qAncestors)){
+        // Find both paths from root to target nodes
+        if (!findPath(root, p, pAncestor) || !findPath(root, q, qAncestor)) {
             return null; // Should never happen as p and q are guaranteed to exist
         }
 
-        // Compare the two paths to find the lowest common ancestor
-        int i = 0;
-        while (i < pAncestors.size() && i < qAncestors.size() && pAncestors.get(i) == qAncestors.get(i)) {
-            i++;
+        // Initialize pointer to compare the paths from the back (i.e., from leaf to root) as we want lowest common ancestor
+        int i = Math.min(pAncestor.size(), qAncestor.size()) - 1;
+
+        // Move backward in the path lists until the nodes differ
+        while (pAncestor.get(i).val != qAncestor.get(i).val) {
+            i--;
         }
 
-        // The last matched node is the LCA
-        return pAncestors.get(i - 1);
+        // The last common node in the paths is the Lowest Common Ancestor
+        return pAncestor.get(i);
     }
 
     private boolean findPath(TreeNode root, TreeNode target, List<TreeNode> path) {
+        // Base case: if the node is null, return false (no path to the target)
         if (root == null) {
             return false;
         }
 
-        // Add current node to the path
+        // Add the current node to the path
         path.add(root);
 
-        // If we found the target node, return true
-        if (root == target) {
+        // If we've found the target node, return true
+        if (root.val == target.val) {
             return true;
         }
 
-        // Recur for left and right subtrees
+        // Recur for the left and right subtrees to find the target
         if (findPath(root.left, target, path) || findPath(root.right, target, path)) {
             return true;
         }
 
-        // If the current node is not in the path to the target, remove it
+        // If the current node isn't part of the path to the target, remove it from the path
         path.remove(path.size() - 1);
         return false;
     }
 }
+
 
 
 //Optimal approach
@@ -84,47 +88,38 @@ class Solution {
         }
 
         /*
-         * Case 2: When only one recursive call returns a non-null value (i.e., either p or q),
-         * it indicates that one of the nodes (p or q) has been found in that subtree.
-         * We then propagate that non-null node upward to the parent call to continue
-         * the search for the LCA.
+         * As we are guaranteed that p and q exist, and a node can be a descendant of itself:
          *
-         * Suppose you are at a node N in the tree, and you find p in the left subtree
-         * of N. Then, q must be in one of three places:
+         * Case 2:
+         * Suppose we are at Node N and p is found in the left subtree of N (i.e., we received p),
+         * and q is not found in the right subtree (i.e., we received null).
+         * Then q would either be in the left or right subtree of p.
+         * In either case, p is the LCA. That's why we return the non-null value i.e., p here (LCA).
          *
-         * 1. In the right subtree of N:
-         * - If q is in the right subtree of N, then N is the lowest common ancestor (LCA)
-         *   of p and q. This is because N is the deepest node that has both p (in its left subtree)
-         *   and q (in its right subtree) as descendants.
-         *
-         * 2. Above N in the tree:
-         * - If q is not in the right subtree of N, it must be somewhere above N in the tree.
-         *   This means the LCA of p and q is an ancestor of N.
-         *
-         * 3. q is a descendant of p:
-         * - In this case, p itself is the LCA.
-         *   Since q is already a descendant of p, p will be the deepest node that has both p and q as descendants.
-         *
-         *   The LCA is the deepest node that has both p and q as descendants.
-         *
-         *   This is why the algorithm stops searching further down the branch once it
-         *   finds p or q and backtracks to find the LCA.
+         * Case 3:
+         * Suppose we are at Node N and q is found in the right subtree (we received q),
+         * and p is not found in the left subtree (i.e., we received null).
+         * Then p would either be in the left or right subtree of q.
+         * In either case, q is the LCA. That's why we return the non-null value i.e., q here (LCA).
          *
          * For example, consider the tree:
-         *    3
-         *   / \
-         *  5   1
-         * / \
-         * 6  2
-         *   / \
-         *  7   4
+         *           3
+         *         /   \
+         *        5     1
+         *       / \   / \
+         *      6   2 8   9
+         *         / \
+         *        7   4
          *
-         * In scenarios where one node is an ancestor of the other (e.g., p = 5 and q = 4),
-         * the non-null value that is propagated upward (node 5) correctly serves as the LCA.
-         */
-
-        /*
-        
+         * p = 5, q = 1       -> 3 is the LCA
+         * p = 7, q = 4       -> 2 is the LCA
+         * p = 5, q = 6       -> 5 is the LCA
+         * p = 5, q = 7       -> 5 is the LCA
+         * p = 8, q = 9       -> 1 is the LCA
+         * p = 1, q = 8       -> 1 is the LCA
+         * p = 1, q = 9       -> 1 is the LCA
+         * p = 3, q = 9       -> 3 is the LCA
+         * p = 3, q = 8       -> 3 is the LCA
          */
 
         if (left != null) {
@@ -135,7 +130,7 @@ class Solution {
             return right;
         }
 
-        // Case 3: If subtree neither contains p or q, return the null
+        // Case 4: If the subtree contains neither p nor q, return null (This should never happen here as we are guaranteed that p and q exist)
         return null;
     }
 }
