@@ -18,45 +18,46 @@
 
 class Solution {
     public int maxLevelSum(TreeNode root) {
-        int maxSum = Integer.MIN_VALUE;
-        int levelWithMaxSum = 0;
-        int currentLevel = 0;
-
-        // Queue for level-order traversal (BFS).
+        // Queue for level order traversal
         Queue<TreeNode> queue = new ArrayDeque<>();
         queue.offer(root);
 
-        // Traverse the tree level by level.
+        int maxSumLevel = 0;          // To store the level with maximum sum
+        int currentLevel = 0;         // To track the current level during traversal
+        int maxSum = Integer.MIN_VALUE; // Initialize maxSum with smallest integer to find max sum
+
+        // Perform BFS level order traversal until all levels are processed
         while (!queue.isEmpty()) {
-            int levelSize = queue.size();
-            int currentLevelSum = 0;
-            currentLevel++; // Increment level counter as we move to the next level.
+            currentLevel++;
+            int levelSize = queue.size(); // Number of nodes at current level
+            int levelSum = 0;              // Sum of node values at current level
 
-            // Process all nodes at the current level.
-            for (int i = 0; i < levelSize; i++) {
-                TreeNode node = queue.poll();
-                currentLevelSum += node.val; // Sum the values of nodes at the current level.
+            // Process all nodes at the current level
+            while (levelSize-- > 0) {
+                TreeNode currentNode = queue.poll();
+                levelSum += currentNode.val;
 
-                // Add left child to the queue if it exists.
-                if (node.left != null) {
-                    queue.offer(node.left);
+                // Add left child if present
+                if (currentNode.left != null) {
+                    queue.offer(currentNode.left);
                 }
 
-                // Add right child to the queue if it exists.
-                if (node.right != null) {
-                    queue.offer(node.right);
+                // Add right child if present
+                if (currentNode.right != null) {
+                    queue.offer(currentNode.right);
                 }
             }
 
             // If there are multiple levels with the same maximum sum, the smallest level number is returned.
-            if (currentLevelSum > maxSum) {
+            if (levelSum > maxSum) {
                 // Update the maximum sum and corresponding level if the current level sum is higher.
-                maxSum = currentLevelSum;
-                levelWithMaxSum = currentLevel;
+                maxSum = levelSum;
+                maxSumLevel = currentLevel;
             }
         }
 
-        return levelWithMaxSum;
+        // Return the level with the maximum sum of node values
+        return maxSumLevel;
     }
 }
 
@@ -64,44 +65,41 @@ class Solution {
 //Method 2 (Using DFS)
 
 class Solution {
-    // List to store the cumulative sum for each level.
-    private List<Integer> levelSums;
+    // Map to store cumulative sum of node values for each level
+    private Map<Integer, Integer> levelSumMap;
 
     public int maxLevelSum(TreeNode root) {
-        // The element at index i corresponds to the cumulative sum at level i (0-indexed).
-        levelSums = new ArrayList<>();
+        levelSumMap = new HashMap<>();
 
-        // Start the DFS traversal from the root at level 0.
-        computeLevelSums(root, 0);
+        // Step 1: Populate levelSumMap with DFS traversal
+        getLevelSum(root, 1);
 
-        int maxSum = Integer.MIN_VALUE;
-        int levelWithMaxSum = 0;
+        int maxSumLevel = 0;               // Level with the maximum sum
+        int maxSum = Integer.MIN_VALUE;    // Initialize to the smallest value
 
-        // Iterate through the levelSums list to find the level with the maximum sum.
-        for (int i = 0; i < levelSums.size(); i++) {
-            if (levelSums.get(i) > maxSum) {
-                maxSum = levelSums.get(i);
-                levelWithMaxSum = i;
+        // Step 2: Iterate through the map to find the level with the maximum sum
+        for (int level : levelSumMap.keySet()) {
+            int levelSum = levelSumMap.get(level);
+            if (levelSum > maxSum) {
+                maxSum = levelSum;
+                maxSumLevel = level;
             }
         }
-        // Return the level with maximum sum (converted to 1-indexed level).
-        return levelWithMaxSum + 1;
+
+        // Return the level with the highest sum
+        return maxSumLevel;
     }
 
-    private void computeLevelSums(TreeNode node, int level) {
+    private void getLevelSum(TreeNode node, int level) {
         if (node == null) {
             return;
         }
 
-        // If this is the first time we are visiting this level, add a new entry to the levelSums list with the current node's value.
-        if (level == levelSums.size()) {
-            levelSums.add(node.val);
-        }else if (level < levelSums.size()) { // For subsequent visit to the level ,update the existing sum for this level.
-            levelSums.set(level, levelSums.get(level) + node.val);
-        }
+        // Add current node's value to its corresponding level in the map
+        levelSumMap.put(level, levelSumMap.getOrDefault(level, 0) + node.val);
 
-        // Recurse to the left and right children, increasing the level.
-        computeLevelSums(node.left, level + 1);
-        computeLevelSums(node.right, level + 1);
+        // Recur for left and right subtrees with level increased
+        getLevelSum(node.left, level + 1);
+        getLevelSum(node.right, level + 1);
     }
 }
