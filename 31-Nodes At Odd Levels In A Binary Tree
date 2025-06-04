@@ -12,69 +12,78 @@ class Node {
 //Recursive approach
 
 class Solution {
-    // Using a TreeSet to store nodes at odd levels in sorted order
-    private Set<Integer> oddLevelNodes;
-    
     public ArrayList<Integer> nodesAtOddLevels(Node root) {
-        oddLevelNodes = new TreeSet<>();
-        nodesAtOddLevels(root, 1);  // Start DFS with root node at depth 1 (odd)
-        return new ArrayList<>(oddLevelNodes); // Convert the Set to an ArrayList and return it
+        // Use TreeSet to automatically sort the collected node values
+        Set<Integer> oddLevelNodes = new TreeSet<>();
+
+        // Start DFS from the root at level 1 (which is odd)
+        dfs(root, true, oddLevelNodes);
+
+        // Convert the sorted set to a list before returning
+        return new ArrayList<>(oddLevelNodes);
     }
-    
-    private void nodesAtOddLevels(Node root, int depth) {
-        if (root == null) {  // If the node is null, return without doing anything
-            return; 
+
+    private void dfs(Node root, boolean isOddLevel, Set<Integer> oddLevelNodes) {
+        // Base case: return if the current node is null
+        if (root == null) {
+            return;
         }
-        
-        // If the current level (depth) is odd, add the node's data to the set
-        if (depth % 2 != 0) {
+
+        // If the current level is odd, add the node's value to the set
+        if (isOddLevel) {
             oddLevelNodes.add(root.data);
         }
-        
-        // Recur for the left and right subtrees, incrementing the depth for each level
-        nodesAtOddLevels(root.left, depth + 1);
-        nodesAtOddLevels(root.right, depth + 1);
+
+        // Recurse for left and right children, flipping the level parity
+        dfs(root.left, !isOddLevel, oddLevelNodes);
+        dfs(root.right, !isOddLevel, oddLevelNodes);
     }
 }
+
 
 
 //Iterative approach
 
 class Solution {
     public ArrayList<Integer> nodesAtOddLevels(Node root) {
-        if (root == null) {
-            return new ArrayList<>();
-        }
-        
-        // Using a TreeSet to store nodes at odd levels in sorted order
-        Queue<Integer> oddLevelNodes = new PriorityQueue<>();
-        
+        // TreeSet to automatically maintain sorted order of node values that are at odd levels
+        Set<Integer> oddLevelNodes = new HashSet<>();
+
+        // Boolean flag to track whether the current level is odd
+        boolean isOddLevel = true;
+
+        // Queue for level order traversal (BFS)
         Queue<Node> queue = new ArrayDeque<>();
         queue.offer(root);
-        int depth = 0;
 
-        // Perform level-order traversal
+        // Standard BFS loop
         while (!queue.isEmpty()) {
-            int size = queue.size();
-            depth++;
+            int size = queue.size();  // Number of nodes at the current level
 
-            for (int i = 0; i < size; i++) {
-                Node currentNode = queue.poll();
-                // If the current level is odd, add the node data to the set
-                if (depth % 2 != 0) {
-                    oddLevelNodes.add(currentNode.data); 
+            // Process all nodes at the current level
+            while (size-- > 0) {
+                Node node = queue.poll();
+
+                // If the current level is odd, add the node's value to the result list
+                if (isOddLevel) {
+                    oddLevelNodes.add(node.data);
                 }
-                
-                if (currentNode.left != null) {
-                    queue.offer(currentNode.left);
+
+                // Add left and right children to the queue for next level
+                if (node.left != null) {
+                    queue.offer(node.left);
                 }
-                if (currentNode.right != null) {
-                    queue.offer(currentNode.right);
+
+                if (node.right != null) {
+                    queue.offer(node.right);
                 }
             }
+
+            // Flip the level status (odd → even, even → odd)
+            isOddLevel = !isOddLevel;
         }
-        
-        // Convert the set to an ArrayList and return it
+
+        // Convert the sorted set into a list
         return new ArrayList<>(oddLevelNodes);
     }
 }
