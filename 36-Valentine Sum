@@ -1,71 +1,107 @@
 class Solution {
-    private static Map<Node, Node> parentMap; // Stores parent references for each node
-    private static Node targetNode; // Stores reference to the target node
+    // Map to store parent references for each node in the tree
+    private Map<Integer, Node> nodeParentMap;
 
-    static int sum_at_distK(Node root, int target, int k) {
-        parentMap = new HashMap<>();
-        buildParentMap(root, null, target); // Step 1: Build parent references & find the target node
-        return sumAtDistanceK(targetNode, k); // Step 2: Perform BFS to calculate sum
+    // Pointer to keep track of the actual node object that matches the target value
+    private Node targetNode;
+    
+    int sum_at_distK(Node root, int target, int k) {
+        targetNode = null;
+        nodeParentMap = new HashMap<>();
+
+        /**
+         * Why do we need parent references?
+         * -----------------------------------
+         * - In a binary tree, we can move to child nodes directly from a parent,
+         *   but there's no direct way to move back to the parent.
+         * - To support upward traversal (towards ancestors) during BFS from the target node,
+         *   we record parent references for each node beforehand.
+         *
+         * Additionally:
+         * - While building parent mapping, we also locate and store the node object
+         *   that has the same value as the given target.
+         */
+        /**
+         * Traverse the tree to:
+         * 1. Build a mapping from each node to its parent
+         * 2. Locate and store the reference to the target node
+         */
+        mapParentsAndLocateTarget(root, null, target);
+
+        // Set to track visited nodes to avoid revisiting them during BFS
+        Set<Integer> visited = new HashSet<>();
+        int sum = 0;  // Will hold the sum of all nodes at distance 'k' from target
+
+        // Queue to perform level-order traversal (BFS)
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.offer(targetNode);            // Start from the target node
+        visited.add(targetNode.data);       // Mark target as visited
+
+        /**
+         * Perform BFS from the target node up to k levels.
+         * - After 1 level, queue contains nodes at distance 1 from the target
+         * - After 2 levels, queue contains nodes at distance 2
+         * - Continue this until k becomes 0
+         */
+        while (!queue.isEmpty() && k != 0) {
+            int size = queue.size();  // Number of nodes at the current level
+
+            while (size-- > 0) {
+                Node currentNode = queue.poll();
+
+                // Add current node's value to sum (part of level < k)
+                sum += currentNode.data;
+
+                // Traverse left child if exists and unvisited
+                if (currentNode.left != null && !visited.contains(currentNode.left.data)) {
+                    queue.offer(currentNode.left);
+                    visited.add(currentNode.left.data);
+                }
+
+                // Traverse right child if exists and unvisited
+                if (currentNode.right != null && !visited.contains(currentNode.right.data)) {
+                    queue.offer(currentNode.right);
+                    visited.add(currentNode.right.data);
+                }
+
+                // Traverse parent if exists and unvisited
+                Node parentNode = nodeParentMap.get(currentNode.data);
+                if (parentNode != null && !visited.contains(parentNode.data)) {
+                    queue.offer(parentNode);
+                    visited.add(parentNode.data);
+                }
+            }
+
+            // Move to next level in BFS
+            k--;
+        }
+
+        /**
+         * After exactly k BFS levels, the queue now contains all nodes at distance k
+         * from the original target node. Sum their values as final part of the result.
+         */
+        while (!queue.isEmpty()) {
+            sum += queue.poll().data;
+        }
+
+        return sum; // Return the total sum of nodes within distance k
     }
 
-    private static void buildParentMap(Node currentNode, Node parent, int target) {
+    private void mapParentsAndLocateTarget(Node currentNode, Node parentNode, int targetValue) {
         if (currentNode == null) {
             return;
         }
 
-        // If current node is the target, store its reference
-        if (currentNode.data == target) {
+        // If this is the target node, store its reference
+        if (currentNode.data == targetValue) {
             targetNode = currentNode;
         }
 
-        // Store parent reference for the current node
-        parentMap.put(currentNode, parent);
+        // Store the parent for current node
+        nodeParentMap.put(currentNode.data, parentNode);
 
-        // Recur for left and right subtrees
-        buildParentMap(currentNode.left, currentNode, target);
-        buildParentMap(currentNode.right, currentNode, target);
-    }
-
-    private static int sumAtDistanceK(Node targetNode, int k) {
-        int sum = 0, distance = 0;
-        Set<Node> visited = new HashSet<>(); // Keeps track of visited nodes
-        Queue<Node> queue = new ArrayDeque<>(); // BFS queue
-
-        // Initialize BFS with the target node
-        queue.offer(targetNode);
-        visited.add(targetNode);
-
-        // BFS traversal up to k levels
-        while (!queue.isEmpty() && distance <= k) {
-            int size = queue.size(); // Number of nodes at current level
-
-            for (int i = 0; i < size; i++) {
-                Node node = queue.poll(); // Process the current node
-                sum += node.data; // Add its value to the sum
-
-                // Explore the left child
-                if (node.left != null && !visited.contains(node.left)) {
-                    queue.offer(node.left);
-                    visited.add(node.left);
-                }
-
-                // Explore the right child
-                if (node.right != null && !visited.contains(node.right)) {
-                    queue.offer(node.right);
-                    visited.add(node.right);
-                }
-
-                // Explore the parent node (using parentMap)
-                Node parent = parentMap.get(node);
-                if (parent != null && !visited.contains(parent)) {
-                    queue.offer(parent);
-                    visited.add(parent);
-                }
-            }
-
-            distance++; // Move to the next level
-        }
-
-        return sum; // Return the total sum of nodes within distance k
+        // Recursively do the same for left and right children
+        mapParentsAndLocateTarget(currentNode.left, currentNode, targetValue);
+        mapParentsAndLocateTarget(currentNode.right, currentNode, targetValue);
     }
 }
