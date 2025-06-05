@@ -166,18 +166,18 @@ class Solution {
     private int maxDistance = 0;
 
     public int amountOfTime(TreeNode root, int start) {
-        findMaxInfectionTime(root, start);
+        findMinInfectionTime(root, start);
         return maxDistance;
     }
 
-    private int findMaxInfectionTime(TreeNode root, int start) {
+    private int findMinInfectionTime(TreeNode root, int start) {
         if (root == null) {
             return 0;
         }
 
         int depth = 0;
-        int leftDepth = findMaxInfectionTime(root.left, start);
-        int rightDepth = findMaxInfectionTime(root.right, start);
+        int leftDepth = findMinInfectionTime(root.left, start);
+        int rightDepth = findMinInfectionTime(root.right, start);
 
         if (root.val == start) {
             // If the current node is the infected node, update maxDistance with the maximum depth of its left or right subtree.
