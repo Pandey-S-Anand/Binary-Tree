@@ -10,181 +10,102 @@
     }
 }*/
 
-//Naive approach
-
-//Naive implementation
+//Intuitive approach
 
 class Solution {
-    // Map to store parent references for each node
-    private static Map<Integer, Node> nodeParentMap;
+    private Map<Integer, Node> parentMap;
+    private Node targetNode;
 
-    public static int minTime(Node root, int target) {
-        nodeParentMap = new HashMap<>();
-
+    public int minTime(Node root, int target) {
+        parentMap = new HashMap<>();
+        targetNode = null;
         /**
-         * - The reason we need a parent-child relationship map is that
-         *   BFS alone allows us to move downward in the tree (to children).
-         * - To also move *upward* (to the parent), we store parent references.
-         *   This is necessary because, in addition to moving to the left and right
-         *   children,, the fire can also propagate to a node's parent.
+         * Why do we need parent references?
+         * -----------------------------------
+         * - In a binary tree, we can move to child nodes directly from a parent,
+         *   but there's no direct way to move back to the parent.
+         * - To support upward traversal (towards ancestors) during BFS from the target node,
+         *   we record parent references for each node beforehand.
+         *
+         * Additionally:
+         * - While building parent mapping, we also locate and store the node object
+         *   that has the same value as the given target.
          */
-        // Step 1: Build a map to store parent references for each node
-        buildParentMap(root, null);
+        /**
+         * Traverse the tree to:
+         * 1. Build a mapping from each node to its parent
+         * 2. Locate and store the reference to the target node
+         */
+        mapParentsAndLocateTarget(root, null, target);
 
-        // Set to track burnt nodes (prevents re-burning)
-        Set<Integer> burnt = new HashSet<>();
+        int minutes = 0; // Target node is burnt at 0th minute
 
-        // Queue for BFS traversal
+        // Queue for BFS traversal (each level = 1 minute)
         Queue<Node> queue = new ArrayDeque<>();
-        // Find the node where the fire starts
-        Node targetNode = findTargetNode(root, target);
-        // Since the problem guarantees that the target node exists, targetNode will not
-        // be null.
-
+        // Set to track visited/burnt nodes to avoid revisiting
+        Set<Integer> burnt = new HashSet<>();
         // Start BFS from the target node
         queue.offer(targetNode);
         burnt.add(targetNode.data);
 
-        int minute = -1; // Initialize to -1 since the first round represents minute 0
-        /**
-         * Step 2: Perform BFS
-         * In BFS, each level corresponds to one minute of fire spread.
-         * The fire spreads to all adjacent nodes (left, right, and parent) each minute.
-         */
+        // Process all burnt nodes at this minute
         while (!queue.isEmpty()) {
+            boolean newInfection = false; // Track if any node got burnt during this minute
             int size = queue.size();
 
-            // Process all nodes that are burnt in the current minute.
-            for (int i = 0; i < size; i++) {
-                Node currentNode = queue.poll();
+            while (size-- > 0) {
+                Node node = queue.poll();
 
-                // Infect the left child if it exists and hasn't been burnt yet.
-                if (currentNode.left != null && !burnt.contains(currentNode.left.data)) {
-                    queue.offer(currentNode.left);
-                    burnt.add(currentNode.left.data);
+                // Infect left child if it exists and is not already burnt
+                if (node.left != null && !burnt.contains(node.left.data)) {
+                    queue.offer(node.left);
+                    burnt.add(node.left.data);
+                    newInfection = true;
                 }
 
-                // Infect the right child if it exists and hasn't been burnt yet.
-                if (currentNode.right != null && !burnt.contains(currentNode.right.data)) {
-                    queue.offer(currentNode.right);
-                    burnt.add(currentNode.right.data);
+                // Infect right child if it exists and is not already burnt
+                if (node.right != null && !burnt.contains(node.right.data)) {
+                    queue.offer(node.right);
+                    burnt.add(node.right.data);
+                    newInfection = true;
                 }
 
                 // Infect the parent node if it exists and hasn't been burnt yet.
-                Node parentNode = nodeParentMap.get(currentNode.data);
+                Node parentNode = parentMap.get(node.data);
                 if (parentNode != null && !burnt.contains(parentNode.data)) {
                     queue.offer(parentNode);
                     burnt.add(parentNode.data);
+                    newInfection = true;
                 }
             }
+
+            if (newInfection) {
+                minutes++; // Increment time only if at least one new node was burnt
+            }
+
             /*
-             * After each minute, the nodes present in the queue represent the neighbors of
-             * the nodes that were burnt in the previous minute. These nodes will be
-             * burnt in the next minute and will then proceed to burn their
-             * adjacent nodes in the subsequent minutes. 
+             * The nodes present in the queue represent the nodes that were burnt in the current minute.
+             * These nodes will proceed to spread the fire to
+             * their adjacent nodes in the subsequent minutes.
              */
-            minute++; // Increment the minute counter after processing one complete level.
         }
 
-        return minute;
+        return minutes;
     }
 
-    private static void buildParentMap(Node currentNode, Node parentNode) {
-        if (currentNode == null) {
+    private void mapParentsAndLocateTarget(Node node, Node parent, int target) {
+        if (node == null) {
             return;
         }
 
-        // Store the parent reference for the current node
-        nodeParentMap.put(currentNode.data, parentNode);
-
-        // Recurse for the left and right children
-        buildParentMap(currentNode.left, currentNode);
-        buildParentMap(currentNode.right, currentNode);
-    }
-
-    private static Node findTargetNode(Node root, int value) {
-        if (root == null) {
-            return null;
+        if (node.data == target) {
+            targetNode = node; // Save the reference to the target node
         }
 
-        if (root.data == value) {
-            return root;
-        }
+        parentMap.put(node.data, parent); // Map child to its parent
 
-        // Search the left subtree.
-        Node left = findTargetNode(root.left, value);
-
-        if (left != null) {
-            return left;
-        }
-
-        // If not found in the left, search the right subtree.
-        return findTargetNode(root.right, value);
-    }
-}
-
-
-//Optimal implementation
-
-class Solution {
-    private static Map<Integer, Node> nodeParentMap;
-    private static Node targetNode;
-
-    public static int minTime(Node root, int target) {
-        nodeParentMap = new HashMap<>();
-        // During the construction of the parent map, we also locate the target node.
-        buildParentMap(root, null, target);
-
-        Set<Integer> burnt = new HashSet<>();
-        Queue<Node> queue = new ArrayDeque<>();
-
-        queue.offer(targetNode);
-        burnt.add(targetNode.data);
-
-        int minute = -1;
-
-        while (!queue.isEmpty()) {
-            int size = queue.size();
-
-            for (int i = 0; i < size; i++) {
-                Node currentNode = queue.poll();
-
-                if (currentNode.left != null && !burnt.contains(currentNode.left.data)) {
-                    queue.offer(currentNode.left);
-                    burnt.add(currentNode.left.data);
-                }
-
-                if (currentNode.right != null && !burnt.contains(currentNode.right.data)) {
-                    queue.offer(currentNode.right);
-                    burnt.add(currentNode.right.data);
-                }
-
-                Node parentNode = nodeParentMap.get(currentNode.data);
-                if (parentNode != null && !burnt.contains(parentNode.data)) {
-                    queue.offer(parentNode);
-                    burnt.add(parentNode.data);
-                }
-            }
-
-            minute++;
-        }
-
-        return minute;
-    }
-
-    private static void buildParentMap(Node currentNode, Node parentNode, int target) {
-        if (currentNode == null) {
-            return;
-        }
-        // While building the parent map, check if the current node is the target node
-        if (currentNode.data == target) {
-            targetNode = currentNode; // Set the target node during the map creation
-        }
-
-        nodeParentMap.put(currentNode.data, parentNode);
-
-        buildParentMap(currentNode.left, currentNode, target);
-        buildParentMap(currentNode.right, currentNode, target);
+        mapParentsAndLocateTarget(node.left, node, target); // Recurse for left subtree
+        mapParentsAndLocateTarget(node.right, node, target); // Recurse for right subtree
     }
 }
 
@@ -200,11 +121,11 @@ class Solution {
       5     3
        \    / \
         4  10  6
-       / \    
-      9   2   
+       / \    /
+      9   2  11
 
     **Understanding the Problem:**
-    - The amount of time required to burn the entire binary tree is equal to the maximum distance 
+    - The minimum time required to burn the entire binary tree is equal to the maximum distance 
       between the target node and the farthest leaf node.
     - So, our goal is to find the distance between the farthest leaf node and the target node.
 
@@ -212,32 +133,32 @@ class Solution {
     - A call is made at node 8, checking both left (1) and right (7) subtrees.
     - A call at node 1 explores its left (5) and right (3) subtrees.
     - The left subtree rooted at node 5 returns 3, indicating its depth.
-    - The right subtree call at node 3 explores its left (10) and right (6) subtrees, both returning 1 as their depth.
-    - Since node 3 is the target node , `maxDistance` is updated to `max(1, 1) = 1`. 
-      This means that, currently, the farthest leaf node from the target node is at a distance of 1.
-    - Node 3 then returns `-1` to its parent (node 1), signaling that the target node was found in its right subtree.
+    - The right subtree call at node 3 explores its left (10) and right (6) subtrees, with left subtree returning 1 and right subtree returning 2 as their depth.
+    - `maxDistance` is updated to `max(1, 2) = 2`. 
+      This means that, currently, the farthest leaf node from the target node is at a distance of 2.
+    - Since node 3 is the target node, Node 3 then returns `-1` to its parent (node 1), signaling that the target node was found in its (1s) right subtree.
       This `abs(-1)` represents the distance from node 1 to the target node 3.
-    - At node 1, `maxDistance` is updated again: `max(1, 3 + abs(-1)) = 4`. 
+    - At node 1, `maxDistance` is updated again: `max(2, 3 + abs(-1)) = 4`. 
       This means that the farthest leaf node (which is either 9 or 2) is at a distance of **4** from the target node.
     - The depth returned to node 8 is `-2`, meaning node 8 is 2 steps away from the target node.
     - The right subtree of node 8 returns depth 1.
-    - The final `maxDistance` remains **4**, representing the longest time for the fire to reach the farthest node.
+    - The final `maxDistance` remains **4**, representing the minimum time required to burn the tree.
     
-    **Burning Process Over Time (Minute-wise Spread of fire):**
+    **Burning Process Over Time (Minute-wise Spread of Infection):**
     
     - **Minute 0**: Node **3** is burnt.
-    - **Minute 1**: Nodes **10, 6, and 1** get burnt (children and parent of node 3).
-    - **Minute 2**: Nodes **5 and 8** get burnt (parent of 1 and child of 5).
-    - **Minute 3**: Nodes **4 and 7** get burnt (child of 5 and right child of 8).
-    - **Minute 4**: Nodes **9 and 2** get burnt (children of 4).
+    - **Minute 1**: Nodes **10, 6, and 1** get burnt (childrens and parent of node 3).
+    - **Minute 2**: Nodes **5, 8 and 11** get burnt (parent and left child of 1 and left child of 6).
+    - **Minute 3**: Nodes **4 and 7** get burnt (right child of 5 and 8).
+    - **Minute 4**: Nodes **9 and 2** get burnt (childrens of 4).
     
     **Final Result:**
-    - 4.
+    - **4** (minimum time required to burn the tree).
 */
 
 
 class Solution {
-    // maxDistance keeps track of the maximum distance from the target node  to the farthest leaf node encountered so far.
+    // maxDistance keeps track of the maximum distance from the target node to the farthest leaf node encountered so far.
     private static int maxDistance;
 
     public static int minTime(Node root, int target) {
