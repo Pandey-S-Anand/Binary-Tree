@@ -163,18 +163,18 @@ class Solution {
 
     public static int minTime(Node root, int target) {
         maxDistance = 0;
-        findMaxBurningTime(root, target);
+        findMinBurningTime(root, target);
         return maxDistance;
     }
 
-    private static int findMaxBurningTime(Node root, int target) {
+    private static int findMinBurningTime(Node root, int target) {
         if (root == null) {
             return 0;
         }
 
         int depth = 0;
-        int leftDepth = findMaxBurningTime(root.left, target);
-        int rightDepth = findMaxBurningTime(root.right, target);
+        int leftDepth = findMinBurningTime(root.left, target);
+        int rightDepth = findMinBurningTime(root.right, target);
         // If the current node is the target node, update maxDistance with the maximum depth of its left or right subtree.
         if (root.data == target) {
             maxDistance = Math.max(leftDepth, rightDepth);
