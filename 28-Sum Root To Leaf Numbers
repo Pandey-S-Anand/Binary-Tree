@@ -38,10 +38,6 @@ class Solution {
         if (isLeafNode(root)) {
             int number = getPathNumber(path); // Convert list of digits to actual number
             sum += number;
-
-            // Backtrack: remove last added node value before returning
-            path.remove(path.size() - 1);
-            return;
         }
 
         // Recursive calls to left and right subtrees
@@ -64,6 +60,7 @@ class Solution {
         return node.left == null && node.right == null;
     }
 }
+
 
 
 //Optimal approach
@@ -103,7 +100,6 @@ class Solution {
         // If current node is a leaf, add the formed number to the global sum
         if (isLeafNode(root)) {
             sum += num;
-            return;
         }
 
         // Recursively process left and right subtrees
