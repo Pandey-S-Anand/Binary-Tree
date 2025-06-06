@@ -21,38 +21,6 @@ class Node {
 };
 */
 
-//Recursive approach
-
-class Solution {
-    public Node connect(Node root) {
-        /*
-        If root.left is null, then root.right must also be null since it's a perfect binary tree.  
-        This means that whenever root.left is null, the node is either a leaf or the root itself.  
-        Conversely, if the left child exists, the right child will also exist.  
-        */
-        if (root == null || root.left == null) {
-            return root;
-        }
-
-        // Link the left child to the right child
-        root.left.next = root.right;
-
-        // Link the right child to the left child of the next subtree, if it exists
-        if (root.next != null) {
-            root.right.next = root.next.left;
-        }
-
-        // Recursively process the left and right subtrees
-        connect(root.left);
-        connect(root.right);
-
-        return root;
-    }
-}
-
-
-//Iterative approach
-
 */
           1
         /   \ 
@@ -71,18 +39,20 @@ class Solution {
             return null;
         }
 
-        Node leftmost = root;
-         /*
-         * We traverse level by level (top-down), and within each level, 
-         * we move rightward using the next pointers that we establish dynamically.
-         * This is a BFS-like approach, but without an explicit queue—leveraging 
-         * the already established next pointers instead!
+        // Start with the leftmost node of the current level, initially the root
+        Node currentLevelStart = root;
+
+        /*
+         * We perform a level-order traversal using the 'next' pointers,
+         * which we build on-the-fly without using a queue.
+         * Since it's a perfect binary tree, every node has either 2 children or none.
          */
-        while (leftmost.left != null) {
-            Node current = leftmost;
+        while (currentLevelStart.left != null) {
+            // Traverse nodes horizontally across the current level
+            Node current = currentLevelStart;
 
             while (current != null) {
-                // Connect left child to right child
+                // Connect the left child to the right child of the same parent
                 current.left.next = current.right;
 
                 // Connect right child to the left child of the next subtree (if exists)
@@ -93,7 +63,7 @@ class Solution {
                 current = current.next;
             }
             // Move to the leftmost node of the next level
-            leftmost = leftmost.left;
+            currentLevelStart = currentLevelStart.left;
         }
 
         return root;
