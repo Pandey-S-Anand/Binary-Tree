@@ -24,7 +24,7 @@ class Solution {
         // Subtract the current node's value from the target sum
         targetSum -= root.val;
 
-        // If it's a leaf node (both left and right children are null), check if the sum is achieved
+        // If it's a leaf node , check if the sum is achieved
         if (root.left == null && root.right == null) {
             return targetSum == 0;
         }
@@ -36,5 +36,9 @@ class Solution {
 
         // Recursively check the right subtree; return its result
         return hasPathSum(root.right, targetSum);
+    }
+
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
     }
 }
