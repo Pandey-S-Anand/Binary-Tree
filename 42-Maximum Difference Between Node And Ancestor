@@ -17,92 +17,101 @@
 //Bruteforce approach
 
 class Solution {
-    private List<List<Integer>> paths;
+    private int maxDiff;
 
+    /**
+     * Why do we compute only the max and min values along a path?
+     * ------------------------------------------------------------
+     * - For a node to be an ancestor of another, both must exist on the same root-to-leaf path.
+     * - Therefore, any valid ancestor–descendant pair must lie within a single traversal path.
+     * - By tracking all node values along the current DFS path, we ensure all potential ancestor relationships are captured.
+     * - The maximum difference between an ancestor and its descendant within a path is simply:
+     *       max(path) - min(path)
+     *
+     * Hence, for every root-to-leaf path, we compute this difference and update a global maximum
+     * to find the largest possible difference across all such paths.
+     */
     public int maxAncestorDiff(TreeNode root) {
-        paths = new ArrayList<>();
-        // Collect all paths from the root to every leaf in the tree.
-        getAllPaths(root, new ArrayList<>());
-        // Variable to keep track of the maximum difference found across all paths.
-        int maxDifference = 0;
-        // Iterate through each path to compute the difference between the minimum and maximum values in the path.
-        for (List<Integer> path : paths) {
-            maxDifference = Math.max(maxDifference, getPathMaxDifference(path));
-        }
-
-        return maxDifference;
+        maxDiff = Integer.MIN_VALUE;
+        // Start DFS traversal with an empty path to record values from root to current node
+        maxAncestorDiff(root, new ArrayList<>());
+        return maxDiff;
     }
 
-    private void getAllPaths(TreeNode root, List<Integer> currentPath) {
+    private void maxAncestorDiff(TreeNode root, List<Integer> path) {
         if (root == null) {
             return;
         }
+        // Add current node's value to the path
+        path.add(root.val);
 
-        currentPath.add(root.val);
-
-        if (root.left == null && root.right == null) {
-            paths.add(new ArrayList<>(currentPath));
-            currentPath.remove(currentPath.size() - 1);
-            return;
+        if (isLeafNode(root)) {
+            // If it's a leaf node, compute min and max along the path and update maxDiff
+            int maxPathDiff = Collections.max(path) - Collections.min(path);
+            maxDiff = Math.max(maxDiff, maxPathDiff);
         }
+        // Recur for left and right subtree
+        maxAncestorDiff(root.left, path);
+        maxAncestorDiff(root.right, path);
 
-        getAllPaths(root.left, currentPath);
-        getAllPaths(root.right, currentPath);
-
-        currentPath.remove(currentPath.size() - 1);
+        // Backtrack: remove current node value from path before returning to parent
+        path.remove(path.size() - 1);
     }
 
-    private int getPathMaxDifference(List<Integer> path) {
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
-
-        // Iterate through each number in the path.
-        for (int num : path) {
-            // Update the minimum value if a smaller value is found.
-            if (num < min) {
-                min = num;
-            }
-            // Update the maximum value if a larger value is found.
-            if (num > max) {
-                max = num;
-            }
-        }
-
-        // The maximum difference for this path is the difference between max and min.
-        return max - min;
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
     }
 }
+
+
 
 //Optimal approach
 
 class Solution {
-    // Variable to store the maximum difference found between any ancestor and descendant.
-    private int maxDifference;
+    private int maxDiff;
 
     public int maxAncestorDiff(TreeNode root) {
-        maxDifference = 0;
-        findMaxDifferenceAcrossAllPaths(root, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        return maxDifference;
+        maxDiff = Integer.MIN_VALUE;
+
+        /**
+         * We begin a depth-first search (DFS) from the root.
+         * Instead of tracking the full path as a list, we only track:
+         * - The minimum value seen so far on the path.
+         * - The maximum value seen so far on the path.
+         *
+         * This is sufficient because:
+         * ------------------------------------------------------------
+         * - For a node to be an ancestor of another, both must lie on the same root-to-leaf path.
+         * - So, any valid ancestor–descendant pair must exist within one DFS traversal path.
+         * - Tracking only the min and max seen so far along that path ensures:
+         *     maxDifference = maxInPath - minInPath
+         * - This reduces extra space usage compared to storing the full path.
+         */
+        maxAncestorDiff(root, Integer.MAX_VALUE, Integer.MIN_VALUE);
+        return maxDiff;
     }
 
-    private void findMaxDifferenceAcrossAllPaths(TreeNode root, int maxInPath, int minInPath) {
+    private void maxAncestorDiff(TreeNode root, int minInPath, int maxInPath) {
         if (root == null) {
             return;
         }
 
-        // Update the current maximum and minimum values with the current node's value.
-        maxInPath = Math.max(maxInPath, root.val);
+        // Update min and max seen so far in this DFS path
         minInPath = Math.min(minInPath, root.val);
+        maxInPath = Math.max(maxInPath, root.val);
 
-        // If the current node is a leaf, update the maxDifference using the current path's difference.
-        if (root.left == null && root.right == null) {
-            int currentPathMaxDifference = maxInPath - minInPath;
-            maxDifference = Math.max(maxDifference, currentPathMaxDifference);
-            return;
+        // If we reach a leaf, calculate the max difference for this path
+        if (isLeafNode(root)) {
+            int maxPathDiff = maxInPath - minInPath;
+            maxDiff = Math.max(maxDiff, maxPathDiff);
         }
 
-        // Recursively traverse the left and right subtrees.
-        findMaxDifferenceAcrossAllPaths(root.left, maxInPath, minInPath);
-        findMaxDifferenceAcrossAllPaths(root.right, maxInPath, minInPath);
+        // Continue DFS traversal to left and right children
+        maxAncestorDiff(root.left, minInPath, maxInPath);
+        maxAncestorDiff(root.right, minInPath, maxInPath);
+    }
+
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
     }
 }
