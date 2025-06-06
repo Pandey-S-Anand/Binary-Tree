@@ -20,8 +20,6 @@ class Solution {
         // If this is a leaf node, add the current path to the paths list
         if (isLeafNode(root)) {
             paths.add(new ArrayList<>(path));
-            path.remove(path.size() - 1); // Backtrack to explore other paths
-            return;
         }
 
         // Recursively explore the left and right subtrees
