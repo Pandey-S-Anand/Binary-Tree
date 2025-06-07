@@ -14,8 +14,6 @@
  * }
  */
 
-//Naive implementation
-
 class Solution {
     // Map to store serialized subtree representations and their frequencies
     private Map<String, Integer> map;
@@ -23,8 +21,7 @@ class Solution {
     // List to store the root nodes of duplicate subtrees
     private List<TreeNode> duplicateSubtrees;
 
-    // A subtree is considered duplicate if another subtree with the same structure
-    // and values exists.
+    // A subtree is considered duplicate if another subtree with the same structure and values exists.
     public List<TreeNode> findDuplicateSubtrees(TreeNode root) {
         map = new HashMap<>();
         duplicateSubtrees = new ArrayList<>();
@@ -44,7 +41,7 @@ class Solution {
         String rightSubtree = serializeTree(root.right);
 
         // Create a unique serialization string for the current subtree
-        String subtree = root.val + "," + leftSubtree + "," + rightSubtree;
+        String subtree = new StringBuilder().append(root.val).append(',').append(leftSubtree).append(',').append(rightSubtree).toString();
 
         // Update the frequency of this subtree in the map
         map.put(subtree, map.getOrDefault(subtree, 0) + 1);
@@ -58,44 +55,5 @@ class Solution {
         }
 
         return subtree; // Return the serialized subtree representation
-    }
-}
-
-
-//Optimal implementation
-
-class Solution {
-    private Map<String, Integer> map;
-
-    private List<TreeNode> duplicateSubtrees;
-
-    public List<TreeNode> findDuplicateSubtrees(TreeNode root) {
-        map = new HashMap<>();
-        duplicateSubtrees = new ArrayList<>();
-        serializeTree(root);
-        return duplicateSubtrees;
-    }
-
-    private String serializeTree(TreeNode root) {
-        if (root == null) {
-            return "*";
-        }
-
-        String leftSubtree = serializeTree(root.left);
-        String rightSubtree = serializeTree(root.right);
-
-        StringBuilder serializedSubtree = new StringBuilder();
-
-        serializedSubtree.append(root.val).append(",").append(leftSubtree).append(",").append(rightSubtree);
-
-        String subtree = serializedSubtree.toString();
-
-        map.put(subtree, map.getOrDefault(subtree, 0) + 1);
-
-        if (map.get(subtree) == 2) {
-            duplicateSubtrees.add(root);
-        }
-
-        return subtree;
     }
 }
