@@ -25,7 +25,7 @@ class Solution {
 
         // List to store the largest values at each level
         List<Integer> largestValues = new ArrayList<>();
-        
+
         // Queue for level-order traversal (BFS)
         Queue<TreeNode> queue = new ArrayDeque<>();
         queue.add(root);
@@ -35,9 +35,9 @@ class Solution {
             int maxInRow = Integer.MIN_VALUE; // Track the maximum value in the current level
 
             // Process all nodes in the current level
-            for (int i = 0; i < size; i++) {
+            while (size-- > 0) {
                 TreeNode node = queue.poll(); // Remove and process the front node
-                
+
                 // Update the maximum value found at this level
                 maxInRow = Math.max(maxInRow, node.val);
 
@@ -64,44 +64,38 @@ class Solution {
 //Using DFS
 
 class Solution {
-    // Map to store the maximum value at each level
-    private Map<Integer, Integer> map;
+    // Map to keep track of the maximum value at each level (key = level, value = max value)
+    private Map<Integer, Integer> levelToMaxValueMap;
 
     public List<Integer> largestValues(TreeNode root) {
-        // If the tree is empty, return an empty list
+        // If the input tree is empty, return an empty list
         if (root == null) {
             return Collections.emptyList();
         }
 
-        map = new HashMap<>();
+        // Initialize the map
+        levelToMaxValueMap = new HashMap<>();
 
-        // Perform a recursive traversal to populate the map
-        findMaxInEachRow(root, 0);
+        // Start DFS traversal to find max at each level
+        findMaxInEachLevel(root, 0);
 
-        // List to store the largest values at each level
-        List<Integer> largestValues = new ArrayList<>();
-
-        // Retrieve values in level order
-        for (int row : map.keySet()) {
-            largestValues.add(map.get(row));
-        }
-
-        return largestValues;
+        // Collect and return the max values from each level in order
+        return new ArrayList<>(levelToMaxValueMap.values());
     }
 
-    private void findMaxInEachRow(TreeNode root, int currentLevel) {
-        if (root == null) {
+    private void findMaxInEachLevel(TreeNode node, int currentLevel) {
+        if (node == null) {
             return;
         }
 
-        // If the level is encountered for the first time, insert the current node's value
-        map.putIfAbsent(currentLevel, root.val);
+        // If visiting this level for the first time, add current node's value
+        levelToMaxValueMap.putIfAbsent(currentLevel, node.val);
 
-        // Update the maximum value for this level
-        map.put(currentLevel, Math.max(map.get(currentLevel), root.val));
+        // Update the level's max value if the current node's value is greater
+        levelToMaxValueMap.put(currentLevel, Math.max(levelToMaxValueMap.get(currentLevel), node.val));
 
-        // Recur for left and right subtrees with the next level
-        findMaxInEachRow(root.left, currentLevel + 1);
-        findMaxInEachRow(root.right, currentLevel + 1);
+        // Recurse for left and right children with increased level
+        findMaxInEachLevel(node.left, currentLevel + 1);
+        findMaxInEachLevel(node.right, currentLevel + 1);
     }
 }
