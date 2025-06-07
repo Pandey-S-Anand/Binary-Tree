@@ -1,4 +1,4 @@
-//Naive implementation
+//Intuitive implementation implementation
 
 class Solution {
     public TreeNode createBinaryTree(int[][] descriptions) {
@@ -63,7 +63,7 @@ class Solution {
 }
 
 
-//Optimal implementation
+//Concise implementation
 
 class Solution {
     public TreeNode createBinaryTree(int[][] descriptions) {
@@ -75,16 +75,10 @@ class Solution {
             int child = description[1];
             int isLeftChild = description[2];
 
-            /*
-             * Efficiently fetch or create parent and child nodes :
-             *
-             * computeIfAbsent(key, mappingFunction) works as follows:
-             * - If the key already exists, it returns the existing value (TreeNode in this case).
-             * - If the key does not exist, it creates a new TreeNode, stores it in the map, and then returns it.
-             */
-            TreeNode parentNode = map.computeIfAbsent(parent, k -> new TreeNode(parent));
-            TreeNode childNode = map.computeIfAbsent(child, k -> new TreeNode(child));
+            TreeNode parentNode = map.getOrDefault(parent, new TreeNode(parent));
             map.putIfAbsent(parent, parentNode);
+
+            TreeNode childNode = map.getOrDefault(child, new TreeNode(child));
             map.putIfAbsent(child, childNode);
 
             if (isLeftChild == 1) {
@@ -93,6 +87,7 @@ class Solution {
                 parentNode.right = childNode;
             }
 
+            // Mark this node as a child
             children.add(child);
         }
 
