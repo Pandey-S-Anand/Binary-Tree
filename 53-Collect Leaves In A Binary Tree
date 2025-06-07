@@ -1,59 +1,65 @@
 /*
-               1
-            /     \
-          2         3
+                1
+            /       \
+          2           3
         /   \        /   \
        4     5      6     7
-      /       / \     \
-     8      9   10    11
+      /     / \      \
+     8     9   10    11
 
    Output:
    [
-     [8, 9, 10, 11, 7], // First set of leaf nodes removed
-     [4, 5, 6],         // New leaf nodes after previous removal
-     [2, 3],            // New leaf nodes after previous removal
-     [1]                // Last remaining node
+     [8, 9, 10, 11, 7], // First set of leaf nodes removed (Height =1)
+     [4, 5, 6],         // New leaf nodes after previous removal  (Height =2)
+     [2, 3],            // New leaf nodes after previous removal  (Height =3)
+     [1]                // Last remaining node  (Height =4)
    ]
 */
 
 
 public class Solution {
-    // Map to store leaf nodes grouped by their height in the tree
+
+    // TreeMap ensures that keys (heights) are sorted in ascending order which reflects bottom-up collection from leaf to root.
     private static Map<Integer, ArrayList<Integer>> heightToLeavesMap;
 
     public static ArrayList<ArrayList<Integer>> collectLeaves(BinaryTreeNode<Integer> root) {
-        heightToLeavesMap = new HashMap<>();
-        ArrayList<ArrayList<Integer>> leavesCollection = new ArrayList<>();
+        heightToLeavesMap = new TreeMap<>();
 
-        // Populate the map with leaf nodes categorized by height
+        // Fill the map by computing height of each node and collecting nodes by height
         calculateHeightAndCollectLeaves(root);
 
-        // Collect leaf nodes from the map in order
-        for (ArrayList<Integer> leafNodes : heightToLeavesMap.values()) {
-            leavesCollection.add(leafNodes);
+        ArrayList<ArrayList<Integer>> collectedLeaves = new ArrayList<>();
+        
+        // Iterate over TreeMap to collect lists of leaves level-by-level (bottom-up)
+        for (int height : heightToLeavesMap.keySet()) {
+            collectedLeaves.add(heightToLeavesMap.get(height));
         }
 
-        return leavesCollection;
+        return collectedLeaves;
     }
 
     private static int calculateHeightAndCollectLeaves(BinaryTreeNode<Integer> root) {
+        // Base case: null node contributes height 0
         if (root == null) {
             return 0;
         }
 
-        // Process the left subtree first to ensure leaves are collected in left-to-right order
+        // Recursively calculate height of left and right subtrees
         int leftSubtreeHeight = calculateHeightAndCollectLeaves(root.left);
-
-        // Process the right subtree after the left subtree
         int rightSubtreeHeight = calculateHeightAndCollectLeaves(root.right);
 
-        // Compute the height of the current node
-        int currentHeight = 1 + Math.max(leftSubtreeHeight, rightSubtreeHeight);
+        // Height of current node = max height of subtrees + 1
+        int currentSubtreeHeight = Math.max(leftSubtreeHeight, rightSubtreeHeight) + 1;
 
-        // Store the node value in the corresponding height bucket
-        heightToLeavesMap.putIfAbsent(currentHeight, new ArrayList<>());
-        heightToLeavesMap.get(currentHeight).add(root.data);
+        // Get the list of nodes at current height, or create a new one if absent
+        ArrayList<Integer> leavesAtCurrentHeight = heightToLeavesMap.getOrDefault(currentSubtreeHeight,new ArrayList<>());
 
-        return currentHeight;
+        // Add current node's value to its corresponding height group
+        leavesAtCurrentHeight.add(root.data);
+
+        // Update the map with the modified list
+        heightToLeavesMap.put(currentSubtreeHeight, leavesAtCurrentHeight);
+
+        return currentSubtreeHeight;
     }
 }
