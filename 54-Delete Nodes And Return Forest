@@ -15,34 +15,29 @@
  */
 
 /*
+ * Why do we use post-order traversal here? (return forest after deletions)
+ *
  * If we use in-order traversal (Left → Root → Right), we process the left subtree first.
- * If a node in the left subtree is present in the deletion set, we delete it
- * and move to the root. If the root itself is also marked for
- * deletion, we remove it and consider its right child as a new tree in the
- * forest. However, if the right child is also in the deletion * set, we face a
- * problem—since we have already detached it from the root, we might miss
- * deleting it properly. A similar issue arises with pre-order traversal (Root → Left → Right),
- * where we may delete a node before fully processing its children, leading to
- * incorrect handling of subtree deletions.
- * 
- * In contrast, post-order traversal (Left → Right → Root) ensures that all
- * child nodes are fully processed before handling the current node. This
- * prevents premature detachments and ensures that all deletions and forest
- * updates are managed correctly, making it the best choice for this problem.
+ * When a node in the left subtree is in the deletion set, we delete it and then move to the root.
+ * If the root is also marked for deletion, we remove it and consider its right child as a new tree in the forest.
+ * However, if the right child is also in the deletion set, we might miss deleting it properly 
+ * because it has already been detached from the root.
+ *
+ * A similar issue occurs with pre-order traversal (Root → Left → Right), where deleting a node before processing 
+ * its children can lead to incorrect handling of subtree deletions.
+ *
+ * In contrast, post-order traversal (Left → Right → Root) ensures all child nodes are fully processed before the current node.
+ * This prevents premature detachment and guarantees that all deletions and updates to the forest are handled correctly.
+ * Therefore, post-order traversal is the best choice for this problem.
  */
- 
 class Solution {
     private Set<Integer> toDelete; // Stores nodes that need to be deleted
     private List<TreeNode> forest; // Stores the roots of trees in the remaining forest
 
     public List<TreeNode> delNodes(TreeNode root, int[] to_delete) {
-        toDelete = new HashSet<>();
-        forest = new ArrayList<>();
-
         // Add nodes to be deleted into a HashSet for quick lookup
-        for (int val : to_delete) {
-            toDelete.add(val);
-        }
+        toDelete = Arrays.stream(to_delete).boxed().collect(Collectors.toSet());
+        forest = new ArrayList<>();
 
         // Process the tree using post-order traversal
         root = deleteNodes(root);
@@ -55,14 +50,14 @@ class Solution {
         return forest;
     }
 
-    private TreeNode delNodes(TreeNode root) {
+    private TreeNode deleteNodes(TreeNode root) {
         if (root == null) {
             return null;
         }
 
         // Post-order traversal: First process left and right children
-        root.left = delNodes(root.left);
-        root.right = delNodes(root.right);
+        root.left = deleteNodes(root.left);
+        root.right = deleteNodes(root.right);
         // If the current node is in the delete list
         if (toDelete.contains(root.val)) {
             // If the left child exists, add it to the forest
