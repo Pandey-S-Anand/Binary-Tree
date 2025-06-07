@@ -20,16 +20,17 @@ class Solution {
     public TreeNode reverseOddLevels(TreeNode root) {
         List<TreeNode> levelNodes = new ArrayList<>(); // List to store nodes at odd levels
         Queue<TreeNode> queue = new ArrayDeque<>();
-        queue.offer(root); 
-        boolean isOddLevel = false; // Start with level 0 (even)
+        queue.offer(root); // Start with level 0 (even)
+        boolean isOddLevel = false; // Flag to track if current level is odd
 
         while (!queue.isEmpty()) {
-            int size = queue.size(); // Get the number of nodes at the current level
+            int size = queue.size(); // Number of nodes at the current level
 
-            for (int i = 0; i < size; i++) {
+            // Process each node in the current level
+            while (size-- > 0) {
                 TreeNode node = queue.poll();
 
-                // If it's an odd level, add the node to the list for later reversal
+                // Collect nodes for value-swapping at odd levels
                 if (isOddLevel) {
                     levelNodes.add(node);
                 }
@@ -47,26 +48,30 @@ class Solution {
                 }
             }
 
-            // If it's an odd level, reverse the collected node values
+            // If we just processed an odd level, reverse the node values
             if (isOddLevel) {
-                int low = 0, high = levelNodes.size() - 1;
+                int i = 0;
+                while (i < levelNodes.size() / 2) {
+                    TreeNode first = levelNodes.get(i);
+                    TreeNode last = levelNodes.get(levelNodes.size() - 1 - i);
 
-                while (low < high) {
-                    // Swap values of nodes at opposite ends
-                    int temp = levelNodes.get(low).val;
-                    levelNodes.get(low).val = levelNodes.get(high).val;
-                    levelNodes.get(high).val = temp;
-                    low++;
-                    high--;
+                    // Swap values of mirrored nodes at the level
+                    int temp = first.val;
+                    first.val = last.val;
+                    last.val = temp;
+
+                    i++;
                 }
 
-                levelNodes.clear(); // Clear list for the next odd level
+                // Clear the list for next odd level
+                levelNodes.clear();
             }
 
-            // Toggle the level status for the next iteration
+            // Toggle the level flag
             isOddLevel = !isOddLevel;
         }
 
+        // Return the root after modifying the tree
         return root;
     }
 }
@@ -74,26 +79,164 @@ class Solution {
 
 //Optimal approach
 
+/*
+    ░░░ Step-by-Step DFS Recursion Breakdown with Tree Splits ░░░
+
+    Initial Call:
+    reverseOddLevelsDFS(root.left = 2, root.right = 3, level = 1)
+
+    → Level 1 is ODD → swap node values: 2 ↔ 3
+
+    Tree:
+                    1
+                 /     \
+               3         2
+             /   \     /   \
+            4     5   6     7
+           / \   / \ / \   / \
+          8   9 10 11 12 13 14 15
+
+
+    ⬇ Recursive Calls:
+
+    → reverseOddLevelsDFS(4, 7, level = 2)
+       [Subtree being processed:]
+
+            4           7
+           / \         / \
+         8    9     14   15
+
+       → Level 2 is EVEN → NO SWAP
+
+       ⬇ Recursive Calls from here:
+
+        → reverseOddLevelsDFS(8, 15, level = 3)
+           [Subtree being processed:]
+
+             8         15
+           → Level 3 is ODD → swap 8 ↔ 15
+
+           Tree:
+                      1
+                 /         \
+               3            2
+             /   \        /   \
+            4     5     6      7
+           / \   / \   / \    / \
+         15   9 10 11 12 13  14  8
+
+        → reverseOddLevelsDFS(9, 14, level = 3)
+           → Level 3 is ODD → swap 9 ↔ 14
+
+           Tree:
+                    1
+                 /      \
+               3           2
+             /   \       /   \
+            4     5     6     7
+           / \   / \   / \   / \
+         15  14 10 11 12 13  9  8
+
+
+    → reverseOddLevelsDFS(5, 6, level = 2)
+       [Subtree being processed:]
+
+            5          6
+           / \        / \
+         10  11     12  13
+
+       → Level 2 is EVEN → NO SWAP
+
+       ⬇ Recursive Calls from here:
+
+        → reverseOddLevelsDFS(10, 13, level = 3)
+           [Subtree being processed:]
+
+             10        13
+           → Level 3 is ODD → swap 10 ↔ 13
+
+           Tree:
+                    1
+                 /       \
+               3           2
+             /   \       /   \
+            4     5     6     7
+           / \   / \   / \   / \
+         15  14 13 11 12 10  9  8
+
+        → reverseOddLevelsDFS(11, 12, level = 3)
+           [Subtree being processed:]
+
+             11        12
+           → Level 3 is ODD → swap 11 ↔ 12
+
+           Tree:
+                     1
+                 /       \
+               3           2
+             /   \       /   \
+            4     5     6     7
+           / \   / \   / \   / \
+         15  14 13 12 11 10  9  8
+
+    ░░░ FINAL TREE AFTER ALL DFS SWAPS ░░░
+
+    Level 0:                         1
+                                  /     \
+    Level 1:                  [3]         [2]          ← swapped
+                             /   \       /   \
+    Level 2:               4     5      6      7         ← unchanged
+                        / \     / \     / \   / \
+    Level 3:         [15][14][13][12][11][10][9][8]  ← swapped
+
+
+    ░░░ WHY THIS WORKS ░░░
+
+    - DFS guarantees symmetric traversal: left → right, right → left.
+    - We pass both left and right mirror nodes at each level.
+    - At ODD levels, we swap their values directly.
+    - Because the binary tree is **perfect**, we are assured that mirror nodes exist at each level.
+*/
+
 class Solution {
     public TreeNode reverseOddLevels(TreeNode root) {
-        reverseOddLevels(root.left, root.right, 1); // Start DFS from level 1 (odd)
+        reverseOddLevels(root.left, root.right, true);
         return root;
     }
 
-    private void reverseOddLevels(TreeNode left, TreeNode right, int level) {
-        if (left == null) { // or right == null
-            return; // Base case
+    private void reverseOddLevels(TreeNode left, TreeNode right, boolean isOddLevel) {
+        /* 
+          Base case:
+          If both nodes are null, it means we have reached beyond the leaf nodes.
+          Since the tree is perfect, left and right will become null simultaneously.
+        */
+        if (left == null && right == null) {
+            return;
         }
 
-        // If the current level is odd, swap values
-        if (level % 2 == 1) {
-            int temp = left.val;
-            left.val = right.val;
-            right.val = temp;
+        // If current level is odd, swap the values of the left and right mirror nodes.
+        if (isOddLevel) {
+            swap(left, right);
         }
+        /*
+        * Recursive calls for the next level:
+        * At each step, we need to process the next level's mirror nodes,
+        *
+        * The mirror pairs for the next level are:
+        *   1. left.left  and right.right  → these two nodes are mirrors of each other.
+        *   2. left.right and right.left   → these two nodes are mirrors of each other.
+        *
+        * We call the recursive function on these pairs to continue the process,
+        * passing !isOddLevel to toggle the level parity,
+        * because we move down exactly one level in the tree.
+        */
+        reverseOddLevels(left.left, right.right, !isOddLevel);
+        reverseOddLevels(left.right, right.left, !isOddLevel);
+    }
 
-        // Recur for the next level
-        reverseOddLevels(left.left, right.right, level + 1); // Outer children
-        reverseOddLevels(left.right, right.left, level + 1); // Inner children
+    private void swap(TreeNode left, TreeNode right) {
+        int temp = left.val;
+        left.val = right.val;
+        right.val = temp;
     }
 }
