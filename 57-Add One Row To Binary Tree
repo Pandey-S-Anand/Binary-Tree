@@ -18,53 +18,71 @@
 
 class Solution {
     public TreeNode addOneRow(TreeNode root, int val, int depth) {
-        // Special case: If depth == 1, create a new root node with 'val' and attach the original tree as its left subtree.
+        // Special case: if depth is 1, create a new root and set original tree as its left subtree
         if (depth == 1) {
             TreeNode newRoot = new TreeNode(val);
             newRoot.left = root;
             return newRoot;
         }
 
-        // Initialize level tracker and queue for BFS traversal.
-        int currentDepth = 0;
+        // BFS queue for level-order traversal
         Queue<TreeNode> queue = new ArrayDeque<>();
         queue.offer(root);
 
-        // Traverse the tree level by level until reaching depth - 1.
-        while (currentDepth < depth) {
-            currentDepth++;
-            int size = queue.size(); // Number of nodes at current level
+        int currentDepth = 1;
 
-            for (int i = 0; i < size; i++) {
-                TreeNode currentNode = queue.poll();
+        // Traverse the tree until we reach depth - 1 level
+        while (!queue.isEmpty() && currentDepth < depth) {
+            int size = queue.size();
 
-                // If we have reached depth - 1, insert new nodes at this level
+            while (size-- > 0) {
+                TreeNode node = queue.poll();
+
                 if (currentDepth == depth - 1) {
+                    // Add new node on the left
                     TreeNode newLeftNode = new TreeNode(val);
+
+                    /*
+                     * Rule:
+                     * Create a new left node with value 'val'
+                     * - Assign node.left as the left child of the new node
+                     * - Assign the new node as node.left
+                     * - We do NOT assign anything to newLeftNode.right; it remains null
+                     */
+                    newLeftNode.left = node.left;
+                    node.left = newLeftNode;
+
+                    // Add new node on the right
                     TreeNode newRightNode = new TreeNode(val);
 
-                    // Attach the existing left and right subtrees to new nodes
-                    newLeftNode.left = currentNode.left;
-                    newRightNode.right = currentNode.right;
+                    /*
+                     * Rule:
+                     * Create a new right node with value 'val'
+                     * - Assign node.right as the right child of the new node
+                     * - Assign the new node as node.right
+                     * - We do NOT assign anything to newRightNode.left; it remains null
+                     */
+                    newRightNode.right = node.right;
+                    node.right = newRightNode;
 
-                    // Connect the new nodes to the current node
-                    currentNode.left = newLeftNode;
-                    currentNode.right = newRightNode;
                 } else {
-                    // Continue BFS traversal if we haven't reached depth - 1
-                    if (currentNode.left != null) {
-                        queue.offer(currentNode.left);
+                    // Continue traversing until we reach depth - 1
+                    if (node.left != null) {
+                        queue.offer(node.left);
                     }
-                    if (currentNode.right != null) {
-                        queue.offer(currentNode.right);
+                    if (node.right != null) {
+                        queue.offer(node.right);
                     }
                 }
             }
+
+            currentDepth++;
         }
 
         return root;
     }
 }
+
 
 
 //Using DFS
@@ -84,41 +102,62 @@ class Solution {
  *     }
  * }
  */
+
 class Solution {
     public TreeNode addOneRow(TreeNode root, int val, int depth) {
-        // Special case: If depth == 1, create a new root and attach original tree to it
+        // Special case: if the new row has to be inserted at the root level
         if (depth == 1) {
             TreeNode newRoot = new TreeNode(val);
+
+            /*
+             * Rule:
+             * - When depth == 1, create a new node with the given value.
+             * - Set the original tree as the left child of this new root.
+             * - The right child remains null.
+             */
             newRoot.left = root;
-            return newRoot;
+            root = newRoot;
         }
 
-        // Recursively traverse the tree, starting from depth = 1
-        insertRow(root, val, depth, 1);
+        // Start recursive DFS traversal to insert row at required depth
+        insertOneRow(root, 1, depth, val);
         return root;
     }
 
-    private void insertRow(TreeNode node, int val, int depth, int curDepth) {
-        if (node == null) {
+    private void insertOneRow(TreeNode root, int currentDepth, int depth, int val) {
+        // Base case: null node encountered
+        if (root == null) {
             return;
         }
 
-        // When we reach depth - 1, insert new nodes
-        if (curDepth == depth - 1) {
+        /*
+         * When we are one level above the target depth (i.e., currentDepth == depth - 1),
+         * we insert new nodes directly beneath the current node.
+         */
+        if (currentDepth == depth - 1) {
+            // Create new nodes with the specified value
             TreeNode newLeftNode = new TreeNode(val);
             TreeNode newRightNode = new TreeNode(val);
 
-            // Attach original left and right subtrees to new nodes
-            newLeftNode.left = node.left;
-            newRightNode.right = node.right;
+            /*
+             * Rule:
+             * - The new left node becomes the left child of the current node.
+             * - The original left child becomes the left child of the new node.
+             * - The new right node becomes the right child of the current node.
+             * - The original right child becomes the right child of the new node.
+             * 
+             * Note: newLeftNode.right and newRightNode.left are left null intentionally.
+             */
+            newLeftNode.left = root.left;
+            newRightNode.right = root.right;
+            root.left = newLeftNode;
+            root.right = newRightNode;
 
-            // Attach new nodes to current node
-            node.left = newLeftNode;
-            node.right = newRightNode;
-        } else {
-            // Recurse deeper in the tree
-            insertRow(node.left, val, depth, curDepth + 1);
-            insertRow(node.right, val, depth, curDepth + 1);
+            return; // Done inserting at this level
         }
+
+        // Recurse deeper on both left and right subtrees
+        insertOneRow(root.left, currentDepth + 1, depth, val);
+        insertOneRow(root.right, currentDepth + 1, depth, val);
     }
 }
