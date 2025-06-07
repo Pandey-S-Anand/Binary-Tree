@@ -65,6 +65,7 @@
  * }
  * }
  */
+
 class Solution {
     private int totalMoves = 0; // Global variable to keep track of the total moves required.
 
