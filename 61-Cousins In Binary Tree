@@ -18,17 +18,17 @@
 
 class Solution {
     public boolean isCousins(TreeNode root, int x, int y) {
+        boolean node1Found = false, node2Found = false; // Flags to check if x or y is found
+        TreeNode node1Parent = null, node2Parent = null; // Parent nodes of x and y
         // Queue for level-order traversal (BFS)
         Queue<TreeNode> queue = new ArrayDeque<>();
         queue.offer(root);
 
         while (!queue.isEmpty()) {
             int size = queue.size(); // Number of nodes at the current level
-            boolean node1Found = false, node2Found = false; // Flags to check if x or y is found
-            TreeNode node1Parent = null, node2Parent = null; // Parent nodes of x and y
 
             // Process all nodes in the current level
-            for (int i = 0; i < size; i++) {
+            while (size-- > 0) {
                 TreeNode node = queue.poll();
 
                 // Check left child
@@ -122,9 +122,10 @@ class Solution {
 
         // Recursively search for the target node in the left and right subtrees
         NodeInfo leftSearch = getNodeInfo(root.left, target, root, depth + 1);
-        NodeInfo rightSearch = getNodeInfo(root.right, target, root, depth + 1);
-
-        // Return the first non-null result (whichever subtree contains the target node)
-        return leftSearch != null ? leftSearch : rightSearch;
+        if (leftSearch != null) {
+            return leftSearch;
+        }
+        // If not found in left, search in right subtree
+        return getNodeInfo(root.right, target, root, depth + 1);
     }
 }
