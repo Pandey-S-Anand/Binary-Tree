@@ -1,92 +1,46 @@
-//Intuitive approach
-
-//Naive implementation
-
 class Solution {
     public String getDirections(TreeNode root, int startValue, int destValue) {
-        // Step 1: Find the Lowest Common Ancestor (LCA) of startValue and destValue.
-        // This will be the deepest (lowest) node where both paths from startValue and destValue intersect.
+        /*
+         * ➤ Why LCA?
+         * - Because it's the **lowest (deepest) node** in the tree that has:
+         *     • one target node in its **left subtree** and
+         *     • the other target node in its **right subtree**, 
+         *     • OR it **is** one of the target nodes and the other lies in one of its subtrees.
+         *
+         * ➤ Purpose of finding the LCA in this problem:
+         * - From the start node, we go **upwards** to the LCA using 'U'.
+         * - From the LCA, we go **downwards** to the destination using 'L' or 'R'.
+         */
+        //Step 1: Find the Lowest Common Ancestor (LCA) of startValue and destValue.
         TreeNode lca = findLowestCommonAncestor(root, startValue, destValue);
 
-        // Step 2: Find the path from LCA to startValue.
-        // This will be used to determine how many "U" (up) moves are needed to reach LCA.
+        // Step 2: Find path from LCA to startValue, replace all steps with 'U' since we move up to the LCA.
         StringBuilder pathToStart = new StringBuilder();
-        findPath(lca, startValue, pathToStart);
+        findPath(lca, startValue, pathToStart, true); // true => we're building path towards the start node
 
-        // Step 3: Find the path from LCA to destValue.
-        // This gives the sequence of 'L' (left) and 'R' (right) moves required to reach destValue.
+        // Step 3: Find the path from LCA to destValue, keeping 'L' (Left) and 'R' (Right) moves.
         StringBuilder pathToDestination = new StringBuilder();
-        findPath(lca, destValue, pathToDestination);
+        findPath(lca, destValue, pathToDestination, false); // false => path towards destination, keep directions
 
-        // Step 4: Convert pathToStart into 'U' moves since we need to go upwards to reach LCA.
-        // Step 5: Append pathToDestination to move from LCA to destValue.
-        return "U".repeat(pathToStart.length()) + pathToDestination;
-
+        // Step 4: Final path = move up to LCA (U...) + move down to destination (L...R...)
+        return pathToStart.append(pathToDestination).toString();
     }
 
-    private TreeNode findLowestCommonAncestor(TreeNode root, int sourceValue, int destinationValue) {
-         // Base case: If root is null, return null (no LCA found in this path)
+    private TreeNode findLCA(TreeNode root, int value1, int value2) {
         if (root == null) {
             return null;
         }
-        
-        // If the current node's value matches either the source (p) or destination (q) value, return the current node, indicating that one of the targets has been found.
-        if (root.val == sourceValue || root.val == destinationValue) {
+
+        if (root.val == value1 || root.val == value2) {
             return root;
         }
 
-        // Recursively search for p and q in the left and right subtrees
-        TreeNode left = findLowestCommonAncestor(root.left, sourceValue, destinationValue);
-        TreeNode right = findLowestCommonAncestor(root.right, sourceValue, destinationValue);
+        TreeNode left = findLCA(root.left, value1, value2);
+        TreeNode right = findLCA(root.right, value1, value2);
 
-        /*
-         * Case 1: If both recursive calls return non-null values, it means:
-         * - p is found in one subtree and q is found in the other.
-         * - Hence, the current node (root) is the Lowest Common Ancestor (LCA).
-         */
         if (left != null && right != null) {
             return root;
         }
-
-        /*
-         * Case 2: When only one recursive call returns a non-null value (i.e., either p or q),
-         * it indicates that one of the nodes (p or q) has been found in that subtree.
-         * We then propagate that non-null node upward to the parent call to continue
-         * the search for the LCA.
-         *
-         * Suppose you are at a node N in the tree, and you find p in the left subtree
-         * of N. Then, q must be in one of three places:
-         *
-         * 1. In the right subtree of N:
-         * - If q is in the right subtree of N, then N is the lowest common ancestor (LCA)
-         *   of p and q. This is because N is the deepest node that has both p (in its left subtree)
-         *   and q (in its right subtree) as descendants.
-         *
-         * 2. Above N in the tree:
-         * - If q is not in the right subtree of N, it must be somewhere above N in the tree.
-         *   This means the LCA of p and q is an ancestor of N.
-         *
-         * 3. q is a descendant of p:
-         * - In this case, p itself is the LCA.
-         *   Since q is already a descendant of p, p will be the deepest node that has both p and q as descendants.
-         *
-         *   The LCA is the deepest node that has both p and q as descendants.
-         *
-         *   This is why the algorithm stops searching further down the branch once it
-         *   finds p or q and backtracks to find the LCA.
-         *
-         * For example, consider the tree:
-         *    3
-         *   / \
-         *  5   1
-         * / \
-         * 6  2
-         *   / \
-         *  7   4
-         *
-         * In scenarios where one node is an ancestor of the other (e.g., p = 5 and q = 4),
-         * the non-null value that is propagated upward (node 5) correctly serves as the LCA.
-         */
 
         if (left != null) {
             return left;
@@ -96,195 +50,41 @@ class Solution {
             return right;
         }
 
-        // Case 3: If subtree neither contains p or q, return the null
         return null;
     }
 
-    private boolean findPath(TreeNode root, int destination, StringBuilder path) {
+    /**
+     * Builds a path from the current root to the target node.
+     * - If pathToStart is true: appends 'U' for every step (we're building upward path from start to LCA).
+     * - If pathToStart is false: appends 'L' or 'R' depending on traversal direction.
+     * Returns true if target node was found in the subtree rooted at current node.
+     */
+    private boolean findPath(TreeNode root, int target, StringBuilder path, boolean pathToStart) {
         // Base Case: If the current node is null, return false (target not found in this path).
         if (root == null) {
             return false;
         }
 
         // If the current node is the target node, return true.
-        if (root.val == destination) {
+        if (root.val == target) {
             return true;
         }
 
         // Try moving to the left child
-        path.append('L');
-        if (findPath(root.left, destination, path)) {
+        path.append(pathToStart ? 'U' : 'L');
+        if (findPath(root.left, target, path, pathToStart)) {
             return true; // If the left subtree contains the target, return true.
         }
+
         path.setLength(path.length() - 1); // Backtrack if the target was not found in the left subtree.
 
         // Try moving to the right child
         path.append('R');
-        if (findPath(root.right, destination, path)) {
+        if (findPath(root.right, target, path, pathToStart)) {
             return true; // If the right subtree contains the target, return true.
         }
-        path.setLength(path.length() - 1); // Backtrack if the target was not found in the right subtree.
 
-        // If neither left nor right subtree contains the target, return false.
-        return false;
-    }
-}
-
-
-//Optimal implementation
-
-class Solution {
-    public String getDirections(TreeNode root, int startValue, int destValue) {
-        TreeNode lca = findLowestCommonAncestor(root, startValue, destValue);
-
-        // Step 2: Find the path from LCA to startValue, replacing moves with 'U' (Up).
-        StringBuilder pathToStart = new StringBuilder();
-        findPath(lca, startValue, pathToStart, true); // true indicates path to startValue
-
-        // Step 3: Find the path from LCA to destValue, keeping 'L' (Left) and 'R' (Right) moves.
-        StringBuilder pathToDestination = new StringBuilder();
-        findPath(lca, destValue, pathToDestination, false); // false indicates path to destValue
-
-        // Step 4: Combine both paths to form the final result.
-        return pathToStart.toString() + pathToDestination.toString();
-    }
-
-    private TreeNode findLowestCommonAncestor(TreeNode root, int sourceValue, int destinationValue) {
-        if (root == null) {
-            return null;
-        }
-
-        if (root.val == sourceValue || root.val == destinationValue) {
-            return root;
-        }
-
-        TreeNode left = findLowestCommonAncestor(root.left, sourceValue, destinationValue);
-        TreeNode right = findLowestCommonAncestor(root.right, sourceValue, destinationValue);
-
-        if (left != null && right != null) {
-            return root;
-        }
-
-        if (left != null) {
-            return left;
-        }
-
-        if (right != null) {
-            return right;
-        }
-
-        return null;
-    }
-
-    private boolean findPath(TreeNode root, int destination, StringBuilder path, boolean isPathToStart) {
-        if (root == null) {
-            return false;
-        }
-
-        if (root.val == destination) {
-            return true;
-        }
-
-        path.append(isPathToStart ? 'U' : 'L');
-        if (findPath(root.left, destination, path, isPathToStart)) {
-            return true;
-        }
-        path.setLength(path.length() - 1);
-
-        path.append(isPathToStart ? 'U' : 'R');
-        if (findPath(root.right, destination, path, isPathToStart)) {
-            return true;
-        }
-        path.setLength(path.length() - 1);
-
-        return false;
-    }
-}
-
-
-//Optimal approach
-
-/*
-        9
-       /
-      8
-     /
-    5
-   / \
-  1   2
- /    / \
-3    6   4
-
-
-Path from root (9) to startValue (3):
-9 → 8 → 5 → 1 → 3  
-Directions: "LLLL"
-
-Path from root (9) to destValue (6):
-9 → 8 → 5 → 2 → 6  
-Directions: "LLRL"
-
-The common part of both paths is:
-9 → 8 → 5  
-Lowest Common Ancestor (LCA) is 5, since it is the last common node in both paths.
-
-Remove Common Part and Convert to Final Path:
-Remaining path from LCA (5) to startValue (3): "LL"
-Remaining path from LCA (5) to destValue (6): "RL"
-
-Since we move up from startValue (3) to LCA (5),
-we replace "L" with "U", so "UU".
-
-Append Remaining Path to destValue:
-"UU" + "RL"
-Final Output: "UURL"
-*/
-
-
-class Solution {
-    public String getDirections(TreeNode root, int startValue, int destinationValue) {
-        // Step 1: Find the path from the root to startValue.
-        StringBuilder pathToStart = new StringBuilder();
-        findPath(root, startValue, pathToStart);
-
-        // Step 2: Find the path from the root to destinationValue.
-        StringBuilder pathToDestination = new StringBuilder();
-        findPath(root, destinationValue, pathToDestination);
-
-        // Step 3: Find the first mismatching index to determine the lowest common ancestor (LCA).
-        int i = 0;
-        while (i < pathToStart.length() && i < pathToDestination.length() && pathToStart.charAt(i) == pathToDestination.charAt(i)) {
-            i++;
-        }
-
-        // Step 4: Convert the remaining pathToStart into 'U' moves (moving up from start node to LCA).
-        String upwardMoves = "U".repeat(pathToStart.length() - i);
-
-        // Step 5: Append the remaining pathToDestination to move from LCA to destination node.
-        return upwardMoves + pathToDestination.substring(i);
-    }
-
-    private boolean findPath(TreeNode root, int destinationValue, StringBuilder path) {
-        if (root == null) {
-            return false;
-        }
-
-        if (root.val == destinationValue) {
-            return true;
-        }
-
-        path.append('L');
-        if (findPath(root.left, destinationValue, path)) {
-            return true;
-        }
-        path.setLength(path.length() - 1);
-
-        path.append('R');
-        if (findPath(root.right, destinationValue, path)) {
-            return true;
-        }
-        path.setLength(path.length() - 1);
-
-        return false;
+        path.deleteCharAt(path.length() - 1); // Backtrack if the target was not found in the right subtree.
+        return false; // If neither left nor right subtree contains the target, return false.
     }
 }
