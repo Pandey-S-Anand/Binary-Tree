@@ -31,54 +31,111 @@
  * - "aaabbccd" → ❌ Cannot be rearranged into a palindrome (since 'a' and 'd' both have odd occurrences)
  */
 
-//Naive approach
+//Bruteforce approach
 
 class Solution {
-    int pseudoPalindromicPathsCount = 0; // Stores the count of pseudo-palindromic paths
+    private int palindromicPathCount; // Stores the count of pseudo-palindromic paths
 
     public int pseudoPalindromicPaths(TreeNode root) {
-        countPseudoPalindromicPaths(root, new int[10]); // Initialize frequency array , digits are between 1 and 9
-        return count;
+        palindromicPathCount = 0;
+        // Start DFS traversal from root with an empty path
+        pseudoPalindromicPaths(root, new ArrayList<>());
+        return palindromicPathCount;
     }
 
-    private void countPseudoPalindromicPaths(TreeNode root, int[] pathFrequency) {
+    private void pseudoPalindromicPaths(TreeNode root, List<Integer> path) {
+        if (root == null) {
+            return;
+        }
+        // Include current node value in path
+        path.add(root.val);
+
+        // If the current node is a leaf node, check if the path is pseudo-palindromic
+        if (isLeafNode(root) && isPalindromicPath(path)) {
+            palindromicPathCount++; // Valid pseudo-palindromic path found, increment count
+        }
+
+        pseudoPalindromicPaths(root.left, path);
+        pseudoPalindromicPaths(root.right, path);
+        // Backtrack: Remove the current node from the path before returning to the previous level
+        path.remove(path.size() - 1);
+    }
+
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
+    }
+
+    private boolean isPalindromicPath(List<Integer> path) {
+        int[] frequencyArray = new int[10]; // Node values are between 1 and 9
+
+        for (int num : path) {
+            frequencyArray[num]++;
+        }
+
+        boolean oddFreqFound = false;
+
+        for (int num = 1; num < 10; num++) {
+            /*
+            * - If the path length is even → all digit frequencies must be even.
+            * - If the path length is odd → only one digit may have an odd frequency.
+            */
+            if (frequencyArray[num] % 2 != 0) {
+                if (path.size() % 2 == 0 || oddFreqFound) {
+                    return false;
+                }
+                oddFreqFound = true;
+            }
+        }
+
+        return true;
+    }
+}
+
+//Better approach
+
+class Solution {
+    private int palindromicPathCount;
+
+    public int pseudoPalindromicPaths(TreeNode root) {
+        palindromicPathCount = 0;
+        pseudoPalindromicPaths(root, new int[10]); // Index 1 to 9 as node values are in range [1, 9]
+        return palindromicPathCount;
+    }
+
+    private void pseudoPalindromicPaths(TreeNode root, int[] pathFrequency) {
         if (root == null) {
             return;
         }
 
-        // Increment frequency of the current node's value
         pathFrequency[root.val]++;
 
-        // If the current node is a leaf node, check if the path is pseudo-palindromic
-        if (root.left == null && root.right == null) {
-            if (isPseudoPalindromicPath(pathFrequency)) {
-                pseudoPalindromicPathsCount++; // Valid pseudo-palindromic path found, increment count
-            }
-            // Backtrack: Remove the current node's contribution from the path before returning to the previous level
-            pathFrequency[root.val]--;
-            return;
+        if (isLeafNode(root) && isPalindromicPath(pathFrequency)) {
+            palindromicPathCount++;
         }
 
-        // Recursively check left and right subtrees
-        countPseudoPalindromicPaths(root.left, pathFrequency);
-        countPseudoPalindromicPaths(root.right, pathFrequency);
+        pseudoPalindromicPaths(root.left, pathFrequency);
+        pseudoPalindromicPaths(root.right, pathFrequency);
 
-        // Backtrack: Remove the current node's contribution from the path before returning to the previous level
         pathFrequency[root.val]--;
     }
 
-    private boolean isPseudoPalindromicPath(int[] pathFrequency) {
-        int oddFrequencyCount = 0; // Track the number of digits with odd occurrences
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
+    }
 
-        // Iterate through frequency array to count odd occurrences
-        for (int i = 1; i <= 9; i++) {
-            if (pathFrequency[i] % 2 != 0) {
-                oddFrequencyCount++;
+    private boolean isPalindromicPath(int[] frequencyArray) {
+        int oddFreqCount = 0;
+        // A path is pseudo-palindromic if at most one digit has an odd frequency
+        for (int num = 1; num <= 9; num++) {
+            if (frequencyArray[num] % 2 != 0) {
+                oddFreqCount++;
+                if (oddFreqCount > 1) {
+                    return false;
+                }
             }
         }
 
-        // A path is pseudo-palindromic if at most one digit has an odd frequency
-        return oddFrequencyCount <= 1;
+        return true;
     }
 }
 
