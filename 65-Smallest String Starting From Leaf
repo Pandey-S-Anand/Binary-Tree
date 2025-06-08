@@ -14,95 +14,46 @@
  * }
  */
 
-//Bruteforce approach
-
 class Solution {
-    private List<String> paths; // Stores all possible leaf-to-root paths as strings
+    private String smallestPath;
 
     public String smallestFromLeaf(TreeNode root) {
-        paths = new ArrayList<>();
-        getAllPaths(root, new StringBuilder()); // Generate all leaf-to-root paths
-        return findLexicographicallySmallest(paths); // Find the smallest path lexicographically
-    }
-
-    private void getAllPaths(TreeNode root, StringBuilder currentPath) {
-        if (root == null) {
-            return; // Base case: if the node is null, return
-        }
-
-        // Append current node's character representation to path
-        currentPath.append((char) (root.val + 'a'));
-
-        // If it's a leaf node, store the reversed path (since we need leaf-to-root order)
-        if (root.left == null && root.right == null) {
-            String leafToRootPath = currentPath.reverse().toString(); // Reverse to get leaf-to-root
-            paths.add(leafToRootPath);
-            currentPath.reverse(); // Revert the reversal to maintain correct path for backtracking
-            currentPath.setLength(currentPath.length() - 1); // Backtrack: Remove the current node from the path before returning to the previous level
-            return;
-        }
-
-        // Recur for left and right subtrees
-        getAllPaths(root.left, currentPath);
-        getAllPaths(root.right, currentPath);
-
-        // Backtrack: Remove the current node from the path before returning to the previous level
-        currentPath.setLength(currentPath.length() - 1);
-    }
-
-    private String findLexicographicallySmallest(List<String> paths) {
-        if (paths.isEmpty()) {
-            return ""; // Handle edge case where no paths are found
-        }
-
-        String smallest = paths.get(0); // Assume the first string is the smallest
-
-        // Iterate through all paths to find the smallest lexicographically
-        for (int i = 1; i < paths.size(); i++) {
-            if (paths.get(i).compareTo(smallest) < 0) { // If current path is smaller
-                smallest = paths.get(i); // Update the smallest path
-            }
-        }
-
-        return smallest; // Return the smallest lexicographical path
-    }
-}
-
-
-//Optimal approach
-
-class Solution {
-    private String smallestPath; // Stores the lexicographically smallest leaf-to-root path
-
-    public String smallestFromLeaf(TreeNode root) {
-        smallestPath = null; // Initialize smallestPath as null to track the smallest path
-        getAllPaths(root, new StringBuilder());
+        smallestPath = null;
+        // Performs DFS traversal to build all leaf-to-root paths and track the smallest one
+        findLexicographicallySmallestPath(root, new StringBuilder());
         return smallestPath;
     }
 
-    private void getAllPaths(TreeNode root, StringBuilder currentPath) {
+    private void findLexicographicallySmallestPath(TreeNode root, StringBuilder currentPath) {
         if (root == null) {
             return;
         }
 
+        // Append current node's character (root-to-leaf direction)
         currentPath.append((char) (root.val + 'a'));
 
-        if (root.left == null && root.right == null) {
+        if (isLeafNode(root)) {
+            // At a leaf, reverse the path to get leaf-to-root order
             String leafToRootPath = currentPath.reverse().toString();
 
-            // Update smallestPath if it's null or the new path is smaller lexicographically
+            // Update smallestPath if this one is lexicographically smaller
             if (smallestPath == null || leafToRootPath.compareTo(smallestPath) < 0) {
                 smallestPath = leafToRootPath;
             }
 
+            // Reverse back to original state for correct backtracking
             currentPath.reverse();
-            currentPath.setLength(currentPath.length() - 1);
-            return;
         }
 
-        getAllPaths(root.left, currentPath);
-        getAllPaths(root.right, currentPath);
+        // Continue DFS on left and right children
+        findLexicographicallySmallestPath(root.left, currentPath);
+        findLexicographicallySmallestPath(root.right, currentPath);
 
+        // Backtrack: remove the last added character before returning to the parent
         currentPath.setLength(currentPath.length() - 1);
+    }
+
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
     }
 }
