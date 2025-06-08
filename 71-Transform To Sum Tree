@@ -12,7 +12,7 @@ class Node{
 }*/
 
 class Solution {
-    public void convertToSumTree(Node root) {
+    public void toSumTree(Node root) {
         calculateSumTree(root);
     }
     
@@ -30,6 +30,6 @@ class Solution {
         root.data = leftSum + rightSum;
         
         // Return the total sum (including the original value of the node)
-        return leftSum + rightSum + originalValue;
+        return root.data + originalValue;
     }
 }
