@@ -54,7 +54,15 @@ class Solution {
         collectLeafNodes(node.right);
     }
 
-    // Step 2: Find the LCA of two nodes
+    // Step 2: Find the distance between two nodes
+    private int findDistance(TreeNode root, TreeNode node1, TreeNode node2) {
+        TreeNode lca = findLCA(root, node1, node2);
+        int distance1 = findDepth(lca, node1, 0);
+        int distance2 = findDepth(lca, node2, 0);
+        return distance1 + distance2;
+    }
+
+    // Step 3: Find the LCA of two nodes
     private TreeNode findLCA(TreeNode root, TreeNode node1, TreeNode node2) {
         if (root == null) {
             return null;
@@ -80,14 +88,6 @@ class Solution {
         }
 
         return null;
-    }
-
-    // Step 3: Find the distance between two nodes
-    private int findDistance(TreeNode root, TreeNode node1, TreeNode node2) {
-        TreeNode lca = findLCA(root, node1, node2);
-        int distance1 = findDepth(lca, node1, 0);
-        int distance2 = findDepth(lca, node2, 0);
-        return distance1 + distance2;
     }
 
     // Step 4: Find the depth of a target node from the given root
@@ -116,90 +116,88 @@ class Solution {
 }
 
 
-//Improved approach
+//Better approach
 
 class Solution {
-    private Map<TreeNode, TreeNode> parentMap; // Stores the parent of each node
-    private List<TreeNode> leafNodes; // Stores all leaf nodes
+    private Map<TreeNode, TreeNode> parentMap; // Maps each node to its parent for upward traversal
+    private Set<TreeNode> leafNodes; // Stores all leaf nodes of the tree
 
     public int countPairs(TreeNode root, int distance) {
-        leafNodes = new ArrayList<>();
+        leafNodes = new HashSet<>();
         parentMap = new HashMap<>();
-
-        // Step 1: Populate the parent map and collect leaf nodes using DFS
-        collectLeafNodes(root, null);
-
         int count = 0;
 
-        // Step 2: Compare every pair of leaf nodes using BFS to find distance
-        for (int i = 0; i < leafNodes.size(); i++) {
-            for (int j = i + 1; j < leafNodes.size(); j++) {
-                TreeNode leaf1 = leafNodes.get(i);
-                TreeNode leaf2 = leafNodes.get(j);
+        // Step 1: Populate parentMap and collect all leaf nodes by DFS traversal
+        collectLeafNodesAndBuildParentMap(root, null);
 
-                // Step 3: Use BFS to calculate the shortest distance between the two leaves
-                if (findDistanceBFS(leaf1, leaf2) <= distance) {
-                    count++; // Count valid pairs
-                }
-            }
+        /*
+         * Step 2: For each leaf node, run BFS to find all other leaf nodes within
+         * the specified distance.
+         * Note: Since pairs are bidirectional (leaf1->leaf2 and leaf2->leaf1),
+         * each pair will be counted twice. Hence, divide final count by 2.
+         */
+        for (TreeNode leafNode : leafNodes) {
+            count += findDistanceBFS(leafNode, distance);
         }
 
-        return count; // Return the total count of good leaf node pairs
+        return count / 2; // Return the unique number of leaf pairs within distance
     }
 
-    private void collectLeafNodes(TreeNode node, TreeNode parent) {
+    private void collectLeafNodesAndBuildParentMap(TreeNode node, TreeNode parent) {
         if (node == null) {
             return;
         }
 
-        // Store the parent of the current node
+        // Map the current node to its parent for upward traversal in BFS later
         parentMap.put(node, parent);
 
-        // If the node is a leaf (both left and right children are null), add to the leaf list
-        if (node.left == null && node.right == null) {
+        // If current node is a leaf, add it to the leafNodes set
+        if (isLeafNode(node)) {
             leafNodes.add(node);
         }
 
-        // Recursively traverse left and right subtrees
-        collectLeafNodes(node.left, node);
-        collectLeafNodes(node.right, node);
+        // Recursively process left and right children
+        collectLeafNodesAndBuildParentMap(node.left, node);
+        collectLeafNodesAndBuildParentMap(node.right, node);
     }
 
-    private int findDistanceBFS(TreeNode node1, TreeNode node2) {
-        Set<TreeNode> visited = new HashSet<>(); // Keep track of visited nodes to prevent cycles
-        Queue<TreeNode> queue = new ArrayDeque<>(); // Queue for BFS traversal
+    private int findDistanceBFS(TreeNode leafNode, int maxDistance) {
+        Set<TreeNode> visited = new HashSet<>(); // To avoid revisiting nodes
+        Queue<TreeNode> queue = new ArrayDeque<>(); // BFS queue
 
-        // Start BFS from node1
-        queue.add(node1);
-        visited.add(node1);
+        // Initialize BFS with starting leaf node
+        queue.add(leafNode);
+        visited.add(leafNode);
 
-        int distance = 0; // Track the number of levels traversed
+        int distance = 0; // Current BFS level distance from starting leaf node
+        int count = 0; // Count of leaf nodes within maxDistance (excluding starting node)
 
-        while (!queue.isEmpty()) {
+        // Continue BFS while queue is not empty and within maxDistance
+        while (!queue.isEmpty() && distance <= maxDistance) {
             int size = queue.size();
 
-            // Process all nodes at the current level
-            for (int i = 0; i < size; i++) {
+            // Process all nodes at the current BFS level
+            while (size-- > 0) {
                 TreeNode currentNode = queue.poll();
 
-                // If we reached node2, return the distance
-                if (currentNode == node2) {
-                    return distance;
+                // If current node is a different leaf node within allowed distance, increment count
+                if (leafNode != currentNode && leafNodes.contains(currentNode)) {
+                    count++;
                 }
 
-                // Add the left child to the queue if not visited
+                // Add left child to queue if not visited
                 if (currentNode.left != null && !visited.contains(currentNode.left)) {
                     queue.add(currentNode.left);
                     visited.add(currentNode.left);
                 }
 
-                // Add the right child to the queue if not visited
+                // Add right child to queue if not visited
                 if (currentNode.right != null && !visited.contains(currentNode.right)) {
                     queue.add(currentNode.right);
                     visited.add(currentNode.right);
                 }
 
-                // Move up to the parent node if not visited
+                // Add parent node to queue if not visited (to allow upward traversal)
                 TreeNode parent = parentMap.get(currentNode);
                 if (parent != null && !visited.contains(parent)) {
                     queue.add(parent);
@@ -207,104 +205,25 @@ class Solution {
                 }
             }
 
-            distance++; // Increment distance after processing one level
+            distance++; // Increment distance after processing one BFS level
         }
 
-        return -1; // This case should never happen, as both nodes exist in the tree
+        return count; // Return number of leaf nodes found within maxDistance from leafNode
+    }
+
+    private boolean isLeafNode(TreeNode node) {
+        return node.left == null && node.right == null;
     }
 }
 
-
-//Better approach
-
-class Solution {
-    private Map<TreeNode, TreeNode> parentMap;
-    private Set<TreeNode> leafNodes;
-
-    public int countPairs(TreeNode root, int distance) {
-        leafNodes = new HashSet<>();
-        parentMap = new HashMap<>();
-        int count = 0;
-
-        collectLeafNodes(root, null);
-        /*
-         * For each leaf node, perform a BFS to find all other leaves within the given distance.
-         * Since the distance from leafNode1 to leafNode2 is the same as from leafNode2 to leafNode1,
-         * each valid pair is counted twice. Therefore, we divide the final count by 2.
-         */
-        for (TreeNode leafNode : leafNodes) {
-            count += findDistanceBFS(leafNode, distance);
-        }
-
-        return count / 2;
-    }
-
-    private void collectLeafNodes(TreeNode node, TreeNode parent) {
-        if (node == null) {
-            return;
-        }
-
-        parentMap.put(node, parent);
-
-        if (node.left == null && node.right == null) {
-            leafNodes.add(node);
-        }
-
-        collectLeafNodes(node.left, node);
-        collectLeafNodes(node.right, node);
-    }
-
-    private int findDistanceBFS(TreeNode root, int maxDistance) {
-        Set<TreeNode> visited = new HashSet<>();
-        Queue<TreeNode> queue = new ArrayDeque<>();
-
-        queue.add(root);
-        visited.add(root);
-
-        int distance = 0;
-        int count = 0;
-
-        while (!queue.isEmpty()) {
-            int size = queue.size();
-
-            for (int i = 0; i < size; i++) {
-                TreeNode node = queue.poll();
-
-                // If we find another leaf node within the max distance, count it
-                if (node != root && leafNodes.contains(node) && distance <= maxDistance) {
-                    count++;
-                }
-
-                if (node.left != null && !visited.contains(node.left)) {
-                    queue.add(node.left);
-                    visited.add(node.left);
-                }
-
-                if (node.right != null && !visited.contains(node.right)) {
-                    queue.add(node.right);
-                    visited.add(node.right);
-                }
-
-                TreeNode parent = parentMap.get(node);
-                if (parent != null && !visited.contains(parent)) {
-                    queue.add(parent);
-                    visited.add(parent);
-                }
-            }
-
-            distance++;
-        }
-
-        return count;
-    }
-}
 
 
 //Optimal approach
 
-//Naive implementation
+//Intuitive implementation
 
 class Solution {
+    // To count valid leaf node pairs
     private int count = 0;
 
     public int countPairs(TreeNode root, int distance) {
@@ -321,21 +240,23 @@ class Solution {
         if (node.left == null && node.right == null) {
             return Collections.singletonList(1); // Leaf at distance 1 from its parent
         }
-
         /*
-         * leftLeafDistances: the size of this list indicates the number of leaf nodes in the left subtree,
+         * leftSubtreeLeavesDistance: the size of this list indicates the number of leaf nodes in the left subtree,
          * and the value at each index represents the distance of each leaf node from the current node.
          */
-        List<Integer> leftLeafDistances = dfs(node.left, distance);
+        // Recursively get distances of leaves from left subtree
+        List<Integer> leftSubtreeLeavesDistance = dfs(node.left, distance);
         /*
-         * rightLeafDistances: the size of this list indicates the number of leaf nodes in the right subtree,
+         * rightSubtreeLeavesDistance: the size of this list indicates the number of leaf nodes in the right subtree,
          * and the value at each index represents the distance of each leaf node from the current node.
          */
-        List<Integer> rightLeafDistances = dfs(node.right, distance);
+        // Recursively get distances of leaves from right subtree
+        List<Integer> rightSubtreeLeavesDistance = dfs(node.right, distance);
 
-        // Count good leaf pairs
-        for (int leftDistance : leftLeafDistances) {
-            for (int rightDistance : rightLeafDistances) {
+        // Check pairs formed by one leaf in left subtree and one in right subtree
+        for (int leftDistance : leftSubtreeLeavesDistance) {
+            for (int rightDistance : rightSubtreeLeavesDistance) {
+                // If combined distance is within limit, increment count
                 if (leftDistance + rightDistance <= distance) {
                     count++; // Valid pair of leaf nodes
                 }
@@ -344,64 +265,19 @@ class Solution {
 
         // Prepare and return updated distances to parent (increment each by 1)
         List<Integer> distancesToParent = new ArrayList<>();
-
-        for (int leftDistance : leftLeafDistances) {
-            distancesToParent.add(leftDistance + 1);
-        }
-
-        for (int rightDistance : rightLeafDistances) {
-            distancesToParent.add(rightDistance + 1);
-        }
-
-        return distancesToParent;
-    }
-}
-
-
-//Better implementation
-
-class Solution {
-    private int count = 0;
-
-    public int countPairs(TreeNode root, int distance) {
-        dfs(root, distance);
-        return count;
-    }
-
-    private List<Integer> dfs(TreeNode node, int distance) {
-        if (node == null) {
-            return Collections.emptyList();
-        }
-
-        if (node.left == null && node.right == null) {
-            return Collections.singletonList(1);
-        }
-
-        List<Integer> leftLeafDistances = dfs(node.left, distance);
-        List<Integer> rightLeafDistances = dfs(node.right, distance);
-
-        for (int leftDistance : leftLeafDistances) {
-            for (int rightDistance : rightLeafDistances) {
-                if (leftDistance + rightDistance <= distance) {
-                    count++;
-                }
-            }
-        }
-
-        List<Integer> distancesToParent = new ArrayList<>();
         /*
          * Optimization: Only add leaf distances < 'distance' to avoid unnecessary computation.
          * Since we are only interested in leaf nodes that can form valid pairs,
          * discarding distances greater than equal to 'distance' prevents unnecessary processing in higher recursive calls.
          */
-        for (int leftDistance : leftLeafDistances) {
-            if (leftDistance < distance) {
+        for (int leftDistance : leftSubtreeLeavesDistance) {
+            if (leftDistance + 1 <= distance) {
                 distancesToParent.add(leftDistance + 1);
             }
         }
 
-        for (int rightDistance : rightLeafDistances) {
-            if (rightDistance < distance) {
+        for (int rightDistance : rightSubtreeLeavesDistance) {
+            if (rightDistance + 1 <= distance) {
                 distancesToParent.add(rightDistance + 1);
             }
         }
