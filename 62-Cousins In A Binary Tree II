@@ -14,94 +14,49 @@
  * }
  */
 
-//Naive implementation
-
 class Solution {
     public TreeNode replaceValueInTree(TreeNode root) {
         Queue<TreeNode> queue = new LinkedList<>();
         queue.offer(root);
 
-        // Map to store the sum of children's values for each parent node
-        Map<TreeNode, Integer> parentSum = new HashMap<>();
-
-        root.val = 0; // The root has no cousins, so its value is set to 0.
-
-        while (!queue.isEmpty()) {
-            int size = queue.size();
-            int levelSum = 0; // Sum of all nodes' children at the current level
-
-            // First pass: Compute the sum of children for each parent in the level
-            for (int i = 0; i < size; i++) {
-                TreeNode node = queue.poll();
-                int siblingSum = 0; // Stores the sum of current node's children values
-
-                if (node.left != null) {
-                    siblingSum += node.left.val;
-                    queue.offer(node.left);
-                }
-
-                if (node.right != null) {
-                    siblingSum += node.right.val;
-                    queue.offer(node.right);
-                }
-
-                parentSum.put(node, siblingSum);
-                levelSum += siblingSum; // Add to the total level sum
-            }
-
-            // Second pass: Update each node's children's values to the sum of their cousins' values
-            for (TreeNode node : parentSum.keySet()) {
-                int siblingSum = parentSum.get(node);
-
-                // Cousin sum for a node = total level sum - sibling sum
-                if (node.left != null) {
-                    node.left.val = levelSum - siblingSum;
-                }
-                if (node.right != null) {
-                    node.right.val = levelSum - siblingSum;
-                }
-            }
-
-            parentSum.clear(); // Clear the map before moving to the next level
-        }
-        return root;
-    }
-}
-
-
-//Optimal implementation
-
-class Solution {
-    public TreeNode replaceValueInTree(TreeNode root) {
-        Queue<TreeNode> queue = new LinkedList<>();
-        queue.offer(root);
-
-        List<TreeNode> currentLevel = new ArrayList<>();
-
+        // The root's value is set to 0 since it has no cousins
         root.val = 0;
 
+        // List to keep track of all nodes at the current level
+        List<TreeNode> currentLevel = new ArrayList<>();
+
+        // BFS traversal level by level
         while (!queue.isEmpty()) {
             int size = queue.size();
             int levelSum = 0;
 
+            // Step 1: Calculate sum of all nodes at the next level (level x + 1), i.e., children of the nodes at current level x
             for (int i = 0; i < size; i++) {
                 TreeNode node = queue.poll();
                 currentLevel.add(node);
 
+                // Add left child's value to levelSum if it exists and enqueue it for processing at the next level
                 if (node.left != null) {
                     levelSum += node.left.val;
                     queue.offer(node.left);
                 }
 
+                // Add right child's value to levelSum if it exists and enqueue it for processing at the next level
                 if (node.right != null) {
                     levelSum += node.right.val;
                     queue.offer(node.right);
                 }
             }
 
+            /* 
+             Step 2: For each node at the current level (level x),
+             update the values of its children (nodes at level x + 1)
+             by replacing each child's value with (levelSum of level = x + 1) minus the sum of that child's siblings.
+            */
             for (TreeNode node : currentLevel) {
                 int siblingSum = 0;
 
+                // Calculate sum of siblings (children of the same parent)
                 if (node.left != null) {
                     siblingSum += node.left.val;
                 }
@@ -109,14 +64,17 @@ class Solution {
                     siblingSum += node.right.val;
                 }
 
+                // Replace child value with cousin sum: total level sum minus siblings sum
                 if (node.left != null) {
                     node.left.val = levelSum - siblingSum;
                 }
+
                 if (node.right != null) {
                     node.right.val = levelSum - siblingSum;
                 }
             }
 
+            // Clear current level list to prepare for the next iteration
             currentLevel.clear();
         }
         return root;
