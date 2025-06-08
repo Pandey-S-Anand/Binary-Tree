@@ -14,89 +14,33 @@
  * }
  */
 
-//Using BFS
-
-//Naive implementation
-
 class Solution {
     public boolean isEvenOddTree(TreeNode root) {
-        boolean isEven = true; // Flag to track even-indexed or odd-indexed level
-        List<Integer> levelValues = new ArrayList<>(); // Stores values at each level for ordering checks
+        boolean isEven = true; // Indicates whether the current level is even-indexed
         Queue<TreeNode> queue = new ArrayDeque<>();
         queue.offer(root);
 
         while (!queue.isEmpty()) {
-            int size = queue.size(); // Number of nodes at the current level
-
-            for (int i = 0; i < size; i++) {
-                TreeNode node = queue.poll();
-
-                /*
-                 * Condition 1: Even-indexed levels (0-based) must have **odd** values
-                 * Condition 2: Odd-indexed levels must have **even** values
-                 */
-                if ((isEven && node.val % 2 == 0) || (!isEven && node.val % 2 != 0)) {
-                    return false; // If condition is violated, return false
-                }
-
-                levelValues.add(node.val); // Store the node value for later ordering checks
-
-                if (node.left != null) {
-                    queue.offer(node.left);
-                }
-
-                if (node.right != null) {
-                    queue.offer(node.right);
-                }
-            }
-
-            // Check the ordering constraints for the current level
-            for (int i = 1; i < levelValues.size(); i++) {
-                // Even-indexed levels must be strictly increasing
-                if (isEven && levelValues.get(i - 1) >= levelValues.get(i)) {
-                    return false;
-                }
-
-                // Odd-indexed levels must be strictly decreasing
-                if (!isEven && levelValues.get(i - 1) <= levelValues.get(i)) {
-                    return false;
-                }
-            }
-
-            levelValues.clear(); // Clear the list for the next level
-            isEven = !isEven; // Toggle level type (even → odd, odd → even)
-        }
-
-        return true; // If all levels satisfy conditions, return true
-    }
-}
-
-
-//Optimal implementation
-
-class Solution {
-    public boolean isEvenOddTree(TreeNode root) {
-        boolean isEven = true; // Flag to track even-indexed or odd-indexed level
-        Queue<TreeNode> queue = new ArrayDeque<>(); 
-        queue.offer(root);
-        
-        while (!queue.isEmpty()) {
             int size = queue.size();
-            int previous = -1; // Stores the previous node's value to enforce order constraints; the first element of the level has no previous node for comparison
+            int previous = isEven ? Integer.MIN_VALUE : Integer.MAX_VALUE; // For order validation
 
-            for (int i = 0; i < size; i++) {
+            while (size-- > 0) {
                 TreeNode node = queue.poll();
 
-                // Even-indexed levels must contain only odd values, in strictly increasing order
-                if (isEven && ((node.val % 2 == 0) || (previous != -1 && previous >= node.val))) {
-                    return false;
+                int value = node.val;
+
+                // Even level: values must be odd and strictly increasing
+                if (isEven) {
+                    if (value % 2 == 0 || value <= previous) {
+                        return false;
+                    }
+                } else {  // Odd level: values must be even and strictly decreasing
+                    if (value % 2 != 0 || value >= previous) {
+                        return false;
+                    }
                 }
 
-                // Odd-indexed levels must contain only even values, in strictly decreasing order
-                if (!isEven && ((node.val % 2 != 0) || (previous != -1 && previous <= node.val))) {
-                    return false;
-                }
-
+                // Enqueue child nodes for next level
                 if (node.left != null) {
                     queue.offer(node.left);
                 }
@@ -105,52 +49,14 @@ class Solution {
                     queue.offer(node.right);
                 }
 
-                // Update previous value for the next iteration in the level
-                previous = node.val;
+                // Update previous for next value comparison
+                previous = value;
             }
 
-            // Toggle level type (even → odd, odd → even)
+            // Toggle level flag for next iteration
             isEven = !isEven;
         }
 
-        return true; // If all levels satisfy conditions, return true
-    }
-}
-
-
-//Using DFS
-
-class Solution {
-    private Map<Integer, Integer> previousValues; // Stores the last processed value for each level
-
-    public boolean isEvenOddTree(TreeNode root) {
-        previousValues = new HashMap<>(); // Initialize map to track previous values per level
-        return dfs(root, 0); // Start DFS traversal from root at level 0
-    }
-
-    private boolean dfs(TreeNode node, int level) {
-        if (node == null) {
-            return true;
-        }
-
-        // Even-indexed levels: Values must be odd and strictly increasing
-        if (level % 2 == 0) {
-            if (node.val % 2 == 0 || (previousValues.containsKey(level) && previousValues.get(level) >= node.val)) {
-                return false; // Condition violated
-            }
-        } 
-        // Odd-indexed levels: Values must be even and strictly decreasing
-        else {
-            if (node.val % 2 != 0 || 
-                (previousValues.containsKey(level) && previousValues.get(level) <= node.val)) {
-                return false; // Condition violated
-            }
-        }
-
-        // Update the last seen value for the current level
-        previousValues.put(level, node.val);
-
-        // Recursively check left and right subtrees at the next level
-        return dfs(node.left, level + 1) && dfs(node.right, level + 1);
+        return true; // All levels satisfy even-odd constraints
     }
 }
