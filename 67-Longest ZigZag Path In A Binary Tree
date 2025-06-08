@@ -20,10 +20,10 @@ class Solution {
     private int maxZigZag = 0; // Stores the maximum ZigZag length found
 
     public int longestZigZag(TreeNode root) {
-        // Start a new ZigZag path from the root by moving to the left child
+        // Start a new ZigZag path from the root by moving to the left child (Zigzag length is defined as the number of nodes visited - 1)
         dfs(root.left, 1, true);
 
-        // Start a new ZigZag path from the root by moving to the right child
+        // Start a new ZigZag path from the root by moving to the right child (Zigzag length is defined as the number of nodes visited - 1)
         dfs(root.right, 1, false);
 
         return maxZigZag; // Return the longest ZigZag path found
@@ -39,7 +39,7 @@ class Solution {
 
         // Start a new ZigZag path from the current node by moving to the left child
         dfs(node.left, 1, true);
-        
+
         // Start a new ZigZag path from the current node by moving to the right child
         dfs(node.right, 1, false);
 
@@ -73,10 +73,10 @@ class Solution {
     private int maxZigZag = 0; // Variable to store the maximum ZigZag length found
 
     public int longestZigZag(TreeNode root) {
-        // Start a new ZigZag path from the root's left child, moving left
+        // Start a new ZigZag path from the root by moving to the left child (Zigzag length is defined as the number of nodes visited - 1)
         dfs(root.left, 1, true);
 
-        // Start a new ZigZag path from the root's right child, moving right
+        // Start a new ZigZag path from the root by moving to the right child (Zigzag length is defined as the number of nodes visited - 1)
         dfs(root.right, 1, false);
 
         // Return the longest ZigZag length found
